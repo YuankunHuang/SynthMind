@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System;
-using Logger = YuankunHuang.Unity.Core.Logger;
+using LogHelper = YuankunHuang.Unity.Core.LogHelper;
 
 namespace YuankunHuang.Unity.Util
 {
@@ -46,7 +46,7 @@ namespace YuankunHuang.Unity.Util
                 case 12:
                     return "December";
                 default:
-                    Logger.LogError($"Invalid month: {month}");
+                    LogHelper.LogError($"Invalid month: {month}");
                     return "";
             }
         }

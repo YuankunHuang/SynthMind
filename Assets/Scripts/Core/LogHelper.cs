@@ -6,13 +6,13 @@ using System;
 namespace YuankunHuang.Unity.Core
 {
     /// @ingroup Core
-    /// @class Logger
+    /// @class LogHelper
     /// @brief Provides static methods for logging messages, warnings, errors, and exceptions with additional context (frame count and time).
     /// 
-    /// The `Logger` class is a utility class designed to simplify logging within the game. It provides static methods for logging
+    /// The `LogHelper` class is a utility class designed to simplify logging within the game. It provides static methods for logging
     /// messages, warnings, errors, and exceptions to the Unity console. Each log entry includes additional context, such as the 
     /// current frame count and time, to help with debugging.
-    public static class Logger
+    public static class LogHelper
     {
         /// <summary>
         /// Logs a message to the Unity console.

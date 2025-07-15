@@ -2,9 +2,9 @@ namespace YuankunHuang.Unity.Core
 {
     public class EventKeys
     {
-        public const int EventInt = 1;
-        public const int EventBool = 2;
-        public const int EventString = 3;
-        public const int EventObj = 4;
+        public static readonly int EventInt = 1;
+        public static readonly int EventBool = 2;
+        public static readonly int EventString = 3;
+        public static readonly int EventObj = 4;
     }
 }

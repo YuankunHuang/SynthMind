@@ -4,7 +4,7 @@ using UnityEngine;
 using System;
 using System.IO;
 using System.IO.Compression;
-using Logger = YuankunHuang.Unity.Core.Logger;
+using LogHelper = YuankunHuang.Unity.Core.LogHelper;
 
 namespace YuankunHuang.Unity.Util
 {
@@ -26,7 +26,7 @@ namespace YuankunHuang.Unity.Util
         {
             if (sourceDirectories == null || sourceDirectories.Length < 1)
             {
-                Logger.LogError($"No source directories");
+                LogHelper.LogError($"No source directories");
                 return false;
             }
 
@@ -76,12 +76,12 @@ namespace YuankunHuang.Unity.Util
                 }
 
                 ZipFile.CreateFromDirectory(tempDirectoryPath, destinationZipFilePath);
-                Logger.Log("Directory zipped successfully: " + destinationZipFilePath);
+                LogHelper.Log("Directory zipped successfully: " + destinationZipFilePath);
                 return true;
             }
             catch (Exception ex)
             {
-                Logger.LogException(ex);
+                LogHelper.LogException(ex);
             }
             finally
             {

@@ -1,5 +1,5 @@
 public static class Namespaces
 {
-    public const string Core = "YuankunHuang.Unity.Core";
-    public const string HotUpdate = "YuankunHuang.Unity.HotUpdate";
+    public static readonly string Core = "YuankunHuang.Unity.Core";
+    public static readonly string HotUpdate = "YuankunHuang.Unity.HotUpdate";
 }

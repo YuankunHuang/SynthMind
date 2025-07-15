@@ -5,12 +5,11 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
+using UnityEngine.ResourceManagement.ResourceProviders;
 using YuankunHuang.Unity.Util;
-using static UnityEngine.EventSystems.EventTrigger;
 
 namespace YuankunHuang.Unity.Core
 {
-    public interface IWindowData { }
     public enum WindowShowState
     {
         New,
@@ -29,7 +28,7 @@ namespace YuankunHuang.Unity.Core
 
         public void Init(WindowStackEntry entry)
         {
-            Logger.Log($"[WindowControllerBase]::Init: {entry.WindowName}");
+            LogHelper.Log($"[WindowControllerBase]::Init: {entry.WindowName}");
 
             WindowName = entry.WindowName;
             Config = entry.Handle.Result.GetComponent<GeneralWindowConfig>();
@@ -38,24 +37,24 @@ namespace YuankunHuang.Unity.Core
         }
         public void Show(IWindowData data, WindowShowState state)
         {
-            Logger.Log($"[WindowControllerBase]::Show: {WindowName}");
+            LogHelper.Log($"[WindowControllerBase]::Show: {WindowName}");
             OnShow(data, state);
         }
         public void Hide(WindowHideState state)
         {
-            Logger.Log($"[WindowControllerBase]::Hide: {WindowName}");
+            LogHelper.Log($"[WindowControllerBase]::Hide: {WindowName}");
             OnHide(state);
         }
         public void Dispose()
         {
-            Logger.Log($"[WindowControllerBase]::Dispose: {WindowName}");
+            LogHelper.Log($"[WindowControllerBase]::Dispose: {WindowName}");
             OnDispose();
         }
 
-        public virtual void OnInit() { }
-        public virtual void OnShow(IWindowData data, WindowShowState state) { }
-        public virtual void OnHide(WindowHideState state) { }
-        public virtual void OnDispose() { }
+        protected virtual void OnInit() { }
+        protected virtual void OnShow(IWindowData data, WindowShowState state) { }
+        protected virtual void OnHide(WindowHideState state) { }
+        protected virtual void OnDispose() { }
     }
 
     public struct WindowStackEntry
@@ -78,31 +77,28 @@ namespace YuankunHuang.Unity.Core
     {
         private readonly Stack<WindowStackEntry> _windowStack = new();
 
+        public Transform StackableRoot
+        {
+            get
+            {
+                if (_stackableRoot == null)
+                {
+                    _stackableRoot = GameObject.FindGameObjectWithTag(TagNames.StackableRoot).transform;
+                }
+                return _stackableRoot;
+            }
+        }
+        private Transform _stackableRoot;
+
+        #region Interfaces
         public void ShowStackableWindow(string windowName, IWindowData data = null)
         {
             ShowStackableWindowAsync(windowName, data).GetAwaiter().GetResult();
         }
 
-        private async Task ShowStackableWindowAsync(string windowName, IWindowData data = null)
+        public WindowStackEntry? GetWindowOnTop()
         {
-            var (controller, handle) = await CreateWindowController(windowName);
-            if (controller == null)
-            {
-                return;
-            }
-
-            // hide top window
-            if (_windowStack.Count > 0)
-            {
-                var top = _windowStack.Peek();
-                top.Controller.Hide(WindowHideState.Covered);
-            }
-
-            // show new window
-            var entry = new WindowStackEntry(windowName, controller, data, handle);
-            controller.Init(entry);
-            controller.Show(data, WindowShowState.New);
-            _windowStack.Push(entry);
+            return _windowStack.Count > 0 ? _windowStack.Peek() : null;
         }
 
         public bool IsWindowInStack(string windowName)
@@ -118,16 +114,11 @@ namespace YuankunHuang.Unity.Core
             return false;
         }
 
-        public WindowStackEntry? GetWindowOnTop()
-        {
-            return _windowStack.Count > 0 ? _windowStack.Peek() : null;
-        }
-
         public void GoBack()
         {
             if (_windowStack.Count < 1)
             {
-                Logger.LogError($"[UIManager]::GoBack: Cannot go back when there is no window in stack.");
+                LogHelper.LogError($"[UIManager]::GoBack: Cannot go back when there is no window in stack.");
                 return;
             }
 
@@ -151,7 +142,7 @@ namespace YuankunHuang.Unity.Core
         {
             if (_windowStack.Count < 1)
             {
-                Logger.LogError($"[UIManager]::GoBackTo: No window in stack.");
+                LogHelper.LogError($"[UIManager]::GoBackTo: No window in stack.");
                 return;
             }
 
@@ -167,7 +158,7 @@ namespace YuankunHuang.Unity.Core
 
             if (!found)
             {
-                Logger.LogError($"[UIManager]::GoBackTo: Target window not found in stack: {windowName}");
+                LogHelper.LogError($"[UIManager]::GoBackTo: Target window not found in stack: {windowName}");
                 return;
             }
 
@@ -185,15 +176,45 @@ namespace YuankunHuang.Unity.Core
                 entry.Controller.Dispose();
             }
         }
+        #endregion
 
-        private async Task<AsyncOperationHandle<GameObject>> LoadStackableWindowPrefabAsync(string windowName)
+        private async Task ShowStackableWindowAsync(string windowName, IWindowData data = null)
         {
-            var key = string.Format(AddressablePaths.StackableWindow, windowName);
+            var (controller, handle) = await CreateWindowController(windowName);
+            if (controller == null)
+            {
+                return;
+            }
+
+            // hide top window
+            if (_windowStack.Count > 0)
+            {
+                var top = _windowStack.Peek();
+                top.Controller.Hide(WindowHideState.Covered);
+            }
+
+            // show new window
+            var entry = new WindowStackEntry(windowName, controller, data, handle);
+            controller.Init(entry);
+            controller.Show(data, WindowShowState.New);
+            _windowStack.Push(entry);
+        }
+
+        private async Task<AsyncOperationHandle<GameObject>> LoadStackableWindowPrefabAsync(string windowName, float timeoutSeconds = 10f)
+        {
+            var key = string.Format(AddressablePaths.StackableWindow, windowName, windowName);
+
+            LogHelper.LogError($"1 key: {key}");
+
             var handle = Addressables.LoadAssetAsync<GameObject>(key);
             await handle.Task;
+
+            LogHelper.LogError($"2 handle.Status: {handle.Status}");
+
             if (handle.Status != AsyncOperationStatus.Succeeded)
             {
-                Logger.LogError($"[UIManager]::LoadStackableWindowPrefabAsync: Failed to load prefab: {key}");
+                LogHelper.LogError($"[UIManager]::LoadStackableWindowPrefabAsync: Failed to load prefab: {key}, Exception: {handle.OperationException}");
+                Addressables.Release(handle);
                 return default;
             }
 
@@ -208,20 +229,21 @@ namespace YuankunHuang.Unity.Core
             {
                 return (null, default);
             }
-            var windowGO = GameObject.Instantiate(handle.Result);
+            var windowGO = GameObject.Instantiate(handle.Result, _stackableRoot);
+            windowGO.transform.SetAsLastSibling();
 
             // 2. create window controller
             var controllerTypeName = $"{Namespaces.HotUpdate}.{windowName}Controller";
             var controllerType = TypeUtil.GetType(controllerTypeName);
             if (controllerType == null)
             {
-                Logger.LogError($"[UIManager]::CreateWindowController: Controller type not found: {controllerTypeName}");
+                LogHelper.LogError($"[UIManager]::CreateWindowController: Controller type not found: {controllerTypeName}");
                 return (null, default);
             }
             var controller = Activator.CreateInstance(controllerType) as WindowControllerBase;
             if (controller == null)
             {
-                Logger.LogError($"[UIManager]::CreateWindowController: Failed to create controller: {controllerTypeName}");
+                LogHelper.LogError($"[UIManager]::CreateWindowController: Failed to create controller: {controllerTypeName}");
                 return (null, default);
             }
 

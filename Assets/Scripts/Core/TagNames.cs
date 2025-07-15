@@ -1,0 +1,9 @@
+namespace YuankunHuang.Unity.Core
+{
+    public class TagNames
+    {
+        public static readonly string MainCamera = "MainCamera";
+        public static readonly string UICamera = "UICamera";
+        public static readonly string StackableRoot = "StackableRoot";
+    }
+}

@@ -57,7 +57,7 @@ namespace YuankunHuang.Unity.Core
         {
             if (string.IsNullOrEmpty(key))
             {
-                Logger.LogError($"[ResManager]::LoadAssetAsync: key is empty");
+                LogHelper.LogError($"[ResManager]::LoadAssetAsync: key is empty");
                 return null;
             }
 
@@ -132,7 +132,7 @@ namespace YuankunHuang.Unity.Core
                 }
                 else
                 {
-                    Logger.LogError($"[ResManager]::Release: Try to release an asset not loaded: {key}");
+                    LogHelper.LogError($"[ResManager]::Release: Try to release an asset not loaded: {key}");
                 }
             }
         }
@@ -156,7 +156,7 @@ namespace YuankunHuang.Unity.Core
                 }
                 else
                 {
-                    Logger.LogError($"[ResManager]::ReleaseGroup: Trying to release asset group not loaded: {group}");
+                    LogHelper.LogError($"[ResManager]::ReleaseGroup: Trying to release asset group not loaded: {group}");
                 }
             }
         }

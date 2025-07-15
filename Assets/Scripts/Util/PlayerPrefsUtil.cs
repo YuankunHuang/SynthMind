@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Logger = YuankunHuang.Unity.Core.Logger;
+using LogHelper = YuankunHuang.Unity.Core.LogHelper;
 
 namespace YuankunHuang.Unity.Util
 {
@@ -50,7 +50,7 @@ namespace YuankunHuang.Unity.Util
                 return PlayerPrefs.GetInt(key);
             }
 
-            Logger.LogError($"GetInt::Invalid key: {key}");
+            LogHelper.LogError($"GetInt::Invalid key: {key}");
             return 0;
         }
 
@@ -67,7 +67,7 @@ namespace YuankunHuang.Unity.Util
                 return PlayerPrefs.GetString(key);
             }
 
-            Logger.LogError($"GetString::Invalid key: {key}");
+            LogHelper.LogError($"GetString::Invalid key: {key}");
             return null;
         }
 

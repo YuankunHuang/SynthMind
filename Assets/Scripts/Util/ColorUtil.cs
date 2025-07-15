@@ -16,13 +16,21 @@ namespace YuankunHuang.Unity.Util
         /// </summary>
         public static class Colors
         {
-            public static Color DateRed = GetColorFromHex("#C76645");
-            public static Color LightYellow = GetColorFromHex("#FFF8B4");
-            public static Color LaurelGreen = GetColorFromHex("#9AB89C");
-            public static Color SwampGreen = GetColorFromHex("#0A2729");
-            public static Color Black = GetColorFromHex("#151E16");
-            public static Color Edward = GetColorFromHex("#A8AEA9");
-            public static Color LightGrey = GetColorFromHex("#E1EAE2");
+            public static Color ChatBase = GetColorFromHex("#B2FFFFFF");
+            public static Color Disabled = GetColorFromHex("#6A7C92FF");
+            public static Color Error = GetColorFromHex("#FF4D4DFF");
+            public static Color Friendly = GetColorFromHex("#FFE77AFF");
+            public static Color Highlight = GetColorFromHex("#00FFFFFF");
+            public static Color Neutral = GetColorFromHex("#F0F0F0FF");
+            public static Color Primary = GetColorFromHex("#00CFFFFF");
+            public static Color Secondary = GetColorFromHex("#88F7FFFF");
+            public static Color Success = GetColorFromHex("#00FF88FF");
+            public static Color System = GetColorFromHex("#FFBA4AFF");
+            public static Color Warning = GetColorFromHex("#FFAD4DFF");
+            public static Color ButtonBG = GetColorFromHex("#1C245CFF");
+            public static Color ChatPanelBG = GetColorFromHex("#3A1F0FFF");
+            public static Color GridOverlay = GetColorFromHex("#2A4B6EFF");
+            public static Color MainBG = GetColorFromHex("#0B0F1CFF");
         }
 
         /// <summary>

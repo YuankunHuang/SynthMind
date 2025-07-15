@@ -5,6 +5,7 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.ResourceManagement.ResourceProviders;
 using UnityEngine.SceneManagement;
 using UnityEngine;
+using System;
 
 namespace YuankunHuang.Unity.Core
 {
@@ -16,51 +17,60 @@ namespace YuankunHuang.Unity.Core
         private static readonly object _sceneLock = new();
 
         #region Scene Loading & Unloading
-        public static async Task LoadSceneAsync(string key, LoadSceneMode mode = LoadSceneMode.Additive, string group = null)
+        public static async void LoadSceneAsync(string key, LoadSceneMode mode = LoadSceneMode.Additive, string group = null, Action onFinished = null)
         {
             lock (_sceneLock)
             {
                 if (_sceneHandles.ContainsKey(key))
                 {
-                    Logger.LogError($"[ResManager]::LoadSceneAsync: Same scene has already been loaded: {key}");
+                    LogHelper.LogError($"[ResManager]::LoadSceneAsync: Same scene has already been loaded: {key}");
                     return;
                 }
             }
 
-            var handle = Addressables.LoadSceneAsync(key, mode);
-            await handle.Task;
-
-            if (handle.Status == AsyncOperationStatus.Succeeded)
+            try
             {
-                lock (_sceneLock)
-                {
-                    _sceneHandles[key] = handle;
+                var handle = Addressables.LoadSceneAsync(key, mode);
+                await handle.Task;
 
-                    if (!string.IsNullOrEmpty(group))
+                if (handle.Status == AsyncOperationStatus.Succeeded)
+                {
+                    lock (_sceneLock)
                     {
-                        if (!_groupMap.TryGetValue(group, out var set))
+                        _sceneHandles[key] = handle;
+
+                        if (!string.IsNullOrEmpty(group))
                         {
-                            set = new();
-                            _groupMap[group] = set;
+                            if (!_groupMap.TryGetValue(group, out var set))
+                            {
+                                set = new();
+                                _groupMap[group] = set;
+                            }
+                            set.Add(key);
                         }
-                        set.Add(key);
                     }
                 }
+                else
+                {
+                    LogHelper.LogError($"[ResManager]::LoadSceneAsync failed: {key}");
+                }
             }
-            else
+            catch (Exception e)
             {
-                Logger.LogError($"[ResManager]::LoadSceneAsync: {key}");
+                LogHelper.LogException(e);
             }
+
+            onFinished?.Invoke();
         }
 
-        public static async Task UnloadSceneAsync(string key)
+        public static async void UnloadSceneAsync(string key, Action onFinished = null)
         {
             AsyncOperationHandle<SceneInstance> handle;
             lock (_sceneLock)
             {
                 if (!_sceneHandles.TryGetValue(key, out handle))
                 {
-                    Logger.LogError($"[ResManager]::UnloadSceneAsync: Trying to unload a scene not loaded: {key}");
+                    LogHelper.LogError($"[ResManager]::UnloadSceneAsync: Trying to unload a scene not loaded: {key}");
                     return;
                 }
             }
