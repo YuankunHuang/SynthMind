@@ -10,7 +10,7 @@ namespace YuankunHuang.Unity.HotUpdate
 {
     public class MainMenuController : WindowControllerBase
     {
-        private enum Panel
+        private enum Page
         {
             None,
             Home,
@@ -21,10 +21,18 @@ namespace YuankunHuang.Unity.HotUpdate
         }
 
         #region UI Ref
+        private enum ExtraConfig
+        {
+            Home = 0,
+            Chat = 1,
+            Sandbox = 2,
+            Setting = 3,
+            About = 4,
+        }
+
         private enum ExtraTMP
         {
-            Box = 0,
-            Title = 1,
+            Title = 0,
         }
 
         private enum ExtraBtn
@@ -36,7 +44,8 @@ namespace YuankunHuang.Unity.HotUpdate
             About = 4,
         }
 
-        private TMP_Text _boxTxt;
+        private Dictionary<Page, IMainMenuWidgetController> _widgetControllers;
+
         private TMP_Text _titleTxt;
 
         private GeneralButton _homeBtn;
@@ -47,13 +56,25 @@ namespace YuankunHuang.Unity.HotUpdate
         #endregion
 
         #region Field
-        private Panel _currentPanel = Panel.None;
+        private Page _currentPage = Page.None;
         #endregion
 
         #region Lifecycle
         protected override void OnInit()
         {
-            _boxTxt = Config.ExtraTextMeshProList[(int)ExtraTMP.Box];
+            _widgetControllers = new Dictionary<Page, IMainMenuWidgetController>()
+            {
+                { Page.Home, new MainMenuHomeController(Config.ExtraWidgetConfigList[(int)ExtraConfig.Home]) },
+                { Page.Chat, new MainMenuHomeController(Config.ExtraWidgetConfigList[(int)ExtraConfig.Chat]) },
+                { Page.Sandbox, new MainMenuHomeController(Config.ExtraWidgetConfigList[(int)ExtraConfig.Sandbox]) },
+                { Page.Setting, new MainMenuHomeController(Config.ExtraWidgetConfigList[(int)ExtraConfig.Setting]) },
+                { Page.About, new MainMenuHomeController(Config.ExtraWidgetConfigList[(int)ExtraConfig.About]) },
+            };
+            foreach (var widgetController in _widgetControllers.Values)
+            {
+                widgetController.Init();
+            }
+
             _titleTxt = Config.ExtraTextMeshProList[(int)ExtraTMP.Title];
 
             _homeBtn = Config.ExtraButtonList[(int)ExtraBtn.Home];
@@ -73,31 +94,11 @@ namespace YuankunHuang.Unity.HotUpdate
         {
             if (state == WindowShowState.New)
             {
-                ShowSandbox(true);
+                ShowWidget(Page.Home, true);
             }
             else
             {
-                switch (_currentPanel)
-                {
-                    case Panel.Home:
-                        ShowHome(true);
-                        break;
-                    case Panel.Chat:
-                        ShowChat(true); 
-                        break;
-                    case Panel.Sandbox:
-                        ShowSandbox(true);
-                        break;
-                    case Panel.Setting:
-                        ShowSetting(true);
-                        break;
-                    case Panel.About:
-                        ShowAbout(true);
-                        break;
-                    default:
-                        LogHelper.LogError($"Undefined panel: {_currentPanel}");
-                        break;
-                }
+                ShowWidget(_currentPage, true);
             }
 
             Config.CanvasGroup.CanvasGroupOn();
@@ -110,6 +111,12 @@ namespace YuankunHuang.Unity.HotUpdate
 
         protected override void OnDispose()
         {
+            foreach (var widgetController in _widgetControllers.Values)
+            {
+                widgetController.Dispose();
+            }
+            _widgetControllers.Clear();
+
             _homeBtn.onClick.RemoveAllListeners();
             _chatBtn.onClick.RemoveAllListeners();
             _sandboxBtn.onClick.RemoveAllListeners();
@@ -121,84 +128,51 @@ namespace YuankunHuang.Unity.HotUpdate
         #region Events
         private void OnHomeBtnClicked()
         {
-            ShowHome(false);
+            ShowWidget(Page.Home, false);
         }
 
         private void OnChatBtnClicked()
         {
-            ShowChat(false);
+            ShowWidget(Page.Chat, false);
         }
 
         private void OnSandboxBtnClicked()
         {
-            ShowSandbox(false);
+            ShowWidget(Page.Sandbox, false);
         }
 
         private void OnSettingBtnClicked()
         {
-            ShowSetting(false);
+            ShowWidget(Page.Setting, false);
         }
 
         private void OnAboutBtnClicked()
         {
-            ShowAbout(false);
+            ShowWidget(Page.About, false);
         }
         #endregion
 
         #region Content
-        private void ShowHome(bool forceShow)
+        private void ShowWidget(Page page, bool forceShow)
         {
-            if (_currentPanel == Panel.Home && !forceShow)
+            if (_currentPage == page && !forceShow)
             {
                 return;
             }
 
-            _currentPanel = Panel.Home;
-            _boxTxt.text = "Welcome to SynthMind, an AI interaction sandbox based on Unity, demonstrating modular UI, AI dialogue, event tracking and physical system integration capabilities";
-        }
+            _currentPage = page;
 
-        private void ShowChat(bool forceShow)
-        {
-            if (_currentPanel == Panel.Chat && !forceShow)
+            foreach (var kv in _widgetControllers)
             {
-                return;
+                if (kv.Key == page)
+                {
+                    kv.Value.Show();
+                }
+                else
+                {
+                    kv.Value.Hide();
+                }
             }
-
-            _currentPanel = Panel.Chat;
-            _boxTxt.text = "Chat";
-        }
-
-        private void ShowSandbox(bool forceShow)
-        {
-            if (_currentPanel == Panel.Sandbox && !forceShow)
-            {
-                return;
-            }
-
-            _currentPanel = Panel.Sandbox;
-            _boxTxt.text = "Sandbox";
-        }
-
-        private void ShowSetting(bool forceShow)
-        {
-            if (_currentPanel == Panel.Setting && !forceShow)
-            {
-                return;
-            }
-
-            _currentPanel = Panel.Setting;
-            _boxTxt.text = "Setting";
-        }
-
-        private void ShowAbout(bool forceShow)
-        {
-            if (_currentPanel == Panel.About && !forceShow)
-            {
-                return;
-            }
-
-            _currentPanel = Panel.About;
-            _boxTxt.text = "About";
         }
         #endregion
     }
