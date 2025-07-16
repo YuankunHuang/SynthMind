@@ -21,41 +21,7 @@ namespace YuankunHuang.Unity.Core
         Covered,
     }
 
-    public abstract class WindowControllerBase
-    {
-        protected string WindowName { get; private set; }
-        protected GeneralWindowConfig Config { get; private set; }
 
-        public void Init(WindowStackEntry entry)
-        {
-            LogHelper.Log($"[WindowControllerBase]::Init: {entry.WindowName}");
-
-            WindowName = entry.WindowName;
-            Config = entry.WindowGO.GetComponent<GeneralWindowConfig>();
-
-            OnInit();
-        }
-        public void Show(IWindowData data, WindowShowState state)
-        {
-            LogHelper.Log($"[WindowControllerBase]::Show: {WindowName}");
-            OnShow(data, state);
-        }
-        public void Hide(WindowHideState state)
-        {
-            LogHelper.Log($"[WindowControllerBase]::Hide: {WindowName}");
-            OnHide(state);
-        }
-        public void Dispose()
-        {
-            LogHelper.Log($"[WindowControllerBase]::Dispose: {WindowName}");
-            OnDispose();
-        }
-
-        protected virtual void OnInit() { }
-        protected virtual void OnShow(IWindowData data, WindowShowState state) { }
-        protected virtual void OnHide(WindowHideState state) { }
-        protected virtual void OnDispose() { }
-    }
 
     public struct WindowStackEntry
     {
@@ -63,14 +29,16 @@ namespace YuankunHuang.Unity.Core
         public WindowControllerBase Controller;
         public IWindowData Data;
         public GameObject WindowGO;
+        public WindowAttributeData AttributeData;
         public AsyncOperationHandle<GameObject> Handle;
 
-        public WindowStackEntry(string windowName, WindowControllerBase controller, IWindowData data, GameObject windowGO, AsyncOperationHandle<GameObject> handle)
+        public WindowStackEntry(string windowName, WindowControllerBase controller, IWindowData data, GameObject windowGO, WindowAttributeData attributeData, AsyncOperationHandle<GameObject> handle)
         {
             WindowName = windowName;
             Controller = controller;
             Data = data;
             WindowGO = windowGO;
+            AttributeData = attributeData;
             Handle = handle;
         }
     }
@@ -100,7 +68,7 @@ namespace YuankunHuang.Unity.Core
 
         private IEnumerator ShowStackableWindowCoroutine(string windowName, IWindowData data = null)
         {
-            // 1. Load prefab
+            // Load prefab
             var key = string.Format(AddressablePaths.StackableWindow, windowName, windowName);
             var handle = Addressables.LoadAssetAsync<GameObject>(key);
             yield return handle;
@@ -112,11 +80,16 @@ namespace YuankunHuang.Unity.Core
                 yield break;
             }
 
-            // 2. Instantiate window
+            // Load Attribute Data
+            var attrKey = string.Format(AddressablePaths.WindowAttributeData, windowName);
+            var attrHandle = Addressables.LoadAssetAsync<WindowAttributeData>(attrKey);
+            yield return attrHandle;
+
+            // Instantiate window
             var windowGO = GameObject.Instantiate(handle.Result, StackableRoot);
             windowGO.transform.SetAsLastSibling();
 
-            // 3. Create window controller
+            // Create window controller
             var controllerTypeName = $"{Namespaces.HotUpdate}.{windowName}Controller";
             var controllerType = TypeUtil.GetType(controllerTypeName);
             if (controllerType == null)
@@ -131,15 +104,15 @@ namespace YuankunHuang.Unity.Core
                 yield break;
             }
 
-            // 4. Hide window on top
+            // Hide window on top
             if (_windowStack.Count > 0)
             {
                 var top = _windowStack.Peek();
                 top.Controller.Hide(WindowHideState.Covered);
             }
 
-            // 5. Push to stack and show
-            var entry = new WindowStackEntry(windowName, controller, data, windowGO, handle);
+            // Push to stack and show
+            var entry = new WindowStackEntry(windowName, controller, data, windowGO, attrHandle.Result, handle);
             controller.Init(entry);
             controller.Show(data, WindowShowState.New);
             _windowStack.Push(entry);
