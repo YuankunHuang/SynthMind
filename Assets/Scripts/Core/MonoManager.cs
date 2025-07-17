@@ -14,7 +14,8 @@ namespace YuankunHuang.Unity.Core
         public event Action OnFixedTick;
         public event Action OnTickPerSec;
 
-        private float _timer = 0f;
+        private float _tickPerSecTimer = 0f;
+        private float _restartTimer = 0f;
 
         private void Awake()
         {
@@ -32,11 +33,28 @@ namespace YuankunHuang.Unity.Core
         {
             OnTick?.Invoke();
 
-            _timer += Time.deltaTime;
-            if (_timer >= 1f)
+            _tickPerSecTimer += Time.deltaTime;
+            if (_tickPerSecTimer >= 1f)
             {
-                _timer -= 1f;
+                _tickPerSecTimer -= 1f;
                 OnTickPerSec?.Invoke();
+            }
+
+            if (InputManager.GetKey(KeyCode.Escape))
+            {
+                if (_restartTimer > -0.1f) // only trigger once per press
+                {
+                    _restartTimer += Time.deltaTime;
+                    if (_restartTimer >= 1f)
+                    {
+                        GameManager.Restart();
+                        _restartTimer = -1f;
+                    }
+                }
+            }
+            else
+            {
+                _restartTimer = 0;
             }
         }
 

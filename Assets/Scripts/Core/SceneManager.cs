@@ -97,6 +97,22 @@ namespace YuankunHuang.Unity.Core
                 return _sceneHandles.ContainsKey(key);
             }
         }
+
+        public static void UnloadAll(Action onFinished)
+        {
+            var count = _sceneHandles.Count;
+            foreach (var kv in _sceneHandles)
+            {
+                Addressables.UnloadSceneAsync(kv.Value).Completed += handle =>
+                {
+                    if (--count < 1)
+                    {
+                        _sceneHandles.Clear();
+                        onFinished?.Invoke();
+                    }
+                };
+            }
+        }
         #endregion
     }
 }

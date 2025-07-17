@@ -21,25 +21,23 @@ namespace YuankunHuang.Unity.Core
         Covered,
     }
 
-
-
     public struct WindowStackEntry
     {
         public string WindowName;
         public WindowControllerBase Controller;
         public IWindowData Data;
         public GameObject WindowGO;
-        public WindowAttributeData AttributeData;
-        public AsyncOperationHandle<GameObject> Handle;
+        public AsyncOperationHandle<WindowAttributeData> AttributeDataHandle;
+        public AsyncOperationHandle<GameObject> WindowHandle;
 
-        public WindowStackEntry(string windowName, WindowControllerBase controller, IWindowData data, GameObject windowGO, WindowAttributeData attributeData, AsyncOperationHandle<GameObject> handle)
+        public WindowStackEntry(string windowName, WindowControllerBase controller, IWindowData data, GameObject windowGO, AsyncOperationHandle<WindowAttributeData> attributeDataHandle, AsyncOperationHandle<GameObject> windowHandle)
         {
             WindowName = windowName;
             Controller = controller;
             Data = data;
             WindowGO = windowGO;
-            AttributeData = attributeData;
-            Handle = handle;
+            AttributeDataHandle = attributeDataHandle;
+            WindowHandle = windowHandle;
         }
     }
 
@@ -112,7 +110,7 @@ namespace YuankunHuang.Unity.Core
             }
 
             // Push to stack and show
-            var entry = new WindowStackEntry(windowName, controller, data, windowGO, attrHandle.Result, handle);
+            var entry = new WindowStackEntry(windowName, controller, data, windowGO, attrHandle, handle);
             controller.Init(entry);
             controller.Show(data, WindowShowState.New);
             _windowStack.Push(entry);
@@ -148,9 +146,9 @@ namespace YuankunHuang.Unity.Core
             entry.Controller.Hide(WindowHideState.Removed);
             entry.Controller.Dispose();
 
-            if (entry.Handle.IsValid())
+            if (entry.WindowHandle.IsValid())
             {
-                Addressables.Release(entry.Handle);
+                Addressables.Release(entry.WindowHandle);
             }
 
             if (_windowStack.Count > 0)
@@ -197,6 +195,17 @@ namespace YuankunHuang.Unity.Core
                 entry.Controller.Hide(WindowHideState.Removed);
                 entry.Controller.Dispose();
             }
+        }
+
+        public void Dispose()
+        {
+            foreach (var entry in _windowStack)
+            {
+                entry.Controller.Dispose();
+                Addressables.Release(entry.WindowHandle);
+                Addressables.Release(entry.AttributeDataHandle);
+            }
+            _windowStack.Clear();
         }
         #endregion
     }

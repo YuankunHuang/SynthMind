@@ -20,7 +20,7 @@ namespace YuankunHuang.Unity.Core
 
             WindowName = entry.WindowName;
             Config = entry.WindowGO.GetComponent<GeneralWindowConfig>();
-            AttributeData = entry.AttributeData;
+            AttributeData = entry.AttributeDataHandle.Result;
 
             // attributes
             if (AttributeData != null)
@@ -89,14 +89,11 @@ namespace YuankunHuang.Unity.Core
             rt.anchorMax = new Vector2(1, 1);
             rt.offsetMin = rt.offsetMax = Vector2.zero;
 
-            yield break;
-
             var handle = ResManager.LoadAssetAsync<Material>(AddressablePaths.UIBoxBlurMaterial);
             yield return handle;
-            var mat = handle.Result;
-            if (mat != null)
+            if (handle != null && handle.Result != null)
             {
-                img.material = mat;
+                img.material = handle.Result;
             }
             else
             {

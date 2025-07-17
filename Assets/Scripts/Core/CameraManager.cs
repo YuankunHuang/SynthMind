@@ -13,7 +13,11 @@ namespace YuankunHuang.Unity.Core
             {
                 if (_mainCam == null)
                 {
-                    _mainCam = GameObject.FindGameObjectWithTag(TagNames.MainCamera).GetComponent<Camera>();
+                    var obj = GameObject.FindGameObjectWithTag(TagNames.MainCamera);
+                    if (obj != null) 
+                    {
+                        _mainCam = obj.GetComponent<Camera>();
+                    }
                 }
                 return _mainCam;
             }
@@ -24,7 +28,11 @@ namespace YuankunHuang.Unity.Core
             {
                 if (_uiCam == null)
                 {
-                    _uiCam = GameObject.FindGameObjectWithTag(TagNames.UICamera).GetComponent<Camera>();
+                    var obj = GameObject.FindGameObjectWithTag(TagNames.UICamera);
+                    if (obj != null)
+                    {
+                        _uiCam = obj.GetComponent<Camera>();
+                    }
                 }
                 return _uiCam;
             }
@@ -120,6 +128,16 @@ namespace YuankunHuang.Unity.Core
                 }
                 _camOwnerDict.Remove(owner);
             }
+        }
+
+        public void Dispose()
+        {
+            var universalCamData = MainCamera.GetUniversalAdditionalCameraData();
+            universalCamData.cameraStack.Clear();
+
+            _camOwnerDict.Clear();
+            _mainCam = null;
+            _uiCam = null;
         }
     }
 }

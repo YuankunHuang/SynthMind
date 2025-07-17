@@ -48,7 +48,7 @@ namespace YuankunHuang.Unity.Core
     {
         // general assets
         private static Dictionary<string, ResHandle> _loaded = new();
-        private static Dictionary<string, Task<UnityEngine.Object>> _loading = new();
+        private static Dictionary<string, object> _loading = new(); // 修改为object类型，支持泛型Task<T>
         private static object _lock = new();
         private static Dictionary<string, HashSet<string>> _groupMap = new();
 
@@ -61,7 +61,7 @@ namespace YuankunHuang.Unity.Core
                 return null;
             }
 
-            Task<UnityEngine.Object> loadingTask = null;
+            Task<T> loadingTask = null;
             AsyncOperationHandle<T> handle = default;
 
             lock (_lock)
@@ -73,11 +73,15 @@ namespace YuankunHuang.Unity.Core
                     return resHandle.Asset;
                 }
 
-                if (!_loading.TryGetValue(key, out loadingTask))
+                if (!_loading.TryGetValue(key, out var loadingObj))
                 {
                     handle = Addressables.LoadAssetAsync<T>(key);
-                    loadingTask = handle.Task as Task<UnityEngine.Object>;
+                    loadingTask = handle.Task;
                     _loading[key] = loadingTask;
+                }
+                else
+                {
+                    loadingTask = loadingObj as Task<T>;
                 }
             }
 
@@ -101,7 +105,7 @@ namespace YuankunHuang.Unity.Core
                 }
             }
 
-            return (T)asset;
+            return asset;
         }
         #endregion
 

@@ -16,6 +16,10 @@ namespace YuankunHuang.Unity.Core
             Email = email;
             Avatar = avatar;
         }
+
+        public void Dispose()
+        {
+        }
     }
 
     public class AccountManager : IAccountManager
@@ -47,6 +51,17 @@ namespace YuankunHuang.Unity.Core
         public AccountManager()
         {
             Self = new Account("self-uuid", "self-username", "self-email", "self-avatar");
+        }
+
+        public void Dispose()
+        {
+            Self = null;
+            
+            foreach (var account in _accounts.Values)
+            {
+                account.Dispose();
+            }
+            _accounts.Clear();
         }
     }
 }

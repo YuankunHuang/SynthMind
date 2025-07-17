@@ -13,5 +13,6 @@ MonoBehaviour:
   m_Name: WindowAttributeData_MainMenu
   m_EditorClassIdentifier: 
   hasMask: 1
-  usePopupScaleAnimation: 0
+  usePopupScaleAnimation: 1
+  popupScaleDuration: 0.3
   useBlurredBackground: 1

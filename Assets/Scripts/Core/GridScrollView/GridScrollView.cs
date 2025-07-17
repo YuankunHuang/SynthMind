@@ -1,8 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using YuankunHuang.Unity.HotUpdate;
-using YuankunHuang.Unity.Util;
 
 namespace YuankunHuang.Unity.Core
 {
@@ -115,6 +113,8 @@ namespace YuankunHuang.Unity.Core
             _pool = new();
             _activeElements = new();
 
+            layoutGroup.enabled = false;
+
             scrollRect.onValueChanged.AddListener(OnValueChanged);
         }
 
@@ -126,11 +126,6 @@ namespace YuankunHuang.Unity.Core
             scrollRect.onValueChanged.RemoveAllListeners();
         }
 
-
-
-
-
-
         private float CalculatePositionForIndex(int idx)
         {
             float yOffset = 0f;
@@ -138,34 +133,39 @@ namespace YuankunHuang.Unity.Core
             {
                 yOffset += GetElementHeight(i) + spacing.y;
             }
+
             return -padding.y - yOffset;
         }
 
         private float GetElementHeight(int idx)
         {
-            if (_elementHeights.TryGetValue(idx, out var height))
-                return height;
-
-            // 首次获取，从用户处获取并缓存
-            height = _handler.GetElementHeight(idx);
-            _elementHeights[idx] = height;
+            if (!_elementHeights.TryGetValue(idx, out var height))
+            {
+                height = _handler.GetElementHeight(idx);
+                _elementHeights[idx] = height;
+            }
+            
             return height;
         }
 
         private List<int> GetVisibleIndices()
         {
             var visibleIndices = new List<int>();
-            var viewportRect = scrollRect.viewport.GetWorldRect();
             var contentOffset = content.anchoredPosition;
 
-            // 使用高度信息快速计算可见范围
-            float currentY = 0f;
+            var viewportBounds = RectTransformUtility.CalculateRelativeRectTransformBounds(content, scrollRect.viewport);
+
+            var currentY = 0f;
             for (int i = 0; i < _handler.GetDataCount(); i++)
             {
+                var idx = i;
                 float elementHeight = GetElementHeight(i);
-                float elementY = currentY + contentOffset.y;
+                float elementTop = -currentY;
+                float elementBottom = elementTop - elementHeight;
 
-                if (elementY + elementHeight >= viewportRect.yMin && elementY <= viewportRect.yMax)
+                var isVisible = elementBottom < viewportBounds.max.y || elementTop > viewportBounds.min.y;
+                
+                if (isVisible)
                 {
                     visibleIndices.Add(i);
                 }
@@ -192,6 +192,7 @@ namespace YuankunHuang.Unity.Core
             UpdateContentHeight();
 
             var visibleIndices = GetVisibleIndices();
+
             foreach (var idx in visibleIndices)
             {
                 CreateElementForIndex(idx);
@@ -200,13 +201,13 @@ namespace YuankunHuang.Unity.Core
 
         private void CreateElementForIndex(int idx)
         {
-            var go = _pool.Count > 0 ? _pool.Dequeue() : Instantiate(itemPrefab, content);
+            var isNewElement = _pool.Count < 1;
+            var go = !isNewElement ? _pool.Dequeue() : Instantiate(itemPrefab, content);
             go.SetActive(true);
 
             var element = go.GetComponent<GridScrollViewElement>();
             element.Index = idx;
 
-            var isNewElement = !_activeElements.ContainsKey(idx);
             if (isNewElement)
             {
                 _handler.OnElementCreate(element);
@@ -260,7 +261,7 @@ namespace YuankunHuang.Unity.Core
             }
             _totalContentHeight += padding.y * 2;
 
-            // 更新 content 高度
+            // update content size
             content.sizeDelta = new Vector2(content.sizeDelta.x, _totalContentHeight);
         }
 
@@ -288,21 +289,21 @@ namespace YuankunHuang.Unity.Core
         private void OnValueChanged(Vector2 value)
         {
             var visibleIndices = GetVisibleIndices();
-            var newVisibleIndexMin = visibleIndices.Count > 0 ? visibleIndices[0] : 0;
-            var newVisibleIndexMax = visibleIndices.Count > 0 ? visibleIndices[visibleIndices.Count - 1] : 0;
+            var newVisibleIndexMin = visibleIndices.Count > 0 ? visibleIndices[0] : -1;
+            var newVisibleIndexMax = visibleIndices.Count > 0 ? visibleIndices[visibleIndices.Count - 1] : -1;
 
             // to hide
-            var indicesToRemove = new List<int>();
+            var indicesToHide = new List<int>();
             foreach (var kvp in _activeElements)
             {
                 var idx = kvp.Key;
                 if (idx < newVisibleIndexMin || idx > newVisibleIndexMax)
                 {
-                    indicesToRemove.Add(idx);
+                    indicesToHide.Add(idx);
                 }
             }
 
-            foreach (var idx in indicesToRemove)
+            foreach (var idx in indicesToHide)
             {
                 var element = _activeElements[idx];
                 _handler.OnElementHide(element);
@@ -312,11 +313,14 @@ namespace YuankunHuang.Unity.Core
             }
 
             // to show
-            for (var i = newVisibleIndexMin; i <= newVisibleIndexMax; ++i)
+            if (newVisibleIndexMin <= newVisibleIndexMax && newVisibleIndexMax >= 0)
             {
-                if (!_activeElements.ContainsKey(i))
+                for (var i = newVisibleIndexMin; i <= newVisibleIndexMax; ++i)
                 {
-                    CreateElementForIndex(i);
+                    if (!_activeElements.ContainsKey(i))
+                    {
+                        CreateElementForIndex(i);
+                    }
                 }
             }
         }

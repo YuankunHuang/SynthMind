@@ -1,8 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
-using UnityEditor;
-using UnityEditor.VersionControl;
 using UnityEngine;
 using UnityEngine.UI;
 using YuankunHuang.Unity.Core;
@@ -117,15 +115,11 @@ namespace YuankunHuang.Unity.HotUpdate
         {
             MainMenuMessageController.Show(_tmpMessageConfig, new MainMenuMessageData("temp", null, text));
             var height = LayoutUtility.GetPreferredHeight((RectTransform)_tmpMessageConfig.transform);
-
-            LogHelper.LogError($"CalculateTextHeight: {text} => {height}"); // correct!
             return height;
         }
 
         public void OnElementShow(GridScrollViewElement element)
         {
-            LogHelper.Log($"OnElementShow: {element.Index}");
-
             if (element is GeneralWidgetConfig config)
             {
                 MainMenuMessageController.Show(config, _messages[element.Index]);
@@ -134,17 +128,14 @@ namespace YuankunHuang.Unity.HotUpdate
 
         public void OnElementHide(GridScrollViewElement element)
         {
-            LogHelper.Log($"OnElementHide: {element.Index}");
         }
 
         public void OnElementCreate(GridScrollViewElement element)
         {
-            LogHelper.Log($"OnElementCreate: {element.Index}");
         }
 
         public void OnElementRelease(GridScrollViewElement element)
         {
-            LogHelper.Log($"OnElementRelease: {element.Index}");
         }
         #endregion
     }
