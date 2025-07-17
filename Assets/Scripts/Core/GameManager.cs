@@ -9,6 +9,7 @@ namespace YuankunHuang.Unity.Core
         {
             ModuleRegistry.Register<IUIManager>(new UIManager());
             ModuleRegistry.Register<ICameraManager>(new CameraManager());
+            ModuleRegistry.Register<IAccountManager>(new AccountManager());
 
             SceneManager.LoadSceneAsync(SceneKeys.UIScene, onFinished: () =>
             {
@@ -23,6 +24,7 @@ namespace YuankunHuang.Unity.Core
         {
             ModuleRegistry.Unregister<IUIManager>();
             ModuleRegistry.Unregister<ICameraManager>();
+            ModuleRegistry.Unregister<IAccountManager>();
         }
     }
 }

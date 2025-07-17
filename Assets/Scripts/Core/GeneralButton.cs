@@ -19,15 +19,22 @@ namespace YuankunHuang.Unity.Core
         [MenuItem("GameObject/UI/GeneralButton")]
         static void AddGeneralButton()
         {
-            GameObject canvas = GameObject.Find("Canvas");
-            if (canvas == null)
-            {
-                LogHelper.LogError($"No Canvas can be found!");
-                return;
-            }
-
             var buttonObj = new GameObject("GeneralButton");
-            var parent = Selection.activeGameObject != null ? Selection.activeGameObject.transform : canvas.transform;
+            Transform parent = null;
+            if (Selection.activeGameObject != null)
+            {
+                parent = Selection.activeGameObject.transform;
+            }
+            else
+            {
+                GameObject canvas = GameObject.Find("Canvas");
+                if (canvas == null)
+                {
+                    LogHelper.LogError($"No Canvas can be found!");
+                    return;
+                }
+                parent = canvas.transform;
+            }
             Undo.RegisterCreatedObjectUndo(buttonObj, "Create GeneralButton"); // Register the undo action
             Undo.SetTransformParent(buttonObj.transform, parent, "Parent GeneralButton"); // Register the undo action for parenting
 

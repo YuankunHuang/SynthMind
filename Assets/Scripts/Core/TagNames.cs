@@ -5,5 +5,6 @@ namespace YuankunHuang.Unity.Core
         public static readonly string MainCamera = "MainCamera";
         public static readonly string UICamera = "UICamera";
         public static readonly string StackableRoot = "StackableRoot";
+        public static readonly string WindowRoot = "WindowRoot";
     }
 }

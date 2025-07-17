@@ -12,6 +12,8 @@ namespace YuankunHuang.Unity.Core
         protected GeneralWindowConfig Config { get; private set; }
         protected WindowAttributeData AttributeData { get; private set; }
 
+        private RenderTexture _blurRenderTex;
+
         public void Init(WindowStackEntry entry)
         {
             LogHelper.Log($"[WindowControllerBase]::Init: {entry.WindowName}");
@@ -42,23 +44,52 @@ namespace YuankunHuang.Unity.Core
                 {
                     MonoManager.Instance.StartCoroutine(LoadBlurCoroutine());
                 }
+
+                if (AttributeData.usePopupScaleAnimation)
+                {
+                    MonoManager.Instance.StartCoroutine(PopupScaleIn());
+                }
             }
 
             OnInit();
         }
 
+        private IEnumerator PopupScaleIn()
+        {
+            float time = 0f;
+            float duration = AttributeData.popupScaleDuration;
+            var start = Vector3.zero;
+            var end = Vector3.one;
+            Config.transform.localScale = start;
+            while (time < duration)
+            {
+                time += Time.deltaTime;
+                float t = Mathf.Clamp01(time / duration);
+                Config.transform.localScale = Vector3.LerpUnclamped(start, end, t);
+                yield return null;
+            }
+            Config.transform.localScale = end;
+        }
+
         private IEnumerator LoadBlurCoroutine()
         {
+            yield return new WaitForEndOfFrame();
+            _blurRenderTex = new RenderTexture(Screen.width, Screen.height, 0, RenderTextureFormat.ARGB32);
+            ScreenCapture.CaptureScreenshotIntoRenderTexture(_blurRenderTex);
+
             var blurGO = new GameObject("Blur");
             var rt = blurGO.AddComponent<RectTransform>();
             var img = blurGO.AddComponent<RawImage>();
             img.raycastTarget = true;
+            img.texture = _blurRenderTex;
 
             rt.SetParent(Config.transform);
             rt.SetAsFirstSibling();
             rt.anchorMin = new Vector2(0, 0);
             rt.anchorMax = new Vector2(1, 1);
             rt.offsetMin = rt.offsetMax = Vector2.zero;
+
+            yield break;
 
             var handle = ResManager.LoadAssetAsync<Material>(AddressablePaths.UIBoxBlurMaterial);
             yield return handle;
@@ -90,6 +121,12 @@ namespace YuankunHuang.Unity.Core
             if (AttributeData.useBlurredBackground)
             {
                 ResManager.Release(AddressablePaths.UIBoxBlurMaterial);
+            }
+            if (_blurRenderTex != null)
+            {
+                _blurRenderTex.Release();
+                UnityEngine.Object.Destroy(_blurRenderTex);
+                _blurRenderTex = null;
             }
 
             OnDispose();

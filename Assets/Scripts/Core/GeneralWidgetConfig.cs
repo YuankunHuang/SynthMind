@@ -16,7 +16,7 @@ namespace YuankunHuang.Unity.Core
     /// and other scene-related objects, such as RectTransforms, TextMeshPro elements, buttons, game objects, images,
     /// cameras, and more. These elements are typically used in a grid-based UI layout, and this class helps manage them
     /// effectively within the scene.
-    public class GeneralWidgetConfig : MonoBehaviour
+    public class GeneralWidgetConfig : GridScrollViewElement
     {
         [SerializeField] private CanvasGroup _canvasGroup;
 

@@ -65,10 +65,10 @@ namespace YuankunHuang.Unity.HotUpdate
             _widgetControllers = new Dictionary<Page, IMainMenuWidgetController>()
             {
                 { Page.Home, new MainMenuHomeController(Config.ExtraWidgetConfigList[(int)ExtraConfig.Home]) },
-                { Page.Chat, new MainMenuHomeController(Config.ExtraWidgetConfigList[(int)ExtraConfig.Chat]) },
-                { Page.Sandbox, new MainMenuHomeController(Config.ExtraWidgetConfigList[(int)ExtraConfig.Sandbox]) },
-                { Page.Setting, new MainMenuHomeController(Config.ExtraWidgetConfigList[(int)ExtraConfig.Setting]) },
-                { Page.About, new MainMenuHomeController(Config.ExtraWidgetConfigList[(int)ExtraConfig.About]) },
+                { Page.Chat, new MainMenuChatController(Config.ExtraWidgetConfigList[(int)ExtraConfig.Chat]) },
+                { Page.Sandbox, new MainMenuSandboxController(Config.ExtraWidgetConfigList[(int)ExtraConfig.Sandbox]) },
+                { Page.Setting, new MainMenuSettingController(Config.ExtraWidgetConfigList[(int)ExtraConfig.Setting]) },
+                { Page.About, new MainMenuAboutController(Config.ExtraWidgetConfigList[(int)ExtraConfig.About]) },
             };
             foreach (var widgetController in _widgetControllers.Values)
             {

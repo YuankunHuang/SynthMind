@@ -7,6 +7,7 @@ namespace YuankunHuang.Unity.Core
     {
         public bool hasMask;
         public bool usePopupScaleAnimation;
+        public float popupScaleDuration = 0.3f;
         public bool useBlurredBackground;
     }
 }

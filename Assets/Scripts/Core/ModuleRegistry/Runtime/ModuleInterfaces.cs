@@ -22,4 +22,17 @@ namespace YuankunHuang.Unity.Core
         void AddToMainStackWithOwner(object owner, Camera cam);
         void RemoveFromMainStackWithOwner(object owner);
     }
+
+    public interface IAccount 
+    { 
+        string UUID { get; }
+        string Username { get; }
+        string Email { get; }
+        string Avatar { get; }
+    }
+    public interface IAccountManager
+    {
+        IAccount Self { get; }
+        IAccount GetAccount(string uuid);
+    }
 }
