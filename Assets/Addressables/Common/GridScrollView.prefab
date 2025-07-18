@@ -127,12 +127,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   scrollRect: {fileID: 5340620045954232967}
   content: {fileID: 52264466644635993}
+  contentSizeFitter: {fileID: 1280038953819270818}
   layoutGroup: {fileID: 7057341751441825321}
   itemPrefab: {fileID: 0}
   layoutType: 0
   constraintCount: 1
-  spacing: {x: 0, y: 0}
-  padding: {x: 0, y: 0}
+  smoothScrollDuration: 0.1
 --- !u!114 &3182753584731287847
 MonoBehaviour:
   m_ObjectHideFlags: 0

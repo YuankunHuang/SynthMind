@@ -16,7 +16,6 @@ namespace YuankunHuang.Unity.Core
 
         public ResHandle(AsyncOperationHandle<T> handle, string group = null)
         {
-            RefCount = 0;
             base.Handle = Handle = handle;
             Group = group;
         }
@@ -24,7 +23,7 @@ namespace YuankunHuang.Unity.Core
 
     public abstract class ResHandle
     {
-        public int RefCount { get; protected set; }
+        public int RefCount { get; protected set; } = 1;
         public AsyncOperationHandle Handle { get; protected set; }
         public string Group { get; protected set; }
         public DateTime LastAccessTime { get; protected set; }
@@ -32,12 +31,22 @@ namespace YuankunHuang.Unity.Core
         public void Retain()
         {
             ++RefCount;
+
+            LogHelper.LogError($"[ResHandle]::Retain RefCount: {RefCount}");
+
             LastAccessTime = DateTime.Now;
         }
 
         public void Release()
         {
-            if (--RefCount < 1)
+            if (RefCount <= 0)
+            {
+                LogHelper.LogError($"[ResHandle]::Release called too many times.");
+                return;
+            }
+
+            RefCount--;
+            if (RefCount < 1)
             {
                 Addressables.Release(Handle);
             }
@@ -85,12 +94,21 @@ namespace YuankunHuang.Unity.Core
                 }
             }
 
-            // await outside the lock block
+            // Await the task outside the lock
             var asset = await loadingTask;
 
             lock (_lock)
             {
                 _loading.Remove(key);
+
+                if (_loaded.TryGetValue(key, out var existingBaseHandle))
+                {
+                    // Already loaded by another thread while we were waiting
+                    var existingHandle = existingBaseHandle as ResHandle<T>;
+                    existingHandle.Retain();
+                    return existingHandle.Asset;
+                }
+
                 var resHandle = new ResHandle<T>(handle, group);
                 _loaded[key] = resHandle;
 
@@ -103,9 +121,9 @@ namespace YuankunHuang.Unity.Core
                     }
                     set.Add(key);
                 }
-            }
 
-            return asset;
+                return resHandle.Asset;
+            }
         }
         #endregion
 

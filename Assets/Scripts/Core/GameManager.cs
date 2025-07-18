@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
+using YuankunHuang.Unity.GameDataConfig;
 
 namespace YuankunHuang.Unity.Core
 {
@@ -23,13 +24,16 @@ namespace YuankunHuang.Unity.Core
             ModuleRegistry.Register<IUIManager>(new UIManager());
             ModuleRegistry.Register<ICameraManager>(new CameraManager());
             ModuleRegistry.Register<IAccountManager>(new AccountManager());
+            ModuleRegistry.Register<INetworkManager>(new NetworkManager());
+
+            GameDataManager.Initialize();
 
             SceneManager.LoadSceneAsync(SceneKeys.UIScene, onFinished: () =>
             {
                 var camManager = ModuleRegistry.Get<ICameraManager>();
                 camManager.AddToMainStack(camManager.UICamera);
 
-                ModuleRegistry.Get<IUIManager>().ShowStackableWindow(WindowNames.MainMenu);
+                ModuleRegistry.Get<IUIManager>().ShowStackableWindow(WindowNames.LoginWindow);
             });
         }
 
@@ -40,10 +44,12 @@ namespace YuankunHuang.Unity.Core
             ModuleRegistry.Get<IUIManager>().Dispose();
             ModuleRegistry.Get<ICameraManager>().Dispose();
             ModuleRegistry.Get<IAccountManager>().Dispose();
+            ModuleRegistry.Get<INetworkManager>().Dispose();
 
             ModuleRegistry.Unregister<IUIManager>();
             ModuleRegistry.Unregister<ICameraManager>();
             ModuleRegistry.Unregister<IAccountManager>();
+            ModuleRegistry.Unregister<INetworkManager>();
 
             SceneManager.UnloadAll(onFinished);
         }

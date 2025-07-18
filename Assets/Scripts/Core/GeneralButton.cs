@@ -10,8 +10,63 @@ using UnityEditor;
 
 namespace YuankunHuang.Unity.Core
 {
-    public class GeneralButton : Button
+    public class GeneralButton : Button, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler
     {
+        [Header("General Button Settings")]
+        public float pressedScale = 0.9f;
+        public float animationDuration = 0.05f;
+
+        private Vector3 _originalScale;
+        private Coroutine _scaleCoroutine;
+
+        protected override void Awake()
+        {
+            base.Awake();
+            _originalScale = transform.localScale;
+        }
+
+        public override void OnPointerDown(PointerEventData eventData)
+        {
+            base.OnPointerDown(eventData);
+            AnimateScale(Vector3.one * pressedScale);
+        }
+
+        public override void OnPointerUp(PointerEventData eventData)
+        {
+            base.OnPointerUp(eventData);
+            AnimateScale(_originalScale);
+        }
+
+        public override void OnPointerExit(PointerEventData eventData)
+        {
+            base.OnPointerExit(eventData);
+            AnimateScale(_originalScale);
+        }
+
+        private void AnimateScale(Vector3 targetScale)
+        {
+            if (_scaleCoroutine != null)
+            {
+                StopCoroutine(_scaleCoroutine);
+            }
+            _scaleCoroutine = StartCoroutine(ScaleTo(targetScale));
+        }
+
+        private IEnumerator ScaleTo(Vector3 target)
+        {
+            var current = transform.localScale;
+            var time = 0f;
+
+            while (time < animationDuration)
+            {
+                transform.localScale = Vector3.Lerp(current, target, time / animationDuration);
+                time += Time.unscaledDeltaTime;
+                yield return null;
+            }
+
+            transform.localScale = target;
+        }
+
 #if UNITY_EDITOR
         /// <summary>
         /// Adds a new GeneralButton to the scene when selected from the Unity Editor's GameObject menu.

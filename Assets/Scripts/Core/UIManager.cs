@@ -58,6 +58,11 @@ namespace YuankunHuang.Unity.Core
         }
         private Transform _stackableRoot;
 
+        public UIManager()
+        {
+            LogHelper.Log("UIManager initialized");
+        }
+
         #region Interfaces
         public void ShowStackableWindow(string windowName, IWindowData data = null)
         {
@@ -106,7 +111,15 @@ namespace YuankunHuang.Unity.Core
             if (_windowStack.Count > 0)
             {
                 var top = _windowStack.Peek();
-                top.Controller.Hide(WindowHideState.Covered);
+                if (top.AttributeDataHandle.Result.selfDestructOnCovered)
+                {
+                    ReleaseEntry(top);
+                    _windowStack.Pop();
+                }
+                else
+                {
+                    top.Controller.Hide(WindowHideState.Covered);
+                }
             }
 
             // Push to stack and show
@@ -143,13 +156,7 @@ namespace YuankunHuang.Unity.Core
             }
 
             var entry = _windowStack.Pop();
-            entry.Controller.Hide(WindowHideState.Removed);
-            entry.Controller.Dispose();
-
-            if (entry.WindowHandle.IsValid())
-            {
-                Addressables.Release(entry.WindowHandle);
-            }
+            ReleaseEntry(entry);
 
             if (_windowStack.Count > 0)
             {
@@ -192,8 +199,7 @@ namespace YuankunHuang.Unity.Core
                 }
 
                 entry = _windowStack.Pop();
-                entry.Controller.Hide(WindowHideState.Removed);
-                entry.Controller.Dispose();
+                ReleaseEntry(entry);
             }
         }
 
@@ -201,12 +207,27 @@ namespace YuankunHuang.Unity.Core
         {
             foreach (var entry in _windowStack)
             {
-                entry.Controller.Dispose();
-                Addressables.Release(entry.WindowHandle);
-                Addressables.Release(entry.AttributeDataHandle);
+                ReleaseEntry(entry);
             }
             _windowStack.Clear();
+
+            LogHelper.Log("UIManager disposed");
         }
         #endregion
+
+        private void ReleaseEntry(WindowStackEntry entry)
+        {
+            if (entry.WindowHandle.IsValid())
+            {
+                Addressables.Release(entry.WindowHandle);
+            }
+            if (entry.AttributeDataHandle.IsValid())
+            {
+                Addressables.Release(entry.AttributeDataHandle);
+            }
+            entry.Controller.Hide(WindowHideState.Removed);
+            entry.Controller.Dispose();
+            GameObject.Destroy(entry.WindowGO);
+        }
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -92,10 +93,27 @@ namespace YuankunHuang.Unity.HotUpdate
             if (!string.IsNullOrEmpty(txt))
             {
                 _messages.Add(new MainMenuMessageData($"{++MessageIDTest}", ModuleRegistry.Get<IAccountManager>().Self, txt));
-                _grid.Refresh();
+                _grid.AppendBottom(_messages.Count - 1);
+                _grid.scrollRect.StopMovement();
+                _grid.GoToBottom();
             }
 
             _inputField.text = string.Empty;
+
+            ModuleRegistry.Get<INetworkManager>().RestApi.GetDummyMessage(
+                (message) =>
+                {
+                    var data = new MainMenuMessageData($"{++MessageIDTest}", ModuleRegistry.Get<IAccountManager>().AI, message.body);
+                    _messages.Add(data);
+                    _grid.AppendBottom(_messages.Count - 1);
+                    _grid.scrollRect.StopMovement();
+                    _grid.GoToBottom();
+                },
+                (error) =>
+                {
+                    Debug.LogError($"Failed to get dummy message: {error}");
+                }
+            );
         }
         #endregion
 
@@ -105,17 +123,23 @@ namespace YuankunHuang.Unity.HotUpdate
             return _messages.Count;
         }
 
-        public float GetElementHeight(int index)
+        public Vector2 GetElementSize(int index)
         {
             var message = _messages[index];
-            return CalculateTextHeight(message.Content);
+            var size = CalculateMessageSize(message.Content);
+            return size;
         }
 
-        private float CalculateTextHeight(string text)
+        private Vector2 CalculateMessageSize(string text)
         {
             MainMenuMessageController.Show(_tmpMessageConfig, new MainMenuMessageData("temp", null, text));
+
+            LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)_tmpMessageConfig.transform);
+
             var height = LayoutUtility.GetPreferredHeight((RectTransform)_tmpMessageConfig.transform);
-            return height;
+            var width = LayoutUtility.GetPreferredWidth((RectTransform)_tmpMessageConfig.transform);
+            var size = new Vector2(width, height);
+            return size;
         }
 
         public void OnElementShow(GridScrollViewElement element)

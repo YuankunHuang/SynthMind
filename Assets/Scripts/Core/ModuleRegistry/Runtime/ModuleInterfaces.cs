@@ -41,6 +41,20 @@ namespace YuankunHuang.Unity.Core
     public interface IAccountManager : IModule
     {
         IAccount Self { get; }
+        IAccount AI { get; }
         IAccount GetAccount(string uuid);
+        void Login(string username, string password, Action onSuccess, Action<string> onError);
+    }
+
+    public interface INetworkManager : IModule
+    {
+        void Connect(string address, int port);
+        void Disconnect();
+        bool IsConnected { get; }
+        event Action OnConnected;
+        event Action OnDisconnected;
+        event Action<string> OnError;
+
+        RestApiClient RestApi { get; }
     }
 }

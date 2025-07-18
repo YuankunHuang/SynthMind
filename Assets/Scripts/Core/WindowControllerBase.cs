@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.UI;
@@ -42,7 +43,7 @@ namespace YuankunHuang.Unity.Core
 
                 if (AttributeData.useBlurredBackground)
                 {
-                    MonoManager.Instance.StartCoroutine(LoadBlurCoroutine());
+                    LoadBlurAsync();
                 }
 
                 if (AttributeData.usePopupScaleAnimation)
@@ -52,6 +53,36 @@ namespace YuankunHuang.Unity.Core
             }
 
             OnInit();
+        }
+
+        private async void LoadBlurAsync()
+        {
+            await Task.Yield();
+
+            _blurRenderTex = new RenderTexture(Screen.width, Screen.height, 0, RenderTextureFormat.ARGB32);
+            ScreenCapture.CaptureScreenshotIntoRenderTexture(_blurRenderTex);
+
+            var blurGO = new GameObject("Blur");
+            var rt = blurGO.AddComponent<RectTransform>();
+            var img = blurGO.AddComponent<RawImage>();
+            img.raycastTarget = true;
+            img.texture = _blurRenderTex;
+
+            rt.SetParent(Config.transform);
+            rt.SetAsFirstSibling();
+            rt.anchorMin = new Vector2(0, 0);
+            rt.anchorMax = new Vector2(1, 1);
+            rt.offsetMin = rt.offsetMax = Vector2.zero;
+
+            var mat = await ResManager.LoadAssetAsync<Material>(AddressablePaths.UIBoxBlurMaterial);
+            if (mat != null)
+            {
+                img.material = mat;
+            }
+            else
+            {
+                LogHelper.LogError($"[WindowControllerBase]::LoadBlurAsync: Failed to load blur material.");
+            }
         }
 
         private IEnumerator PopupScaleIn()
@@ -69,36 +100,6 @@ namespace YuankunHuang.Unity.Core
                 yield return null;
             }
             Config.transform.localScale = end;
-        }
-
-        private IEnumerator LoadBlurCoroutine()
-        {
-            yield return new WaitForEndOfFrame();
-            _blurRenderTex = new RenderTexture(Screen.width, Screen.height, 0, RenderTextureFormat.ARGB32);
-            ScreenCapture.CaptureScreenshotIntoRenderTexture(_blurRenderTex);
-
-            var blurGO = new GameObject("Blur");
-            var rt = blurGO.AddComponent<RectTransform>();
-            var img = blurGO.AddComponent<RawImage>();
-            img.raycastTarget = true;
-            img.texture = _blurRenderTex;
-
-            rt.SetParent(Config.transform);
-            rt.SetAsFirstSibling();
-            rt.anchorMin = new Vector2(0, 0);
-            rt.anchorMax = new Vector2(1, 1);
-            rt.offsetMin = rt.offsetMax = Vector2.zero;
-
-            var handle = ResManager.LoadAssetAsync<Material>(AddressablePaths.UIBoxBlurMaterial);
-            yield return handle;
-            if (handle != null && handle.Result != null)
-            {
-                img.material = handle.Result;
-            }
-            else
-            {
-                LogHelper.LogError($"[WindowControllerBase] Failed to load blur material!");
-            }
         }
 
         public void Show(IWindowData data, WindowShowState state)

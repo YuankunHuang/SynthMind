@@ -45,6 +45,11 @@ namespace YuankunHuang.Unity.Core
 
         private static readonly object HomelessCamId = new object();
 
+        public CameraManager()
+        {
+            LogHelper.Log($"CameraManager initialized");
+        }
+
         public void AddToMainStack(Camera cam)
         {
             if (cam == null)
@@ -132,8 +137,11 @@ namespace YuankunHuang.Unity.Core
 
         public void Dispose()
         {
-            var universalCamData = MainCamera.GetUniversalAdditionalCameraData();
-            universalCamData.cameraStack.Clear();
+            if (MainCamera != null)
+            {
+                var universalCamData = MainCamera.GetUniversalAdditionalCameraData();
+                universalCamData.cameraStack.Clear();
+            }
 
             _camOwnerDict.Clear();
             _mainCam = null;
