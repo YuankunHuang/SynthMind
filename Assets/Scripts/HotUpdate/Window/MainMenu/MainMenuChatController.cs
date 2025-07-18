@@ -96,24 +96,24 @@ namespace YuankunHuang.Unity.HotUpdate
                 _grid.AppendBottom(_messages.Count - 1);
                 _grid.scrollRect.StopMovement();
                 _grid.GoToBottom();
+
+                ModuleRegistry.Get<INetworkManager>().RestApi.GetDummyMessage(
+                    (message) =>
+                    {
+                        var data = new MainMenuMessageData($"{++MessageIDTest}", ModuleRegistry.Get<IAccountManager>().AI, message.body);
+                        _messages.Add(data);
+                        _grid.AppendBottom(_messages.Count - 1);
+                        _grid.scrollRect.StopMovement();
+                        _grid.GoToBottom();
+                    },
+                    (error) =>
+                    {
+                        Debug.LogError($"Failed to get dummy message: {error}");
+                    }
+                );
             }
 
             _inputField.text = string.Empty;
-
-            ModuleRegistry.Get<INetworkManager>().RestApi.GetDummyMessage(
-                (message) =>
-                {
-                    var data = new MainMenuMessageData($"{++MessageIDTest}", ModuleRegistry.Get<IAccountManager>().AI, message.body);
-                    _messages.Add(data);
-                    _grid.AppendBottom(_messages.Count - 1);
-                    _grid.scrollRect.StopMovement();
-                    _grid.GoToBottom();
-                },
-                (error) =>
-                {
-                    Debug.LogError($"Failed to get dummy message: {error}");
-                }
-            );
         }
         #endregion
 
