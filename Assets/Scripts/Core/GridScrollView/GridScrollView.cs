@@ -53,6 +53,11 @@ namespace YuankunHuang.Unity.Core
         private Dictionary<int, float> _elementPositions = new();
         private float _totalContentSize = 0f;
         private Coroutine _scrollCoroutine;
+        private int _visibleIndexMin = -1;
+        private int _visibleIndexMax = -1;
+
+        private bool _isFixingDeferredSizes = false;
+        private readonly List<int> _deferredSizeFixIndices = new();
 
         private Vector2 spacing => layoutGroup switch
         {
@@ -286,6 +291,7 @@ namespace YuankunHuang.Unity.Core
                 size = _handler.GetElementSize(index);
                 _elementSizes[index] = size;
             }
+
             return size;
         }
 
@@ -484,7 +490,46 @@ namespace YuankunHuang.Unity.Core
             _handler.OnElementShow(element);
             _activeElements[idx] = element;
 
+            _deferredSizeFixIndices.Add(idx);
+            if (!_isFixingDeferredSizes)
+            {
+                _isFixingDeferredSizes = true;
+                StartCoroutine(FixDeferredSizes());
+            }
+
             SetElementPosition(element, idx);
+        }
+
+        private IEnumerator FixDeferredSizes()
+        {
+            if (_deferredSizeFixIndices.Count < 1)
+            {
+                yield break;
+            }
+
+            yield return null; // wait for layout pass
+
+            foreach (int idx in _deferredSizeFixIndices)
+            {
+                var element = GetElementAtIndex(idx);
+                if (element == null) continue;
+
+                var rt = (RectTransform)element.transform;
+                var actualHeight = rt.sizeDelta.y;
+
+                _elementSizes[idx] = rt.sizeDelta;
+            }
+
+            foreach (var kv in _activeElements)
+            {
+                SetElementPosition(kv.Value, kv.Key);
+            }
+
+            UpdateContentSize();
+            SnapToBottom();
+
+            _deferredSizeFixIndices.Clear();
+            _isFixingDeferredSizes = false;
         }
 
         private void SetElementPosition(GridScrollViewElement element, int idx)
@@ -584,6 +629,14 @@ namespace YuankunHuang.Unity.Core
         private void OnValueChanged(Vector2 value)
         {
             var (newVisibleIndexMin, newVisibleIndexMax) = GetVisibleIndices();
+
+            if (newVisibleIndexMin == _visibleIndexMin && newVisibleIndexMax == _visibleIndexMax)
+            {
+                return; // no change in visible indices
+            }
+
+            _visibleIndexMin = newVisibleIndexMin;
+            _visibleIndexMax = newVisibleIndexMax;
 
             // to hide
             var indicesToHide = new List<int>();

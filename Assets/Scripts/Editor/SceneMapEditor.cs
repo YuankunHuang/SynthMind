@@ -5,109 +5,117 @@ using UnityEditor.AddressableAssets;
 using UnityEditor.AddressableAssets.Settings.GroupSchemas;
 using System.IO;
 using System.Text;
-using LogHelper = YuankunHuang.Unity.Core.LogHelper;
+using YuankunHuang.Unity.Core;
 
-public class SceneMapEditor : EditorWindow
+namespace YuankunHuang.Unity.Editor
 {
-    private string _sceneFolderPath = "Assets/Scenes";
-    private string _groupName = "Scenes";
-    private string _outputScriptPath = "Assets/Scripts/Core/SceneKeys.cs";
-
-    [MenuItem("SynthMind/Tools/Scene Map Generator")]
-    public static void ShowWindow()
+    /// <summary>
+    /// A custom editor window for generating a scene map and Addressables configuration.
+    /// This tool allows users to select a folder containing scenes, specify an Addressable group name,
+    /// and generate a SceneKeys.cs file with constants for each scene.
+    /// </summary>
+    public class SceneMapEditor : EditorWindow
     {
-        GetWindow<SceneMapEditor>("Scene Map Generator");
-    }
+        private string _sceneFolderPath = "Assets/Scenes";
+        private string _groupName = "Scenes";
+        private string _outputScriptPath = "Assets/Scripts/Core/SceneKeys.cs";
 
-    private void OnGUI()
-    {
-        GUILayout.Label("Settings", EditorStyles.boldLabel);
-
-        EditorGUILayout.BeginHorizontal();
-        EditorGUILayout.LabelField("Scene Folder Path", GUILayout.Width(150));
-        if (GUILayout.Button("Select Folder", GUILayout.Width(120)))
+        [MenuItem("SynthMind/Tools/Scene Map Generator")]
+        public static void ShowWindow()
         {
-            string selected = EditorUtility.OpenFolderPanel("Select Scene Folder", Application.dataPath, "");
-            if (!string.IsNullOrEmpty(selected))
+            GetWindow<SceneMapEditor>("Scene Map Generator");
+        }
+
+        private void OnGUI()
+        {
+            GUILayout.Label("Settings", EditorStyles.boldLabel);
+
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("Scene Folder Path", GUILayout.Width(150));
+            if (GUILayout.Button("Select Folder", GUILayout.Width(120)))
             {
-                if (selected.StartsWith(Application.dataPath))
-                    _sceneFolderPath = "Assets" + selected.Substring(Application.dataPath.Length);
-                else
-                    LogHelper.LogWarning("Selected folder must be inside Assets.");
+                string selected = EditorUtility.OpenFolderPanel("Select Scene Folder", Application.dataPath, "");
+                if (!string.IsNullOrEmpty(selected))
+                {
+                    if (selected.StartsWith(Application.dataPath))
+                        _sceneFolderPath = "Assets" + selected.Substring(Application.dataPath.Length);
+                    else
+                        LogHelper.LogWarning("Selected folder must be inside Assets.");
+                }
+            }
+
+            EditorGUILayout.EndHorizontal();
+            EditorGUILayout.LabelField($"Selected: {_sceneFolderPath}");
+
+            EditorGUILayout.Space();
+
+            _groupName = EditorGUILayout.TextField("Addressable Group Name", _groupName);
+
+            EditorGUILayout.Space();
+
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("SceneKeys.cs Output Path", GUILayout.Width(160));
+            if (GUILayout.Button("Select File", GUILayout.Width(120)))
+            {
+                string selected = EditorUtility.SaveFilePanel("Select Output File", Application.dataPath, "SceneKeys", "cs");
+                if (!string.IsNullOrEmpty(selected))
+                {
+                    if (selected.StartsWith(Application.dataPath))
+                        _outputScriptPath = "Assets" + selected.Substring(Application.dataPath.Length);
+                    else
+                        LogHelper.LogWarning("Selected file must be inside Assets.");
+                }
+            }
+            EditorGUILayout.EndHorizontal();
+            EditorGUILayout.LabelField("Selected: " + _outputScriptPath);
+
+            EditorGUILayout.Space();
+
+            if (GUILayout.Button("Generate Addressables + SceneKeys.cs"))
+            {
+                GenerateSceneMap(_sceneFolderPath, _groupName, _outputScriptPath);
             }
         }
 
-        EditorGUILayout.EndHorizontal();
-        EditorGUILayout.LabelField($"Selected: {_sceneFolderPath}");
-
-        EditorGUILayout.Space();
-
-        _groupName = EditorGUILayout.TextField("Addressable Group Name", _groupName);
-
-        EditorGUILayout.Space();
-
-        EditorGUILayout.BeginHorizontal();
-        EditorGUILayout.LabelField("SceneKeys.cs Output Path", GUILayout.Width(160));
-        if (GUILayout.Button("Select File", GUILayout.Width(120)))
+        private static void GenerateSceneMap(string sceneFolderPath, string groupName, string outputScriptPath)
         {
-            string selected = EditorUtility.SaveFilePanel("Select Output File", Application.dataPath, "SceneKeys", "cs");
-            if (!string.IsNullOrEmpty(selected))
+            var settings = AddressableAssetSettingsDefaultObject.GetSettings(true);
+
+            // Create or find the target group
+            var group = settings.FindGroup(groupName);
+            if (group == null)
+                group = settings.CreateGroup(groupName, false, false, false, null, typeof(BundledAssetGroupSchema));
+
+            var sceneGUIDs = AssetDatabase.FindAssets("t:Scene", new[] { sceneFolderPath });
+            var sb = new StringBuilder();
+
+            sb.AppendLine("// Auto-generated by SceneMapEditor");
+            sb.AppendLine("public static class SceneKeys");
+            sb.AppendLine("{");
+
+            foreach (var guid in sceneGUIDs)
             {
-                if (selected.StartsWith(Application.dataPath))
-                    _outputScriptPath = "Assets" + selected.Substring(Application.dataPath.Length);
-                else
-                    LogHelper.LogWarning("Selected file must be inside Assets.");
+                var path = AssetDatabase.GUIDToAssetPath(guid);
+                var sceneName = Path.GetFileNameWithoutExtension(path);
+                var key = $"scenes/{sceneName.ToLower()}";
+
+                // Add to addressables if not already
+                var entry = settings.FindAssetEntry(guid);
+                if (entry == null)
+                {
+                    entry = settings.CreateOrMoveEntry(guid, group);
+                }
+                entry.address = key;
+
+                // Write constant
+                sb.AppendLine($"    public static readonly string {sceneName} = \"{key}\";");
             }
+
+            sb.AppendLine("}");
+            File.WriteAllText(outputScriptPath, sb.ToString());
+            AssetDatabase.Refresh();
+
+            LogHelper.Log("SceneKeys.cs generated and Addressables updated.");
         }
-        EditorGUILayout.EndHorizontal();
-        EditorGUILayout.LabelField("Selected: " + _outputScriptPath);
-
-        EditorGUILayout.Space();
-
-        if (GUILayout.Button("Generate Addressables + SceneKeys.cs"))
-        {
-            GenerateSceneMap(_sceneFolderPath, _groupName, _outputScriptPath);
-        }
-    }
-
-    private static void GenerateSceneMap(string sceneFolderPath, string groupName, string outputScriptPath)
-    {
-        var settings = AddressableAssetSettingsDefaultObject.GetSettings(true);
-
-        // Create or find the target group
-        var group = settings.FindGroup(groupName);
-        if (group == null)
-            group = settings.CreateGroup(groupName, false, false, false, null, typeof(BundledAssetGroupSchema));
-
-        var sceneGUIDs = AssetDatabase.FindAssets("t:Scene", new[] { sceneFolderPath });
-        var sb = new StringBuilder();
-
-        sb.AppendLine("// Auto-generated by SceneMapEditor");
-        sb.AppendLine("public static class SceneKeys");
-        sb.AppendLine("{");
-
-        foreach (var guid in sceneGUIDs)
-        {
-            var path = AssetDatabase.GUIDToAssetPath(guid);
-            var sceneName = Path.GetFileNameWithoutExtension(path);
-            var key = $"scenes/{sceneName.ToLower()}";
-
-            // Add to addressables if not already
-            var entry = settings.FindAssetEntry(guid);
-            if (entry == null)
-            {
-                entry = settings.CreateOrMoveEntry(guid, group);
-            }
-            entry.address = key;
-
-            // Write constant
-            sb.AppendLine($"    public static readonly string {sceneName} = \"{key}\";");
-        }
-
-        sb.AppendLine("}");
-        File.WriteAllText(outputScriptPath, sb.ToString());
-        AssetDatabase.Refresh();
-
-        LogHelper.Log("SceneKeys.cs generated and Addressables updated.");
     }
 }

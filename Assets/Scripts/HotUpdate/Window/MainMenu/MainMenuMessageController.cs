@@ -1,4 +1,10 @@
+using System.Collections;
+using TMPro;
+using UnityEditor.VersionControl;
+using UnityEngine;
+using UnityEngine.UI;
 using YuankunHuang.Unity.Core;
+using YuankunHuang.Unity.Util;
 
 namespace YuankunHuang.Unity.HotUpdate
 {
@@ -65,6 +71,16 @@ namespace YuankunHuang.Unity.HotUpdate
             config.ExtraTextMeshProList[(int)ExtraTMP.Username].text = data.Sender != null
                 ? data.Sender.Username
                 : "Unknown User";
+            config.CanvasGroup.CanvasGroupOn();
+        }
+
+        public static void Hide(GeneralWidgetConfig config)
+        {
+            if (config == null)
+            {
+                return;
+            }
+            config.CanvasGroup.CanvasGroupOff();
         }
     }
 }

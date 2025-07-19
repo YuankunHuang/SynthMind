@@ -46,6 +46,11 @@ namespace YuankunHuang.Unity.Core
         void Login(string username, string password, Action onSuccess, Action<string> onError);
     }
 
+    public enum ServerType
+    {
+        ChatAI,
+        ChatPlayer,
+    }
     public interface INetworkManager : IModule
     {
         void Connect(string address, int port);
@@ -55,6 +60,6 @@ namespace YuankunHuang.Unity.Core
         event Action OnDisconnected;
         event Action<string> OnError;
 
-        RestApiClient RestApi { get; }
+        void SendMessage(string message, ServerType server, Action<string> onSuccess, Action<string> onError);
     }
 }

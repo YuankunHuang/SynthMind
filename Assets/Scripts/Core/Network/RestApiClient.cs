@@ -5,41 +5,64 @@ using UnityEngine;
 
 namespace YuankunHuang.Unity.Core
 {
-    [System.Serializable]
-    public class JsonPlaceholderMessage
+    [Serializable]
+    public class MessageWrapper
     {
-        public int postId;
-        public int id;
-        public string name;
-        public string email;
-        public string body;
+        public string message;
+    }
+
+    [Serializable]
+    public class ServerReply
+    {
+        public string reply;
     }
 
     public class RestApiClient : IDisposable
     {
-        public void GetDummyMessage(Action<JsonPlaceholderMessage> onSuccess, Action<string> onError)
+        private static readonly string aiServerUrl = "http://localhost:5000/chat";
+
+        public void SendMessage(string message, ServerType server, Action<string> onSuccess, Action<string> onError)
         {
-            MonoManager.Instance.StartCoroutine(GetDummyMessageCoroutine(onSuccess, onError));
+            MonoManager.Instance.StartCoroutine(SendMessageCoroutine(message, server, onSuccess, onError));
         }
 
-        private IEnumerator GetDummyMessageCoroutine(Action<JsonPlaceholderMessage> onSuccess, Action<string> onError)
+        private IEnumerator SendMessageCoroutine(string message, ServerType server, Action<string> onSuccess, Action<string> onError)
         {
-            var url = "https://jsonplaceholder.typicode.com/comments/1";
-            using (UnityWebRequest request = UnityWebRequest.Get(url))
+            var json = JsonUtility.ToJson(new MessageWrapper { message = message });
+            byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(json);
+
+            var url = server switch
             {
+                ServerType.ChatAI => aiServerUrl,
+                ServerType.ChatPlayer => "http://localhost:5000/chat", // Replace with actual chat server URL
+                _ => throw new ArgumentOutOfRangeException(nameof(server), server, null)
+            };
+
+            using (UnityWebRequest request = new UnityWebRequest(url, "POST"))
+            {
+                request.uploadHandler = new UploadHandlerRaw(bodyRaw);
+                request.downloadHandler = new DownloadHandlerBuffer();
+                request.SetRequestHeader("Content-Type", "application/json");
+
                 yield return request.SendWebRequest();
 
-                if (request.result == UnityWebRequest.Result.Success)
+                if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError)
                 {
-                    onSuccess?.Invoke(JsonUtility.FromJson<JsonPlaceholderMessage>(request.downloadHandler.text));
+                    onError?.Invoke(request.error);
                 }
                 else
                 {
-                    onError?.Invoke($"Error: {request.error}");
+                    try
+                    {
+                        var response = JsonUtility.FromJson<ServerReply>(request.downloadHandler.text);
+                        onSuccess?.Invoke(response.reply);
+                    }
+                    catch (Exception ex)
+                    {
+                        onError?.Invoke($"Error parsing response: {ex.Message}");
+                    }
                 }
             }
-
-            
         }
 
         public void Dispose()

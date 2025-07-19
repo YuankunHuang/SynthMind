@@ -41,5 +41,16 @@ namespace YuankunHuang.Unity.Core
 
             LogHelper.Log("NetworkManager disposed");
         }
+
+        public void SendMessage(string message, ServerType server, Action<string> onSuccess, Action<string> onError)
+        {
+            if (RestApi == null)
+            {
+                onError?.Invoke("RestApiClient is not initialized.");
+                return;
+            }
+            RestApi.SendMessage(message, server, onSuccess, onError);
+        }
+
     }
 }

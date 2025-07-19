@@ -88,19 +88,20 @@ namespace YuankunHuang.Unity.HotUpdate
         #region Events
         private void OnSendBtnClicked()
         {
-            var txt = _inputField.text.Trim();
+            var msg = _inputField.text.Trim();
 
-            if (!string.IsNullOrEmpty(txt))
+            if (!string.IsNullOrEmpty(msg))
             {
-                _messages.Add(new MainMenuMessageData($"{++MessageIDTest}", ModuleRegistry.Get<IAccountManager>().Self, txt));
+                _messages.Add(new MainMenuMessageData($"{++MessageIDTest}", ModuleRegistry.Get<IAccountManager>().Self, msg));
                 _grid.AppendBottom(_messages.Count - 1);
                 _grid.scrollRect.StopMovement();
                 _grid.GoToBottom();
 
-                ModuleRegistry.Get<INetworkManager>().RestApi.GetDummyMessage(
-                    (message) =>
+                ModuleRegistry.Get<INetworkManager>().SendMessage(msg,
+                    ServerType.ChatAI,
+                    (reply) =>
                     {
-                        var data = new MainMenuMessageData($"{++MessageIDTest}", ModuleRegistry.Get<IAccountManager>().AI, message.body);
+                        var data = new MainMenuMessageData($"{++MessageIDTest}", ModuleRegistry.Get<IAccountManager>().AI, reply);
                         _messages.Add(data);
                         _grid.AppendBottom(_messages.Count - 1);
                         _grid.scrollRect.StopMovement();
@@ -126,20 +127,10 @@ namespace YuankunHuang.Unity.HotUpdate
         public Vector2 GetElementSize(int index)
         {
             var message = _messages[index];
-            var size = CalculateMessageSize(message.Content);
-            return size;
-        }
+            MainMenuMessageController.Show(_tmpMessageConfig, message);
 
-        private Vector2 CalculateMessageSize(string text)
-        {
-            MainMenuMessageController.Show(_tmpMessageConfig, new MainMenuMessageData("temp", null, text));
-
-            LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)_tmpMessageConfig.transform);
-
-            var height = LayoutUtility.GetPreferredHeight((RectTransform)_tmpMessageConfig.transform);
-            var width = LayoutUtility.GetPreferredWidth((RectTransform)_tmpMessageConfig.transform);
-            var size = new Vector2(width, height);
-            return size;
+            LayoutRebuilder.ForceRebuildLayoutImmediate(_tmpMessageConfig.GetComponent<RectTransform>());
+            return ((RectTransform)_tmpMessageConfig.transform).sizeDelta;
         }
 
         public void OnElementShow(GridScrollViewElement element)
@@ -152,6 +143,10 @@ namespace YuankunHuang.Unity.HotUpdate
 
         public void OnElementHide(GridScrollViewElement element)
         {
+            if (element is GeneralWidgetConfig config)
+            {
+                MainMenuMessageController.Hide(config);
+            }
         }
 
         public void OnElementCreate(GridScrollViewElement element)
