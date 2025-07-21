@@ -34,7 +34,7 @@ namespace YuankunHuang.Unity.Core
         string UUID { get; }
         string Username { get; }
         string Email { get; }
-        string Avatar { get; }
+        int Avatar { get; }
         void Dispose();
     }
 

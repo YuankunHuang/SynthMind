@@ -277,7 +277,7 @@ namespace YuankunHuang.Unity.Core
                     float cellWidth = availableWidth / columnCount;
 
                     size.x = cellWidth;
-                    size.y = cellWidth; // square, or you can customize this
+                    size.y = cellWidth; // square, doesn't have to be...to be updated
                     break;
             }
 

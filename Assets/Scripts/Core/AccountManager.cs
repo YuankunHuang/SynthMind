@@ -8,9 +8,9 @@ namespace YuankunHuang.Unity.Core
         public string UUID { get; private set; }
         public string Username { get; private set; }
         public string Email { get; private set; }
-        public string Avatar { get; private set; }
+        public int Avatar { get; private set; }
 
-        public Account(string uuid, string userName, string email, string avatar)
+        public Account(string uuid, string userName, string email, int avatar)
         {
             UUID = uuid;
             Username = userName;
@@ -50,10 +50,6 @@ namespace YuankunHuang.Unity.Core
 
         private Dictionary<string, Account> _accounts = new();
 
-        public AccountManager()
-        {
-        }
-
         public void Dispose()
         {
             Self?.Dispose();
@@ -84,7 +80,9 @@ namespace YuankunHuang.Unity.Core
             }
 
             Self = new Account(accountData.uuid, accountData.username, accountData.email, accountData.avatar);
-            AI = new Account(System.Guid.NewGuid().ToString(), "AI", "ai-email", "ai-avatar");
+
+            var aiAccountCfgData = AccountTestConfig.GetById(AccountTestConfig.AI_CHATGPT_ID);
+            AI = new Account(aiAccountCfgData.uuid, aiAccountCfgData.username, aiAccountCfgData.email, aiAccountCfgData.avatar);
 
             onSuccess?.Invoke();
         }

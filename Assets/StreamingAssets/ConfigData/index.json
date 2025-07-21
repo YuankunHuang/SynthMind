@@ -1,7 +1,7 @@
 {
   "AccountTest": {
-    "FieldCount": 6,
-    "RowCount": 3,
+    "FieldCount": 7,
+    "RowCount": 2,
     "Fields": [
       {
         "Name": "id",
@@ -16,15 +16,33 @@
         "Type": "String"
       },
       {
+        "Name": "password",
+        "Type": "String"
+      },
+      {
+        "Name": "nickname",
+        "Type": "String"
+      },
+      {
         "Name": "email",
         "Type": "String"
       },
       {
         "Name": "avatar",
-        "Type": "String"
+        "Type": "Int"
+      }
+    ]
+  },
+  "Avatar": {
+    "FieldCount": 2,
+    "RowCount": 2,
+    "Fields": [
+      {
+        "Name": "id",
+        "Type": "Int"
       },
       {
-        "Name": "password",
+        "Name": "asset",
         "Type": "String"
       }
     ]

@@ -11,6 +11,8 @@ namespace YuankunHuang.Unity.GameDataConfig
     /// </summary>
     public partial class AccountTestConfig : BaseConfigData<AccountTestData>
     {
+        public static readonly int AI_CHATGPT_ID = 2;
+
         private static Dictionary<string, AccountTestData> _usernameMap = new();
 
         static partial void PostInitialize()

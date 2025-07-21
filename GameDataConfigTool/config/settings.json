@@ -1,0 +1,28 @@
+{
+  "excelPath": "excels/",
+  "enumPath": "EnumTypes",
+  "outputPaths": {
+    "json": "output/json/",
+    "binary": "../Assets/StreamingAssets/ConfigData/",
+    "code": "../Assets/Scripts/ConfigData/code/"
+  },
+  "generators": {
+    "enableJson": false,
+    "enableBinary": true,
+    "enableCode": true
+  },
+  "codeGeneration": {
+    "namespace": "YuankunHuang.Unity.GameDataConfig",
+    "language": "csharp",
+    "generateEnum": true,
+    "generateLoader": true
+  },
+  "validation": {
+    "enableTypeCheck": true,
+    "enableRequiredFieldCheck": true
+  },
+  "logging": {
+    "level": "Info",
+    "outputToFile": false
+  }
+} 

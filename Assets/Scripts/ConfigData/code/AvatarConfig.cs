@@ -4,32 +4,22 @@ using System.IO;
 
 namespace YuankunHuang.Unity.GameDataConfig
 {
-    public class AccountTestData
+    public class AvatarData
     {
         public int id { get; set; }
 
-        public string uuid { get; set; }
-
-        public string username { get; set; }
-
-        public string password { get; set; }
-
-        public string nickname { get; set; }
-
-        public string email { get; set; }
-
-        public int avatar { get; set; }
+        public string asset { get; set; }
 
     }
 
-    public partial class AccountTestConfig : BaseConfigData<AccountTestData>
+    public partial class AvatarConfig : BaseConfigData<AvatarData>
     {
         /// <summary>
         /// Initializes and loads binary data file
         /// </summary>
         public static void Initialize()
         {
-            string binaryPath = System.IO.Path.Combine(UnityEngine.Application.streamingAssetsPath, "ConfigData", "AccountTest.data");
+            string binaryPath = System.IO.Path.Combine(UnityEngine.Application.streamingAssetsPath, "ConfigData", "Avatar.data");
             Initialize(binaryPath);
             PostInitialize();
         }

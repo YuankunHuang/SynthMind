@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>API_KEY</key>
+	<string>AIzaSyDwUW6k8S7sGc4ZhRded0bA4lCYbaxlP2s</string>
+	<key>GCM_SENDER_ID</key>
+	<string>976701209071</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.yuankunhuang.synthmind</string>
+	<key>PROJECT_ID</key>
+	<string>synthmind-yuankunhuang</string>
+	<key>STORAGE_BUCKET</key>
+	<string>synthmind-yuankunhuang.firebasestorage.app</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:976701209071:ios:bbdf320f52ea3c7d64de1a</string>
+</dict>
+</plist>

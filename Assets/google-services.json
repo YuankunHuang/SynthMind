@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "976701209071",
+    "project_id": "synthmind-yuankunhuang",
+    "storage_bucket": "synthmind-yuankunhuang.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:976701209071:android:683c29551bb7c3b164de1a",
+        "android_client_info": {
+          "package_name": "com.yuankunhuang.synthmind"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDthtKv63f9T4iH0fbqG50GfGVMCH4pYfs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
