@@ -7,13 +7,15 @@ namespace YuankunHuang.Unity.Core
     {
         public string UUID { get; private set; }
         public string Username { get; private set; }
+        public string Nickname { get; private set; }
         public string Email { get; private set; }
         public int Avatar { get; private set; }
 
-        public Account(string uuid, string userName, string email, int avatar)
+        public Account(string uuid, string username, string nickname, string email, int avatar)
         {
             UUID = uuid;
-            Username = userName;
+            Username = username;
+            Nickname = nickname;
             Email = email;
             Avatar = avatar;
         }
@@ -79,10 +81,10 @@ namespace YuankunHuang.Unity.Core
                 return;
             }
 
-            Self = new Account(accountData.uuid, accountData.username, accountData.email, accountData.avatar);
+            Self = new Account(accountData.uuid, accountData.username, accountData.nickname, accountData.email, accountData.avatar);
 
             var aiAccountCfgData = AccountTestConfig.GetById(AccountTestConfig.AI_CHATGPT_ID);
-            AI = new Account(aiAccountCfgData.uuid, aiAccountCfgData.username, aiAccountCfgData.email, aiAccountCfgData.avatar);
+            AI = new Account(aiAccountCfgData.uuid, aiAccountCfgData.username, aiAccountCfgData.nickname, aiAccountCfgData.email, aiAccountCfgData.avatar);
 
             onSuccess?.Invoke();
         }

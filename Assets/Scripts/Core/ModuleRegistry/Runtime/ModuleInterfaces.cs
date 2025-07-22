@@ -32,7 +32,7 @@ namespace YuankunHuang.Unity.Core
     public interface IAccount
     { 
         string UUID { get; }
-        string Username { get; }
+        string Nickname { get; }
         string Email { get; }
         int Avatar { get; }
         void Dispose();

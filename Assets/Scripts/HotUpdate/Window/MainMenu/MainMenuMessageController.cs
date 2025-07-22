@@ -57,7 +57,7 @@ namespace YuankunHuang.Unity.HotUpdate
         private enum ExtraTMP
         {
             Content = 0,
-            Username = 1,
+            Nickname = 1,
         }
 
         public static void Show(GeneralWidgetConfig config, MainMenuMessageData data)
@@ -68,8 +68,8 @@ namespace YuankunHuang.Unity.HotUpdate
             }
 
             config.ExtraTextMeshProList[(int)ExtraTMP.Content].text = data.Content;
-            config.ExtraTextMeshProList[(int)ExtraTMP.Username].text = data.Sender != null
-                ? data.Sender.Username
+            config.ExtraTextMeshProList[(int)ExtraTMP.Nickname].text = data.Sender != null
+                ? data.Sender.Nickname
                 : "Unknown User";
             config.CanvasGroup.CanvasGroupOn();
         }
