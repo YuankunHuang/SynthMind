@@ -11,15 +11,25 @@ namespace YuankunHuang.Unity.Core
     public class FirebaseManager
     {
         public static bool IsInitialized { get; private set; } = false;
-        public static string SessionId { get; private set; }
+        public static bool IsInitializing { get; private set; } = false;
 
         public static void InitializeDataBase(Action<bool> onComplete = null)
         {
+            if (IsInitialized)
+            {
+                onComplete?.Invoke(true);
+                LogHelper.Log($"Firebase is already initialized.");
+                return;
+            }
+
+            IsInitializing = true;
+
             FirebaseApp.CheckAndFixDependenciesAsync().ContinueWithOnMainThread(task =>
             {
-                SessionId = Guid.NewGuid().ToString(); // Unique session ID for the current user session
+                IsInitializing = false;
 
                 DependencyStatus dependencyStatus = task.Result;
+
                 if (dependencyStatus == DependencyStatus.Available)
                 {
                     // Firebase is ready to use
@@ -45,6 +55,31 @@ namespace YuankunHuang.Unity.Core
         }
 
         #region Conversation
+        public static void LoadMostRecentConversation(Action<string> onComplete)
+        {
+            var db = FirebaseFirestore.DefaultInstance;
+            db.Collection(FirebaseCollections.Conversations)
+                .OrderByDescending("lastUpdated")
+                .Limit(1)
+                .GetSnapshotAsync()
+                .ContinueWithOnMainThread(task =>
+                {
+                    if (task.IsCompletedSuccessfully && task.Result.Count > 0) // valid conversation found
+                    {
+                        var doc = task.Result.Documents.First();
+                        var conversationId = doc.Id;
+                        onComplete?.Invoke(conversationId);
+
+                        LogHelper.Log($"Conversation found: {conversationId}");
+                    }
+                    else
+                    {
+                        LogHelper.Log($"No recent conversation found.");
+                        onComplete?.Invoke(null);
+                    }
+                });
+        }
+
         public static void CreateNewConversation(List<string> participantIds, Action<string> onComplete)
         {
             if (participantIds == null || participantIds.Count < 1)
@@ -72,7 +107,7 @@ namespace YuankunHuang.Unity.Core
                 }
                 else
                 {
-                    LogHelper.LogError(SessionId + $" Failed to create conversation: {task.Exception}");
+                    LogHelper.LogError($"Failed to create conversation: {task.Exception}");
                     onComplete?.Invoke(null);
                 }
             });
@@ -86,9 +121,10 @@ namespace YuankunHuang.Unity.Core
                 .Collection(FirebaseCollections.Messages).Document();
             var data = new Dictionary<string, object>()
             {
+                { "messagId", Guid.NewGuid().ToString() },
                 { "senderId", senderId },
                 { "content", content },
-                { "timestamp", Timestamp.GetCurrentTimestamp() }
+                { "timestamp", FieldValue.ServerTimestamp }
             };
             if (metadata != null && metadata.Count > 0)
             {
@@ -98,7 +134,7 @@ namespace YuankunHuang.Unity.Core
             {
                 if (task.IsCompletedSuccessfully)
                 {
-                    LogHelper.Log($"Message sent successfully in conversation {conversationId}.");
+                    LogHelper.Log($"Message sent successfully in conversation {conversationId}, by {senderId}, content: {content}");
 
                     db.Collection(FirebaseCollections.Conversations).Document(conversationId)
                         .UpdateAsync("lastUpdated", Timestamp.GetCurrentTimestamp())
@@ -124,34 +160,44 @@ namespace YuankunHuang.Unity.Core
         public static void LoadRecentMessages(string convId, int limit, Action<List<FirebaseConversationMessage>> onComplete)
         {
             var db = FirebaseFirestore.DefaultInstance;
-            db.Collection("conversations").Document(convId)
-              .Collection("messages")
-              .OrderByDescending("timestamp")
-              .Limit(limit)
-              .GetSnapshotAsync().ContinueWithOnMainThread(task =>
-              {
-                  var messages = new List<FirebaseConversationMessage>();
-                  if (task.Result != null)
-                  {
-                      foreach (var doc in task.Result.Documents)
-                      {
-                          messages.Add(new FirebaseConversationMessage(
-                              convId,
-                              doc.GetValue<string>("senderId"),
-                              doc.GetValue<string>("content"),
-                              doc.ContainsField("metadata") ? doc.GetValue<Dictionary<string, object>>("metadata") : null));
-                      }
-                  }
+            db.Collection(FirebaseCollections.Conversations).Document(convId)
+                .Collection(FirebaseCollections.Messages)
+                .OrderByDescending("timestamp")
+                .Limit(limit)
+                .GetSnapshotAsync().ContinueWithOnMainThread(task =>
+                {
+                    var messages = new List<FirebaseConversationMessage>();
+                    if (task.Result != null)
+                    {
+                        foreach (var doc in task.Result.Documents)
+                        {
+                            messages.Add(new FirebaseConversationMessage(
+                                convId,
+                                doc.GetValue<string>("messageId"),
+                                doc.GetValue<string>("senderId"),
+                                doc.GetValue<string>("content"),
+                                doc.ContainsField("timestamp") ? doc.GetValue<Timestamp>("timestamp") : Timestamp.GetCurrentTimestamp(),
+                                doc.ContainsField("metadata") ? doc.GetValue<Dictionary<string, object>>("metadata") : null)
+                            );
+                        }
+                    }
 
-                  onComplete?.Invoke(messages);
-              });
+                    onComplete?.Invoke(messages);
+                });
         }
 
         public static void LoadMessagesBefore(string convId, DocumentSnapshot lastDoc, int limit, Action<List<FirebaseConversationMessage>, DocumentSnapshot> onComplete)
         {
+            if (lastDoc == null)
+            {
+                LogHelper.LogError("lastDoc is null in LoadMessagesBefore.");
+                onComplete?.Invoke(new List<FirebaseConversationMessage>(), null);
+                return;
+            }
+
             var db = FirebaseFirestore.DefaultInstance;
-            var query = db.Collection("conversations").Document(convId)
-                          .Collection("messages")
+            var query = db.Collection(FirebaseCollections.Conversations).Document(convId)
+                          .Collection(FirebaseCollections.Messages)
                           .OrderByDescending("timestamp")
                           .StartAfter(lastDoc)
                           .Limit(limit);
@@ -172,8 +218,10 @@ namespace YuankunHuang.Unity.Core
                 {
                     messages.Add(new FirebaseConversationMessage(
                         convId,
+                        doc.GetValue<string>("messageId"),
                         doc.GetValue<string>("senderId"),
                         doc.GetValue<string>("content"),
+                        doc.ContainsField("timestamp") ? doc.GetValue<Timestamp>("timestamp") : Timestamp.GetCurrentTimestamp(),
                         doc.ContainsField("metadata") ? doc.GetValue<Dictionary<string, object>>("metadata") : null
                     ));
                 }
@@ -184,43 +232,13 @@ namespace YuankunHuang.Unity.Core
             });
         }
 
-        public static void LogConversationMessage(FirebaseConversationMessage msg)
-        {
-            var db = FirebaseFirestore.DefaultInstance;
-            var msgRef = db
-                .Collection(FirebaseCollections.Conversations).Document(msg.ConversationId)
-                .Collection(FirebaseCollections.Messages);
-            var data = new Dictionary<string, object>
-            {
-                { "senderId", msg.SenderId },
-                { "content", msg.Content },
-                { "timestamp", Timestamp.GetCurrentTimestamp() }
-            };
-            if (msg.Metadata != null && msg.Metadata.Count > 0)
-            {
-                data["metadata"] = msg.Metadata;
-            }
-
-            msgRef.AddAsync(data).ContinueWithOnMainThread(task =>
-            {
-                if (task.IsCompleted && !task.IsFaulted)
-                {
-                    LogHelper.Log($"Message logged successfully in conversation {msg.ConversationId}.");
-                }
-                else
-                {
-                    LogHelper.LogError($"Failed to log message in conversation {msg.ConversationId}: {task.Exception}");
-                }
-            });
-        }
-
         public static void LoadConversationMessages(string conversationId, Action<List<FirebaseConversationMessage>> onComplete)
         {
             var db = FirebaseFirestore.DefaultInstance;
             db
             .Collection(FirebaseCollections.Conversations).Document(conversationId)
             .Collection(FirebaseCollections.Messages)
-            .OrderByDescending("timestamp")
+            .OrderBy("timestamp")
             .GetSnapshotAsync()
             .ContinueWithOnMainThread(task =>
             {
@@ -233,8 +251,10 @@ namespace YuankunHuang.Unity.Core
                         var data = doc.ToDictionary();
                         var message = new FirebaseConversationMessage(
                             conversationId,
+                            data.ContainsKey("messageId") ? data["messageId"].ToString() : string.Empty,
                             data.ContainsKey("senderId") ? data["senderId"].ToString() : string.Empty,
                             data.ContainsKey("content") ? data["content"].ToString() : string.Empty,
+                            data.ContainsKey("timestamp") ? (Timestamp)data["timestamp"] : Timestamp.GetCurrentTimestamp(),
                             data.ContainsKey("metadata") ? (Dictionary<string, object>)data["metadata"] : null
                         );
                         messages.Add(message);
@@ -260,15 +280,19 @@ namespace YuankunHuang.Unity.Core
     public struct FirebaseConversationMessage
     {
         public string ConversationId { get; private set; }
+        public string MessageId { get; private set; }
         public string SenderId { get; private set; }
         public string Content { get; private set; }
+        public Timestamp Timestamp { get; private set; }
         public Dictionary<string, object> Metadata { get; private set; }
 
-        public FirebaseConversationMessage(string conversationId, string senderId, string content, Dictionary<string, object> metadata = null)
+        public FirebaseConversationMessage(string conversationId, string messageId, string senderId, string content, Timestamp timeStamp, Dictionary<string, object> metadata = null)
         {
             ConversationId = conversationId;
+            MessageId = messageId;
             SenderId = senderId;
             Content = content;
+            Timestamp = timeStamp;
             Metadata = metadata ?? new Dictionary<string, object>();
         }
     }

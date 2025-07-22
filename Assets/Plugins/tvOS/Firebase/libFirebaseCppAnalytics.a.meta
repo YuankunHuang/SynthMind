@@ -1,10 +1,9 @@
 fileFormatVersion: 2
-guid: 9f2edbf81053418f879076c05f816dc2
+guid: 8aa59edc9bec4e45acabc30173a8beaa
 labels:
 - gvh
-- gvh_targets-editor
 - gvh_version-12.10.1
-- gvhp_exportpath-Firebase/Editor/Firebase.Editor.dll
+- gvhp_exportpath-Plugins/tvOS/Firebase/libFirebaseCppAnalytics.a
 timeCreated: 1480838400
 PluginImporter:
   serializedVersion: 1
@@ -73,11 +72,10 @@ PluginImporter:
         CompileFlags:
         FrameworkDependencies:
     tvOS:
-      enabled: 0
+      enabled: 1
       settings:
         CompileFlags:
         FrameworkDependencies:
   userData:
   assetBundleName:
   assetBundleVariant:
-  validateReferences: 0

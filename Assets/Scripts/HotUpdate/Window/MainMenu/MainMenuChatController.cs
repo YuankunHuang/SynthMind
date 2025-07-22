@@ -1,3 +1,4 @@
+using Firebase.Firestore;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -36,6 +37,7 @@ namespace YuankunHuang.Unity.HotUpdate
         #region Fields
         private List<MainMenuMessageData> _messages;
         private GeneralWidgetConfig _tmpMessageConfig;
+        private string _conversationId;
 
         private static int MessageIDTest = 0;
         #endregion
@@ -60,12 +62,59 @@ namespace YuankunHuang.Unity.HotUpdate
             _hiddenRoot = _config.ExtraObjectList[(int)ExtraObj.HiddenRoot];
 
             _sendBtn.onClick.AddListener(OnSendBtnClicked);
+            _inputField.onSelect.AddListener(OnInputFieldSelected);
 
             _tmpMessageConfig = GameObject.Instantiate(_grid.itemPrefab, _hiddenRoot).GetComponent<GeneralWidgetConfig>();
+
+            MonoManager.Instance.OnTick += OnTick;
         }
 
         public void Show()
         {
+            if (!FirebaseManager.IsInitializing)
+            {
+                FirebaseManager.InitializeDataBase(success =>
+                {
+                    if (success)
+                    {
+                        FirebaseManager.LoadMostRecentConversation(convId =>
+                        {
+                            if (!string.IsNullOrEmpty(convId))
+                            {
+                                _conversationId = convId;
+
+                                FirebaseManager.LoadConversationMessages(_conversationId, messages =>
+                                {
+                                    if (messages != null && messages.Count > 0)
+                                    {
+                                        foreach (var msg in messages)
+                                        {
+                                            var sender = ModuleRegistry.Get<IAccountManager>().GetAccount(msg.SenderId);
+                                            _messages.Add(new MainMenuMessageData(msg.MessageId, sender, msg.Content, msg.Timestamp.ToDateTime()));
+                                        }
+
+                                        _grid.Refresh();
+                                    }
+                                });
+                            }
+                            else
+                            {
+                                var self = ModuleRegistry.Get<IAccountManager>().Self;
+                                var ai = ModuleRegistry.Get<IAccountManager>().AI;
+                                FirebaseManager.CreateNewConversation(new List<string>() { self.UUID, ai.UUID }, convId =>
+                                {
+                                    _conversationId = convId;
+                                });
+                            }
+                        });
+                    }
+                });
+            }
+            else
+            {
+                LogHelper.LogError($"FirebaseManager is initializing.");
+            }
+
             _config.CanvasGroup.CanvasGroupOn();
         }
 
@@ -82,26 +131,46 @@ namespace YuankunHuang.Unity.HotUpdate
             _grid = null;
 
             _sendBtn.onClick.RemoveAllListeners();
+            _inputField.onSelect.RemoveAllListeners();
+
+            FirebaseManager.Dispose();
+
+            MonoManager.Instance.OnTick -= OnTick;
         }
         #endregion
 
         #region Events
+        private void OnTick()
+        {
+            if (InputManager.GetKeyDown(KeyCode.A))
+            {
+                _grid.IsNearBottom();
+            }
+        }
+
+        private void OnInputFieldSelected(string content)
+        {
+            _grid.GoToBottom();
+        }
+
         private void OnSendBtnClicked()
         {
-            var msg = _inputField.text.Trim();
+            var content = _inputField.text.Trim();
 
-            if (!string.IsNullOrEmpty(msg))
+            if (!string.IsNullOrEmpty(content))
             {
-                _messages.Add(new MainMenuMessageData($"{++MessageIDTest}", ModuleRegistry.Get<IAccountManager>().Self, msg));
+                _messages.Add(new MainMenuMessageData($"{++MessageIDTest}", ModuleRegistry.Get<IAccountManager>().Self, content, Timestamp.GetCurrentTimestamp().ToDateTime()));
                 _grid.AppendBottom(_messages.Count - 1);
                 _grid.scrollRect.StopMovement();
                 _grid.GoToBottom();
 
-                ModuleRegistry.Get<INetworkManager>().SendMessage(msg,
+                var self = ModuleRegistry.Get<IAccountManager>().Self;
+                ModuleRegistry.Get<INetworkManager>().SendMessage(_conversationId, self.UUID, content, null,
                     ServerType.ChatAI,
                     (reply) =>
                     {
-                        var data = new MainMenuMessageData($"{++MessageIDTest}", ModuleRegistry.Get<IAccountManager>().AI, reply);
+                        var ai = ModuleRegistry.Get<IAccountManager>().AI;
+                        var data = new MainMenuMessageData($"{++MessageIDTest}", ai, reply, Timestamp.GetCurrentTimestamp().ToDateTime());
                         _messages.Add(data);
                         _grid.AppendBottom(_messages.Count - 1);
                         _grid.scrollRect.StopMovement();

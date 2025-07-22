@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using TMPro;
 using UnityEditor.VersionControl;
@@ -20,6 +21,8 @@ namespace YuankunHuang.Unity.HotUpdate
         public string MessageId { get; private set; }
         public IAccount Sender { get; private set; }
         public string Content { get; private set; }
+        public DateTime DeliveryTime { get; private set; }
+
         public MainMenuMessageType Type
         {
             get
@@ -39,11 +42,12 @@ namespace YuankunHuang.Unity.HotUpdate
             }
         }
 
-        public MainMenuMessageData(string messageId, IAccount sender, string content)
+        public MainMenuMessageData(string messageId, IAccount sender, string content, DateTime deliveryTime)
         {
             MessageId = messageId;
             Sender = sender;
             Content = content;
+            DeliveryTime = deliveryTime;
         }
     }
 

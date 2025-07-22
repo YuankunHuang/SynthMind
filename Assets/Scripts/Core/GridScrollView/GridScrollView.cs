@@ -360,14 +360,13 @@ namespace YuankunHuang.Unity.Core
             }
             _activeElements.Clear();
 
-            UpdateContentSize();
-
             var (min, max) = GetVisibleIndices();
-
             for (var idx = min; idx <= max; ++idx)
             {
                 CreateElementForIndex(idx);
             }
+            
+            UpdateContentSize();
 
             GoToBottom();
         }
@@ -464,6 +463,13 @@ namespace YuankunHuang.Unity.Core
 
         private void CreateElementForIndex(int idx)
         {
+            _deferredSizeFixIndices.Add(idx);
+            if (!_isFixingDeferredSizes)
+            {
+                _isFixingDeferredSizes = true;
+                StartCoroutine(FixDeferredSizes(IsNearBottom()));
+            }
+
             var isNewElement = _pool.Count < 1;
             GameObject go;
             if (isNewElement)
@@ -490,17 +496,10 @@ namespace YuankunHuang.Unity.Core
             _handler.OnElementShow(element);
             _activeElements[idx] = element;
 
-            _deferredSizeFixIndices.Add(idx);
-            if (!_isFixingDeferredSizes)
-            {
-                _isFixingDeferredSizes = true;
-                StartCoroutine(FixDeferredSizes());
-            }
-
             SetElementPosition(element, idx);
         }
 
-        private IEnumerator FixDeferredSizes()
+        private IEnumerator FixDeferredSizes(bool isNearBottom)
         {
             if (_deferredSizeFixIndices.Count < 1)
             {
@@ -526,10 +525,21 @@ namespace YuankunHuang.Unity.Core
             }
 
             UpdateContentSize();
-            SnapToBottom();
+
+            if (isNearBottom)
+            {
+                GoToBottom();
+            }
 
             _deferredSizeFixIndices.Clear();
             _isFixingDeferredSizes = false;
+        }
+
+        public bool IsNearBottom(float threshold = 0.01f)
+        {
+            var isNearBottom = content.rect.size.y <= scrollRect.viewport.rect.size.y ||
+                content.anchoredPosition.y - (content.rect.size.y - scrollRect.viewport.rect.size.y) >= threshold;
+            return isNearBottom;
         }
 
         private void SetElementPosition(GridScrollViewElement element, int idx)

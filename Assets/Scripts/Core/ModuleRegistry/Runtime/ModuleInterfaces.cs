@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace YuankunHuang.Unity.Core
@@ -60,6 +61,6 @@ namespace YuankunHuang.Unity.Core
         event Action OnDisconnected;
         event Action<string> OnError;
 
-        void SendMessage(string message, ServerType server, Action<string> onSuccess, Action<string> onError);
+        void SendMessage(string conversationId, string senderId, string content, Dictionary<string, object> metadata, ServerType server, Action<string> onSuccess, Action<string> onError);
     }
 }

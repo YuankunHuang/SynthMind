@@ -1,4 +1,7 @@
+using Firebase.Analytics;
+using Firebase.Firestore;
 using System;
+using System.Collections.Generic;
 
 namespace YuankunHuang.Unity.Core
 {
@@ -42,14 +45,41 @@ namespace YuankunHuang.Unity.Core
             LogHelper.Log("NetworkManager disposed");
         }
 
-        public void SendMessage(string message, ServerType server, Action<string> onSuccess, Action<string> onError)
+        public void SendMessage(string conversationId, string senderId, string content, Dictionary<string, object> metadata, ServerType server, Action<string> onSuccess, Action<string> onError)
         {
             if (RestApi == null)
             {
                 onError?.Invoke("RestApiClient is not initialized.");
                 return;
             }
-            RestApi.SendMessage(message, server, onSuccess, onError);
+
+            FirebaseAnalytics.LogEvent("send_message", new Parameter[]
+                {
+                    new Parameter("conversation_id", conversationId),
+                    new Parameter("sender_id", senderId),
+                    new Parameter("content", content),
+                    new Parameter("timestamp", Timestamp.GetCurrentTimestamp().ToString())
+                });
+            LogHelper.Log($"[Analytics] send_message by {senderId}: {content} in conversation {conversationId} at time {Timestamp.GetCurrentTimestamp().ToString()}");
+
+            FirebaseManager.SendMessageToConversation(conversationId, ModuleRegistry.Get<IAccountManager>().Self.UUID, content, null);
+
+            RestApi.SendMessage(content, server, reply =>
+            {
+                var ai = ModuleRegistry.Get<IAccountManager>().AI;
+
+                FirebaseAnalytics.LogEvent("receive_message", new Parameter[]
+                {
+                    new Parameter("conversation_id", conversationId),
+                    new Parameter("sender_id", ai.UUID),
+                    new Parameter("content", reply),
+                    new Parameter("timestamp", Timestamp.GetCurrentTimestamp().ToString())
+                });
+                LogHelper.Log($"[Analytics] receive_message by {senderId}: {content} in conversation {conversationId} at time {Timestamp.GetCurrentTimestamp().ToString()}");
+
+                FirebaseManager.SendMessageToConversation(conversationId, ai.UUID, reply, null);
+                onSuccess?.Invoke(reply);
+            }, onError);
         }
 
     }
