@@ -1,6 +1,6 @@
 {
   "AccountTest": {
-    "FieldCount": 7,
+    "FieldCount": 8,
     "RowCount": 2,
     "Fields": [
       {
@@ -10,6 +10,10 @@
       {
         "Name": "uuid",
         "Type": "String"
+      },
+      {
+        "Name": "isAI",
+        "Type": "Bool"
       },
       {
         "Name": "username",

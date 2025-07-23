@@ -10,6 +10,8 @@ namespace YuankunHuang.Unity.GameDataConfig
 
         public string uuid { get; set; }
 
+        public bool isai { get; set; }
+
         public string username { get; set; }
 
         public string password { get; set; }

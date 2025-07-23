@@ -42,6 +42,11 @@ namespace YuankunHuang.Unity.Core
                 return Self;
             }
 
+            if (AI != null && AI.UUID == uuid)
+            {
+                return AI;
+            }
+
             if (_accounts.TryGetValue(uuid, out var account))
             {
                 return account;
@@ -81,10 +86,20 @@ namespace YuankunHuang.Unity.Core
                 return;
             }
 
-            Self = new Account(accountData.uuid, accountData.username, accountData.nickname, accountData.email, accountData.avatar);
+            if (Self == null)
+            {
+                Self = new Account(accountData.uuid, accountData.username, accountData.nickname, accountData.email, accountData.avatar);
+            }
 
-            var aiAccountCfgData = AccountTestConfig.GetById(AccountTestConfig.AI_CHATGPT_ID);
-            AI = new Account(aiAccountCfgData.uuid, aiAccountCfgData.username, aiAccountCfgData.nickname, aiAccountCfgData.email, aiAccountCfgData.avatar);
+            if (AI == null)
+            {
+                foreach (var id in AccountTestConfig.AI_ID_SET)
+                {
+                    var aiAccountCfgData = AccountTestConfig.GetById(id);
+                    AI = new Account(aiAccountCfgData.uuid, aiAccountCfgData.username, aiAccountCfgData.nickname, aiAccountCfgData.email, aiAccountCfgData.avatar);
+                    break;
+                }
+            }
 
             onSuccess?.Invoke();
         }

@@ -78,6 +78,7 @@ namespace YuankunHuang.Unity.Core
                 LogHelper.Log($"[Analytics] receive_message by {senderId}: {content} in conversation {conversationId} at time {Timestamp.GetCurrentTimestamp().ToString()}");
 
                 FirebaseManager.SendMessageToConversation(conversationId, ai.UUID, reply, null);
+
                 onSuccess?.Invoke(reply);
             }, onError);
         }

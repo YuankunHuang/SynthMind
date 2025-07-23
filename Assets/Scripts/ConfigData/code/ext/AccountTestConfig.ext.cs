@@ -11,17 +11,27 @@ namespace YuankunHuang.Unity.GameDataConfig
     /// </summary>
     public partial class AccountTestConfig : BaseConfigData<AccountTestData>
     {
-        public static readonly int AI_CHATGPT_ID = 2;
+        public static HashSet<int> AI_ID_SET = new();
 
         private static Dictionary<string, AccountTestData> _usernameMap = new();
 
         static partial void PostInitialize()
         {
+            AI_ID_SET.Clear();
+
             foreach (var data in GetAll())
             {
-                if (data != null && !string.IsNullOrEmpty(data.username))
+                if (data != null)
                 {
-                    _usernameMap[data.username] = data;
+                    if (!string.IsNullOrEmpty(data.username))
+                    {
+                        _usernameMap[data.username] = data;
+                    }
+
+                    if (data.isai)
+                    {
+                        AI_ID_SET.Add(data.id);
+                    }
                 }
             }
         }

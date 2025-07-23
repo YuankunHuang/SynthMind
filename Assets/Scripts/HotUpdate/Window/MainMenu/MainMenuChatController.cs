@@ -171,6 +171,7 @@ namespace YuankunHuang.Unity.HotUpdate
                     {
                         var ai = ModuleRegistry.Get<IAccountManager>().AI;
                         var data = new MainMenuMessageData($"{++MessageIDTest}", ai, reply, Timestamp.GetCurrentTimestamp().ToDateTime());
+
                         _messages.Add(data);
                         _grid.AppendBottom(_messages.Count - 1);
                         _grid.scrollRect.StopMovement();
@@ -178,7 +179,7 @@ namespace YuankunHuang.Unity.HotUpdate
                     },
                     (error) =>
                     {
-                        Debug.LogError($"Failed to get dummy message: {error}");
+                        Debug.LogError($"Failed to get a reply: {error}");
                     }
                 );
             }
