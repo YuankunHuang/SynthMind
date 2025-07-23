@@ -36,7 +36,7 @@ namespace YuankunHuang.Unity.HotUpdate
 
         #region Fields
         private List<MainMenuMessageData> _messages;
-        private GeneralWidgetConfig _tmpMessageConfig;
+        private Dictionary<int, GeneralWidgetConfig> _tmpPrefabConfigs; // k: prefabType, v: config
         private string _conversationId;
 
         private static int MessageIDTest = 0;
@@ -64,7 +64,13 @@ namespace YuankunHuang.Unity.HotUpdate
             _sendBtn.onClick.AddListener(OnSendBtnClicked);
             _inputField.onSelect.AddListener(OnInputFieldSelected);
 
-            _tmpMessageConfig = GameObject.Instantiate(_grid.itemPrefab, _hiddenRoot).GetComponent<GeneralWidgetConfig>();
+
+            _tmpPrefabConfigs = new();
+            for (var i = 0; i < _grid.itemPrefabs.Length; ++i)
+            {
+                var config = GameObject.Instantiate(_grid.itemPrefabs[i], _hiddenRoot).GetComponent<GeneralWidgetConfig>();
+                _tmpPrefabConfigs[i] = config;
+            }
 
             MonoManager.Instance.OnTick += OnTick;
         }
@@ -194,13 +200,32 @@ namespace YuankunHuang.Unity.HotUpdate
             return _messages.Count;
         }
 
+        public int GetPrefabType(int index)
+        {
+            var message = _messages[index];
+            switch (message.Type)
+            {
+                case MainMenuMessageType.Other:
+                    return 0;
+                case MainMenuMessageType.Self:
+                    return 1;
+                default:
+                    LogHelper.LogError($"Undefined message type: {message.Type}");
+                    return 0;
+            }
+        }
+
         public Vector2 GetElementSize(int index)
         {
             var message = _messages[index];
-            MainMenuMessageController.Show(_tmpMessageConfig, message);
+            var prefabType = GetPrefabType(index);
 
-            LayoutRebuilder.ForceRebuildLayoutImmediate(_tmpMessageConfig.GetComponent<RectTransform>());
-            return ((RectTransform)_tmpMessageConfig.transform).sizeDelta;
+            var config = _tmpPrefabConfigs[prefabType];
+            MainMenuMessageController.Show(config, message);
+
+            LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)config.transform);
+
+            return ((RectTransform)config.transform).sizeDelta;
         }
 
         public void OnElementShow(GridScrollViewElement element)

@@ -3215,8 +3215,20 @@ PrefabInstance:
       objectReference: {fileID: 166776171647116570}
     - target: {fileID: 3595701261890404541, guid: 37d22bd978d562443ae99b43a5951bad, type: 3}
       propertyPath: enableSmoothScroll
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 3595701261890404541, guid: 37d22bd978d562443ae99b43a5951bad, type: 3}
+      propertyPath: itemPrefabs.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3595701261890404541, guid: 37d22bd978d562443ae99b43a5951bad, type: 3}
+      propertyPath: itemPrefabs.Array.data[0]
+      value: 
+      objectReference: {fileID: 127622544699148649, guid: fc36d81cfcd70914e8497f11cf34b3cb, type: 3}
+    - target: {fileID: 3595701261890404541, guid: 37d22bd978d562443ae99b43a5951bad, type: 3}
+      propertyPath: itemPrefabs.Array.data[1]
+      value: 
+      objectReference: {fileID: 8950663940215333357, guid: 3dc88e3b5457e9b4b83f2e536a3f82cb, type: 3}
     - target: {fileID: 4707776848491119268, guid: 37d22bd978d562443ae99b43a5951bad, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5

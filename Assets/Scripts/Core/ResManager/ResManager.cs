@@ -31,9 +31,6 @@ namespace YuankunHuang.Unity.Core
         public void Retain()
         {
             ++RefCount;
-
-            LogHelper.LogError($"[ResHandle]::Retain RefCount: {RefCount}");
-
             LastAccessTime = DateTime.Now;
         }
 

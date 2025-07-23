@@ -17,12 +17,14 @@ namespace YuankunHuang.Unity.Core
     {
         public int Index { get; set; }
         public bool IsVisible { get; set; }
+        public int PrefabType { get; set; } // Track which prefab type this element uses
     }
 
     public interface IGridHandler
     {
         int GetDataCount();
         Vector2 GetElementSize(int index); // (width, height)
+        int GetPrefabType(int index); // NEW: Return prefab type for this index
         void OnElementShow(GridScrollViewElement element);
         void OnElementHide(GridScrollViewElement element);
         void OnElementCreate(GridScrollViewElement element);
@@ -36,7 +38,9 @@ namespace YuankunHuang.Unity.Core
         public RectTransform content;
         public ContentSizeFitter contentSizeFitter;
         public LayoutGroup layoutGroup;
-        public GameObject itemPrefab;
+
+        [Header("Prefabs")]
+        public GameObject[] itemPrefabs; // Multiple prefabs array
 
         [Header("Layout")]
         public GridLayoutType layoutType = GridLayoutType.Vertical;
@@ -50,7 +54,8 @@ namespace YuankunHuang.Unity.Core
         [Range(1, 10)] public int bufferSize = 2; // Extra elements to render outside viewport
         [Range(0.1f, 1f)] public float updateThreshold = 0.1f; // Minimum scroll distance before update
 
-        private Queue<GameObject> _pool;
+        // Pool per prefab type for better performance
+        private Dictionary<int, Queue<GameObject>> _pools;
         private Dictionary<int, GridScrollViewElement> _activeElements;
         private IGridHandler _handler;
 
@@ -126,7 +131,13 @@ namespace YuankunHuang.Unity.Core
 
         public void Activate()
         {
-            _pool = new();
+            // Initialize pools for each prefab type
+            _pools = new Dictionary<int, Queue<GameObject>>();
+            for (int i = 0; i < GetPrefabCount(); i++)
+            {
+                _pools[i] = new Queue<GameObject>();
+            }
+
             _activeElements = new();
             _lastScrollPosition = content.anchoredPosition;
 
@@ -139,9 +150,26 @@ namespace YuankunHuang.Unity.Core
 
         public void Deactivate()
         {
-            _pool = null;
+            _pools = null;
             _activeElements = null;
             scrollRect.onValueChanged.RemoveAllListeners();
+        }
+
+        private int GetPrefabCount()
+        {
+            if (itemPrefabs != null && itemPrefabs.Length > 0)
+                return itemPrefabs.Length;
+            return 0;
+        }
+
+        private GameObject GetPrefabForType(int prefabType)
+        {
+            if (itemPrefabs != null && itemPrefabs.Length > 0)
+            {
+                if (prefabType >= 0 && prefabType < itemPrefabs.Length)
+                    return itemPrefabs[prefabType];
+            }
+            return null;
         }
 
         public void SnapToBottom()
@@ -436,14 +464,20 @@ namespace YuankunHuang.Unity.Core
             _cumulativePositions.Clear();
             _cachesDirty = true;
 
-            // Batch hide all elements
+            // Batch hide all elements and return to appropriate pools
             var elementsToHide = new List<GridScrollViewElement>(_activeElements.Values);
             foreach (var element in elementsToHide)
             {
                 element.IsVisible = false;
                 _handler.OnElementHide(element);
                 element.gameObject.SetActive(false);
-                _pool.Enqueue(element.gameObject);
+
+                // Return to the correct pool based on prefab type
+                int prefabType = element.PrefabType;
+                if (_pools.ContainsKey(prefabType))
+                {
+                    _pools[prefabType].Enqueue(element.gameObject);
+                }
             }
             _activeElements.Clear();
 
@@ -543,22 +577,40 @@ namespace YuankunHuang.Unity.Core
                 StartCoroutine(FixDeferredSizes(IsNearBottom()));
             }
 
-            var isNewElement = _pool.Count < 1;
+            // Get the prefab type for this index
+            int prefabType = _handler.GetPrefabType(idx);
+
+            // Ensure we have a pool for this prefab type
+            if (!_pools.ContainsKey(prefabType))
+            {
+                _pools[prefabType] = new Queue<GameObject>();
+            }
+
+            var isNewElement = _pools[prefabType].Count < 1;
             GameObject go;
+
             if (isNewElement)
             {
-                go = Instantiate(itemPrefab, content);
+                var prefab = GetPrefabForType(prefabType);
+                if (prefab == null)
+                {
+                    Debug.LogError($"No prefab found for type {prefabType}");
+                    return;
+                }
+                go = Instantiate(prefab, content);
             }
             else
             {
-                go = _pool.Dequeue();
+                go = _pools[prefabType].Dequeue();
                 go.transform.SetParent(content, false);
                 go.transform.localScale = Vector3.one;
             }
+
             go.SetActive(true);
 
             var element = go.GetComponent<GridScrollViewElement>();
             element.Index = idx;
+            element.PrefabType = prefabType; // Store the prefab type
 
             if (isNewElement)
                 _handler.OnElementCreate(element);
@@ -739,7 +791,7 @@ namespace YuankunHuang.Unity.Core
             _visibleIndexMin = newVisibleIndexMin;
             _visibleIndexMax = newVisibleIndexMax;
 
-            // Batch hide operations
+            // Batch hide operations and return to correct pools
             var indicesToHide = new List<int>();
             foreach (var kvp in _activeElements)
             {
@@ -751,13 +803,23 @@ namespace YuankunHuang.Unity.Core
                 }
             }
 
-            // Hide elements in batch
+            // Hide elements in batch and return to appropriate pools
             foreach (var idx in indicesToHide)
             {
                 var element = _activeElements[idx];
                 element.IsVisible = false;
                 _handler.OnElementHide(element);
                 element.gameObject.SetActive(false);
+
+                // Return to the correct pool based on prefab type
+                int prefabType = element.PrefabType;
+                if (_pools.ContainsKey(prefabType))
+                {
+                    _pools[prefabType].Enqueue(element.gameObject);
+                }
+
+                // Remove from active elements since it's now pooled
+                _activeElements.Remove(idx);
             }
 
             // Show new elements
@@ -765,15 +827,9 @@ namespace YuankunHuang.Unity.Core
             {
                 for (var i = newVisibleIndexMin; i <= newVisibleIndexMax; ++i)
                 {
-                    if (!_activeElements.TryGetValue(i, out var element))
+                    if (!_activeElements.ContainsKey(i))
                     {
                         CreateElementForIndex(i);
-                    }
-                    else if (!element.IsVisible)
-                    {
-                        element.gameObject.SetActive(true);
-                        element.IsVisible = true;
-                        _handler.OnElementShow(element);
                     }
                 }
             }
@@ -790,16 +846,23 @@ namespace YuankunHuang.Unity.Core
             }
             _activeElements.Clear();
 
-            while (_pool?.Count > 0)
+            // Clear all pools
+            if (_pools != null)
             {
-                var go = _pool.Dequeue();
-                if (go != null)
+                foreach (var pool in _pools.Values)
                 {
-                    var element = go.GetComponent<GridScrollViewElement>();
-                    element.IsVisible = false;
-                    _handler.OnElementHide(element);
-                    _handler.OnElementRelease(element);
-                    Destroy(element.gameObject);
+                    while (pool.Count > 0)
+                    {
+                        var go = pool.Dequeue();
+                        if (go != null)
+                        {
+                            var element = go.GetComponent<GridScrollViewElement>();
+                            element.IsVisible = false;
+                            _handler.OnElementHide(element);
+                            _handler.OnElementRelease(element);
+                            Destroy(element.gameObject);
+                        }
+                    }
                 }
             }
         }
