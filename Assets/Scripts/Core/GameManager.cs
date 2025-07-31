@@ -25,6 +25,7 @@ namespace YuankunHuang.Unity.Core
             ModuleRegistry.Register<ICameraManager>(new CameraManager());
             ModuleRegistry.Register<IAccountManager>(new AccountManager());
             ModuleRegistry.Register<INetworkManager>(new NetworkManager());
+            ModuleRegistry.Register<ICommandManager>(new CommandManager());
 
             GameDataManager.Initialize();
 
@@ -45,11 +46,13 @@ namespace YuankunHuang.Unity.Core
             ModuleRegistry.Get<ICameraManager>().Dispose();
             ModuleRegistry.Get<IAccountManager>().Dispose();
             ModuleRegistry.Get<INetworkManager>().Dispose();
+            ModuleRegistry.Get<ICommandManager>().Dispose();
 
             ModuleRegistry.Unregister<IUIManager>();
             ModuleRegistry.Unregister<ICameraManager>();
             ModuleRegistry.Unregister<IAccountManager>();
             ModuleRegistry.Unregister<INetworkManager>();
+            ModuleRegistry.Unregister<ICommandManager>();
 
             SceneManager.UnloadAll(onFinished);
         }
