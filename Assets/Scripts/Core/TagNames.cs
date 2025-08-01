@@ -1,4 +1,4 @@
-namespace YuankunHuang.Unity.Core
+namespace YuankunHuang.SynthMind.Core
 {
     public class TagNames
     {
@@ -6,5 +6,6 @@ namespace YuankunHuang.Unity.Core
         public static readonly string UICamera = "UICamera";
         public static readonly string StackableRoot = "StackableRoot";
         public static readonly string WindowRoot = "WindowRoot";
+        public static readonly string AISpawned = "AISpawned";
     }
 }

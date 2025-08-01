@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace YuankunHuang.Unity.Core
+namespace YuankunHuang.SynthMind.Core
 {
     public static class ModuleRegistry
     {

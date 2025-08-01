@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
 
-namespace YuankunHuang.Unity.Core
+namespace YuankunHuang.SynthMind.Core
 {
     public class CameraManager : ICameraManager
     {

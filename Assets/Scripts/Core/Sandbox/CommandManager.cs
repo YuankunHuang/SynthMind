@@ -3,11 +3,19 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace YuankunHuang.Unity.Core
+namespace YuankunHuang.SynthMind.Core
 {
     public class CommandManager : ICommandManager
     {
         private Dictionary<string, IGameCommand> _commands = new();
+
+        public CommandManager()
+        {
+            RegisterCommand(new SpawnCommand());
+            RegisterCommand(new BuildCommand());
+            RegisterCommand(new MoveCommand());
+            RegisterCommand(new ClearCommand());
+        }
 
         public void RegisterCommand(IGameCommand command)
         {
@@ -28,6 +36,9 @@ namespace YuankunHuang.Unity.Core
             }
 
             var parts = input.Split(' ', System.StringSplitOptions.RemoveEmptyEntries);
+
+            LogHelper.LogError($"TryExecuteCommand - parts: {string.Join(" ", parts)}");
+
             if (parts.Length < 1)
             {
                 return false;
@@ -35,7 +46,9 @@ namespace YuankunHuang.Unity.Core
 
             var commandName = parts[0].ToLower();
             var parameters = parts.Skip(0).ToArray();
-            
+
+            LogHelper.LogError($"TryExecuteCommand - commandName: {commandName} | parameters: {parameters}");
+
             if (_commands.TryGetValue(commandName, out var command))
             {
                 if (command.CanExecute(parameters))
@@ -53,6 +66,27 @@ namespace YuankunHuang.Unity.Core
 
             LogHelper.LogWarning($"Unknown command: {commandName}");
             return false;
+        }
+
+        public bool TryExecuteNatural(string input)
+        {
+            if (string.IsNullOrEmpty(input))
+            {
+                return false;
+            }
+
+            LogHelper.Log($"[CommandManager]::TryExecuteNatural: Processing '{input}'");
+
+            var parseResult = NaturalLanguageProcessor.ParseNaturalInput(input);
+            if (!parseResult.Success)
+            {
+                LogHelper.LogError($"[CommandManager]::TryExecuteNatural: Could not interpret '{input}'");
+                return false;
+            }
+
+            LogHelper.Log($"[CommandManager]::TryExecuteNatural: Interpreted: {parseResult.OriginalInput} -> '{parseResult.Command}'");
+
+            return TryExecuteCommand(parseResult.Command);
         }
 
         public string[] GetAvailableCommands()

@@ -5,10 +5,10 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using YuankunHuang.Unity.Core;
-using YuankunHuang.Unity.Util;
+using YuankunHuang.SynthMind.Core;
+using YuankunHuang.SynthMind.Util;
 
-namespace YuankunHuang.Unity.HotUpdate
+namespace YuankunHuang.SynthMind.HotUpdate
 {
     public class MainMenuChatController : IMainMenuWidgetController, IGridHandler
     {
@@ -64,15 +64,12 @@ namespace YuankunHuang.Unity.HotUpdate
             _sendBtn.onClick.AddListener(OnSendBtnClicked);
             _inputField.onSelect.AddListener(OnInputFieldSelected);
 
-
             _tmpPrefabConfigs = new();
             for (var i = 0; i < _grid.itemPrefabs.Length; ++i)
             {
                 var config = GameObject.Instantiate(_grid.itemPrefabs[i], _hiddenRoot).GetComponent<GeneralWidgetConfig>();
                 _tmpPrefabConfigs[i] = config;
             }
-
-            MonoManager.Instance.OnTick += OnTick;
         }
 
         public void Show()
@@ -138,22 +135,10 @@ namespace YuankunHuang.Unity.HotUpdate
 
             _sendBtn.onClick.RemoveAllListeners();
             _inputField.onSelect.RemoveAllListeners();
-
-            FirebaseManager.Dispose();
-
-            MonoManager.Instance.OnTick -= OnTick;
         }
         #endregion
 
         #region Events
-        private void OnTick()
-        {
-            if (InputManager.GetKeyDown(KeyCode.A))
-            {
-                _grid.IsNearBottom();
-            }
-        }
-
         private void OnInputFieldSelected(string content)
         {
             _grid.GoToBottom();

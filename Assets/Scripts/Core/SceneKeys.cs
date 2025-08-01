@@ -2,5 +2,6 @@
 public static class SceneKeys
 {
     public static readonly string Bootstrapper = "scenes/bootstrapper";
+    public static readonly string Sandbox = "scenes/sandbox";
     public static readonly string UIScene = "scenes/uiscene";
 }

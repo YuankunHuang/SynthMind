@@ -1,9 +1,9 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Linq;
-using YuankunHuang.Unity.Util;
+using YuankunHuang.SynthMind.Util;
 
-namespace YuankunHuang.Unity.Core
+namespace YuankunHuang.SynthMind.Core
 {
     public class OffScreenUI_Cull : MonoBehaviour
     {

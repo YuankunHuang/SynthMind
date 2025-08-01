@@ -6,7 +6,7 @@ using UnityEngine.UI;
 using UnityEngine.U2D;
 using System;
 
-namespace YuankunHuang.Unity.Core
+namespace YuankunHuang.SynthMind.Core
 {
     /// @ingroup Core
     /// @class GeneralWindowConfig

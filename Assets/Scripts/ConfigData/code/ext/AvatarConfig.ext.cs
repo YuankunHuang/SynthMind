@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace YuankunHuang.Unity.GameDataConfig
+namespace YuankunHuang.SynthMind.GameDataConfig
 {
     /// <summary>
     /// AvatarConfig extension class

@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using YuankunHuang.Unity.Core;
+using YuankunHuang.SynthMind.Core;
 
-namespace YuankunHuang.Unity.GameDataConfig
+namespace YuankunHuang.SynthMind.GameDataConfig
 {
     /// <summary>
     /// AccountTestConfig extension class

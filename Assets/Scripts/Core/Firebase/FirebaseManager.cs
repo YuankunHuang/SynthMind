@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace YuankunHuang.Unity.Core
+namespace YuankunHuang.SynthMind.Core
 {
     public class FirebaseManager
     {
@@ -55,6 +55,127 @@ namespace YuankunHuang.Unity.Core
         }
 
         #region Conversation
+        public static void CleanUpEmptyConversations(string uuid, Action<int> onComplete)
+        {
+            var db = FirebaseFirestore.DefaultInstance;
+            db.Collection(FirebaseCollections.Conversations)
+                .WhereArrayContains("participants", uuid) // which the user parcipates
+                .GetSnapshotAsync()
+                .ContinueWithOnMainThread(task =>
+                {
+                    if (!task.IsCompletedSuccessfully)
+                    {
+                        onComplete?.Invoke(0);
+                        return;
+                    }
+
+                    var conversations = task.Result.Documents.ToList();
+                    var deletedCount = 0;
+                    var remaining = conversations.Count;
+
+                    if (remaining < 1) // no conversation to delete
+                    {
+                        onComplete?.Invoke(0);
+                        return;
+                    }
+
+                    foreach (var conv in conversations)
+                    {
+                        CheckIsConversationEmpty(conv.Id, isEmpty =>
+                        {
+                            if (isEmpty)
+                            {
+                                DeleteConversation(conv.Id, isDeleted =>
+                                {
+                                    if (isDeleted)
+                                    {
+                                        ++deletedCount;
+                                    }
+                                    --remaining;
+                                    if (remaining < 1)
+                                    {
+                                        onComplete?.Invoke(deletedCount);
+                                        return;
+                                    }
+                                });
+                            }
+                            else
+                            {
+                                --remaining;
+                                if (remaining < 1)
+                                {
+                                    onComplete?.Invoke(deletedCount);
+                                    return;
+                                }
+                            }
+                        });
+                    }
+                });
+        }
+
+        public static void CheckIsConversationEmpty(string conversationId, Action<bool> onComplete)
+        {
+            var db = FirebaseFirestore.DefaultInstance;
+            db.Collection(FirebaseCollections.Conversations)
+                .Document(conversationId)
+                .Collection(FirebaseCollections.Messages)
+                .Limit(1)
+                .GetSnapshotAsync()
+                .ContinueWithOnMainThread(task =>
+                {
+                    var isEmpty = task.IsCompletedSuccessfully && task.Result.Count == 0;
+                    onComplete?.Invoke(isEmpty);
+                });
+        }
+
+        public static void DeleteConversation(string conversationId, Action<bool> onComplete)
+        {
+            if (string.IsNullOrEmpty(conversationId))
+            {
+                onComplete?.Invoke(false);
+                return;
+            }
+
+            var db = FirebaseFirestore.DefaultInstance;
+            db.Collection(FirebaseCollections.Conversations)
+                .Document(conversationId)
+                .Collection(FirebaseCollections.Messages)
+                .GetSnapshotAsync()
+                .ContinueWithOnMainThread(task =>
+                {
+                    if (task.IsCompletedSuccessfully)
+                    {
+                        // start a db batch
+                        var batch = db.StartBatch();
+
+                        // add all messages to the batch-delete
+                        foreach (var doc in task.Result.Documents)
+                        {
+                            batch.Delete(doc.Reference);
+                        }
+
+                        batch.CommitAsync().ContinueWithOnMainThread(batchTask =>
+                        {
+                            // after deleting all messages
+                            // delete the conversation itself
+                            db.Collection(FirebaseCollections.Conversations)
+                                .Document(conversationId)
+                                .DeleteAsync()
+                                .ContinueWithOnMainThread(deleteTask =>
+                                {
+                                    var success = deleteTask.IsCompletedSuccessfully;
+                                    LogHelper.Log(success ? $"Deleted conversation {conversationId}" : $"Failed to delete conversation {conversationId}");
+                                    onComplete?.Invoke(success);
+                                });
+                        });
+                    }
+                    else
+                    {
+                        onComplete?.Invoke(false);
+                    }
+                });
+        }
+
         public static void LoadMostRecentConversation(Action<string> onComplete)
         {
             var db = FirebaseFirestore.DefaultInstance;

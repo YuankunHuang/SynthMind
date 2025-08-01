@@ -7,7 +7,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine;
 using System;
 
-namespace YuankunHuang.Unity.Core
+namespace YuankunHuang.SynthMind.Core
 {
     public class SceneManager
     {
@@ -24,6 +24,7 @@ namespace YuankunHuang.Unity.Core
                 if (_sceneHandles.ContainsKey(key))
                 {
                     LogHelper.LogError($"[ResManager]::LoadSceneAsync: Same scene has already been loaded: {key}");
+                    onFinished?.Invoke();
                     return;
                 }
             }

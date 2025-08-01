@@ -3,7 +3,7 @@ using Firebase.Firestore;
 using System;
 using System.Collections.Generic;
 
-namespace YuankunHuang.Unity.Core
+namespace YuankunHuang.SynthMind.Core
 {
     public class NetworkManager : INetworkManager
     {
@@ -37,6 +37,9 @@ namespace YuankunHuang.Unity.Core
 
         public void Dispose()
         {
+            var self = ModuleRegistry.Get<IAccountManager>().Self;
+            FirebaseManager.CleanUpEmptyConversations(self.UUID, null);
+
             RestApi.Dispose();
             RestApi = null;
 

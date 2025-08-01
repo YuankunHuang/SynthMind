@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using YuankunHuang.Unity.Core;
+using YuankunHuang.SynthMind.Core;
 
-namespace YuankunHuang.Unity.HotUpdate
+namespace YuankunHuang.SynthMind.HotUpdate
 {
     public class CommPlayerAvatarData
     {

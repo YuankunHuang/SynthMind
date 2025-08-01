@@ -1,4 +1,4 @@
-namespace YuankunHuang.Unity.Core
+namespace YuankunHuang.SynthMind.Core
 {
     public class AddressablePaths
     {

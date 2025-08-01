@@ -1,7 +1,7 @@
 using TMPro;
-using YuankunHuang.Unity.Core;
+using YuankunHuang.SynthMind.Core;
 
-namespace YuankunHuang.Unity.HotUpdate
+namespace YuankunHuang.SynthMind.HotUpdate
 {
     public class LoginWindowController : WindowControllerBase
     {

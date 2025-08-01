@@ -5,9 +5,9 @@ using UnityEditor.AddressableAssets;
 using UnityEditor.AddressableAssets.Settings.GroupSchemas;
 using System.IO;
 using System.Text;
-using YuankunHuang.Unity.Core;
+using YuankunHuang.SynthMind.Core;
 
-namespace YuankunHuang.Unity.Editor
+namespace YuankunHuang.SynthMind.Editor
 {
     /// <summary>
     /// A custom editor window for generating a scene map and Addressables configuration.

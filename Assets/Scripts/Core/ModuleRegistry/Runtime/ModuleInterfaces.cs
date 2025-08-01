@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace YuankunHuang.Unity.Core
+namespace YuankunHuang.SynthMind.Core
 {
     public interface IModule
     {
@@ -77,6 +77,7 @@ namespace YuankunHuang.Unity.Core
         void RegisterCommand(IGameCommand command);
         void UnregisterCommand(string commandName);
         bool TryExecuteCommand(string input);
+        bool TryExecuteNatural(string input);
         string[] GetAvailableCommands();
     }
 
