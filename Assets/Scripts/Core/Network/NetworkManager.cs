@@ -38,7 +38,8 @@ namespace YuankunHuang.SynthMind.Core
         public void Dispose()
         {
             var self = ModuleRegistry.Get<IAccountManager>().Self;
-            FirebaseManager.CleanUpEmptyConversations(self.UUID, null);
+            FirebaseManager.CleanUpEmptyConversations(FirebaseCollections.AI_Conversations, self.UUID, null);
+            FirebaseManager.CleanUpEmptyConversations(FirebaseCollections.Command_Conversations, self.UUID, null);
 
             RestApi.Dispose();
             RestApi = null;
@@ -48,7 +49,7 @@ namespace YuankunHuang.SynthMind.Core
             LogHelper.Log("NetworkManager disposed");
         }
 
-        public void SendMessage(string conversationId, string senderId, string content, Dictionary<string, object> metadata, ServerType server, Action<string> onSuccess, Action<string> onError)
+        public void SendMessage(string conversationGroup, string conversationId, string senderId, string content, Dictionary<string, object> metadata, ServerType server, Action<string> onSuccess, Action<string> onError)
         {
             if (RestApi == null)
             {
@@ -58,14 +59,15 @@ namespace YuankunHuang.SynthMind.Core
 
             FirebaseAnalytics.LogEvent("send_message", new Parameter[]
                 {
+                    new Parameter("conversation_group", conversationGroup),
                     new Parameter("conversation_id", conversationId),
                     new Parameter("sender_id", senderId),
                     new Parameter("content", content),
                     new Parameter("timestamp", Timestamp.GetCurrentTimestamp().ToString())
                 });
-            LogHelper.Log($"[Analytics] send_message by {senderId}: {content} in conversation {conversationId} at time {Timestamp.GetCurrentTimestamp().ToString()}");
+            LogHelper.Log($"[Analytics] send_message by {senderId}: {content} in conversation: {conversationId} in conversation_group: {conversationGroup} at time {Timestamp.GetCurrentTimestamp().ToString()}");
 
-            FirebaseManager.SendMessageToConversation(conversationId, ModuleRegistry.Get<IAccountManager>().Self.UUID, content, null);
+            FirebaseManager.SendMessageToConversation(conversationGroup, conversationId, ModuleRegistry.Get<IAccountManager>().Self.UUID, content, null);
 
             RestApi.SendMessage(content, server, reply =>
             {
@@ -73,14 +75,15 @@ namespace YuankunHuang.SynthMind.Core
 
                 FirebaseAnalytics.LogEvent("receive_message", new Parameter[]
                 {
+                    new Parameter("conversation_group", conversationGroup),
                     new Parameter("conversation_id", conversationId),
                     new Parameter("sender_id", ai.UUID),
                     new Parameter("content", reply),
                     new Parameter("timestamp", Timestamp.GetCurrentTimestamp().ToString())
                 });
-                LogHelper.Log($"[Analytics] receive_message by {senderId}: {content} in conversation {conversationId} at time {Timestamp.GetCurrentTimestamp().ToString()}");
+                LogHelper.Log($"[Analytics] receive_message by {senderId}: {content} in conversation {conversationId} in conversation_group: {conversationGroup} at time {Timestamp.GetCurrentTimestamp().ToString()}");
 
-                FirebaseManager.SendMessageToConversation(conversationId, ai.UUID, reply, null);
+                FirebaseManager.SendMessageToConversation(conversationGroup, conversationId, ai.UUID, reply, null);
 
                 onSuccess?.Invoke(reply);
             }, onError);

@@ -87,7 +87,7 @@ namespace YuankunHuang.SynthMind.HotUpdate
                         FirebaseManager.InitializeDataBase(success =>
                         {
                             var self = ModuleRegistry.Get<IAccountManager>().Self;
-                            FirebaseManager.CreateNewConversation(new List<string>() { self.UUID }, convId =>
+                            FirebaseManager.CreateNewConversation(FirebaseCollections.Command_Conversations, new List<string>() { self.UUID }, convId =>
                             {
                                 _conversationId = convId;
 
@@ -240,7 +240,7 @@ namespace YuankunHuang.SynthMind.HotUpdate
 
             foreach (var message in messages)
             {
-                ModuleRegistry.Get<INetworkManager>().SendMessage(_conversationId, message.Sender.UUID, message.Content, null,
+                ModuleRegistry.Get<INetworkManager>().SendMessage(FirebaseCollections.Command_Conversations, _conversationId, message.Sender.UUID, message.Content, null,
                     ServerType.ChatPlayer, null, null);
             }
         }

@@ -67,7 +67,7 @@ namespace YuankunHuang.SynthMind.Core
         event Action OnDisconnected;
         event Action<string> OnError;
 
-        void SendMessage(string conversationId, string senderId, string content, Dictionary<string, object> metadata, ServerType server, Action<string> onSuccess, Action<string> onError);
+        void SendMessage(string conversationGroup, string conversationId, string senderId, string content, Dictionary<string, object> metadata, ServerType server, Action<string> onSuccess, Action<string> onError);
     }
     #endregion
 

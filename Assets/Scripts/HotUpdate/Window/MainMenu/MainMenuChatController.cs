@@ -80,13 +80,13 @@ namespace YuankunHuang.SynthMind.HotUpdate
                 {
                     if (success)
                     {
-                        FirebaseManager.LoadMostRecentConversation(convId =>
+                        FirebaseManager.LoadMostRecentConversation(FirebaseCollections.AI_Conversations, convId =>
                         {
                             if (!string.IsNullOrEmpty(convId))
                             {
                                 _conversationId = convId;
 
-                                FirebaseManager.LoadConversationMessages(_conversationId, messages =>
+                                FirebaseManager.LoadConversationMessages(FirebaseCollections.AI_Conversations, _conversationId, messages =>
                                 {
                                     if (messages != null && messages.Count > 0)
                                     {
@@ -104,7 +104,7 @@ namespace YuankunHuang.SynthMind.HotUpdate
                             {
                                 var self = ModuleRegistry.Get<IAccountManager>().Self;
                                 var ai = ModuleRegistry.Get<IAccountManager>().AI;
-                                FirebaseManager.CreateNewConversation(new List<string>() { self.UUID, ai.UUID }, convId =>
+                                FirebaseManager.CreateNewConversation(FirebaseCollections.AI_Conversations, new List<string>() { self.UUID, ai.UUID }, convId =>
                                 {
                                     _conversationId = convId;
                                 });
@@ -156,7 +156,7 @@ namespace YuankunHuang.SynthMind.HotUpdate
                 _grid.GoToBottom();
 
                 var self = ModuleRegistry.Get<IAccountManager>().Self;
-                ModuleRegistry.Get<INetworkManager>().SendMessage(_conversationId, self.UUID, content, null,
+                ModuleRegistry.Get<INetworkManager>().SendMessage(FirebaseCollections.AI_Conversations, _conversationId, self.UUID, content, null,
                     ServerType.ChatAI,
                     (reply) =>
                     {

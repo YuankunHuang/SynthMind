@@ -55,10 +55,10 @@ namespace YuankunHuang.SynthMind.Core
         }
 
         #region Conversation
-        public static void CleanUpEmptyConversations(string uuid, Action<int> onComplete)
+        public static void CleanUpEmptyConversations(string conversationGroup, string uuid, Action<int> onComplete)
         {
             var db = FirebaseFirestore.DefaultInstance;
-            db.Collection(FirebaseCollections.Conversations)
+            db.Collection(conversationGroup)
                 .WhereArrayContains("participants", uuid) // which the user parcipates
                 .GetSnapshotAsync()
                 .ContinueWithOnMainThread(task =>
@@ -81,11 +81,11 @@ namespace YuankunHuang.SynthMind.Core
 
                     foreach (var conv in conversations)
                     {
-                        CheckIsConversationEmpty(conv.Id, isEmpty =>
+                        CheckIsConversationEmpty(conversationGroup, conv.Id, isEmpty =>
                         {
                             if (isEmpty)
                             {
-                                DeleteConversation(conv.Id, isDeleted =>
+                                DeleteConversation(conversationGroup, conv.Id, isDeleted =>
                                 {
                                     if (isDeleted)
                                     {
@@ -113,10 +113,10 @@ namespace YuankunHuang.SynthMind.Core
                 });
         }
 
-        public static void CheckIsConversationEmpty(string conversationId, Action<bool> onComplete)
+        public static void CheckIsConversationEmpty(string conversationGroup, string conversationId, Action<bool> onComplete)
         {
             var db = FirebaseFirestore.DefaultInstance;
-            db.Collection(FirebaseCollections.Conversations)
+            db.Collection(conversationGroup)
                 .Document(conversationId)
                 .Collection(FirebaseCollections.Messages)
                 .Limit(1)
@@ -128,7 +128,7 @@ namespace YuankunHuang.SynthMind.Core
                 });
         }
 
-        public static void DeleteConversation(string conversationId, Action<bool> onComplete)
+        public static void DeleteConversation(string conversationGroup, string conversationId, Action<bool> onComplete)
         {
             if (string.IsNullOrEmpty(conversationId))
             {
@@ -137,7 +137,7 @@ namespace YuankunHuang.SynthMind.Core
             }
 
             var db = FirebaseFirestore.DefaultInstance;
-            db.Collection(FirebaseCollections.Conversations)
+            db.Collection(conversationGroup)
                 .Document(conversationId)
                 .Collection(FirebaseCollections.Messages)
                 .GetSnapshotAsync()
@@ -158,7 +158,7 @@ namespace YuankunHuang.SynthMind.Core
                         {
                             // after deleting all messages
                             // delete the conversation itself
-                            db.Collection(FirebaseCollections.Conversations)
+                            db.Collection(conversationGroup)
                                 .Document(conversationId)
                                 .DeleteAsync()
                                 .ContinueWithOnMainThread(deleteTask =>
@@ -176,10 +176,10 @@ namespace YuankunHuang.SynthMind.Core
                 });
         }
 
-        public static void LoadMostRecentConversation(Action<string> onComplete)
+        public static void LoadMostRecentConversation(string conversationGroup, Action<string> onComplete)
         {
             var db = FirebaseFirestore.DefaultInstance;
-            db.Collection(FirebaseCollections.Conversations)
+            db.Collection(conversationGroup)
                 .OrderByDescending("lastUpdated")
                 .Limit(1)
                 .GetSnapshotAsync()
@@ -201,8 +201,10 @@ namespace YuankunHuang.SynthMind.Core
                 });
         }
 
-        public static void CreateNewConversation(List<string> participantIds, Action<string> onComplete)
+        public static void CreateNewConversation(string conversationGroup, List<string> participantIds, Action<string> onComplete)
         {
+            LogHelper.LogError($"CreateNewConversation - conversationGroup: {conversationGroup} | participantIds: {string.Join(",", participantIds)}");
+
             if (participantIds == null || participantIds.Count < 1)
             {
                 LogHelper.LogError("Cannot create conversation with no participants.");
@@ -211,7 +213,7 @@ namespace YuankunHuang.SynthMind.Core
             }
 
             var db = FirebaseFirestore.DefaultInstance;
-            var newConvRef = db.Collection(FirebaseCollections.Conversations).Document();
+            var newConvRef = db.Collection(conversationGroup).Document();
             var convData = new Dictionary<string, object>
             {
                 { "participants", participantIds },
@@ -234,15 +236,15 @@ namespace YuankunHuang.SynthMind.Core
             });
         }
 
-        public static void SendMessageToConversation(string conversationId, string senderId, string content, Dictionary<string, object> metadata = null)
+        public static void SendMessageToConversation(string conversationGroup, string conversationId, string senderId, string content, Dictionary<string, object> metadata = null)
         {
             var db = FirebaseFirestore.DefaultInstance;
             var msgRef = db
-                .Collection(FirebaseCollections.Conversations).Document(conversationId)
+                .Collection(conversationGroup).Document(conversationId)
                 .Collection(FirebaseCollections.Messages).Document();
             var data = new Dictionary<string, object>()
             {
-                { "messagId", Guid.NewGuid().ToString() },
+                { "messageId", Guid.NewGuid().ToString() },
                 { "senderId", senderId },
                 { "content", content },
                 { "timestamp", FieldValue.ServerTimestamp }
@@ -257,7 +259,7 @@ namespace YuankunHuang.SynthMind.Core
                 {
                     LogHelper.Log($"Message sent successfully in conversation {conversationId}, by {senderId}, content: {content}");
 
-                    db.Collection(FirebaseCollections.Conversations).Document(conversationId)
+                    db.Collection(conversationGroup).Document(conversationId)
                         .UpdateAsync("lastUpdated", Timestamp.GetCurrentTimestamp())
                         .ContinueWithOnMainThread(updateTask =>
                         {
@@ -267,7 +269,7 @@ namespace YuankunHuang.SynthMind.Core
                             }
                             else
                             {
-                                LogHelper.LogError($"Failed to update last updated timestamp for conversation {conversationId}: {updateTask.Exception}");
+                                LogHelper.LogError($"Failed to update last updated timestamp for conversation {conversationId}: {updateTask.Exception}. Error: {task.Exception?.Flatten()?.ToString()}");
                             }
                         });
                 }
@@ -278,10 +280,10 @@ namespace YuankunHuang.SynthMind.Core
             });
         }
 
-        public static void LoadRecentMessages(string convId, int limit, Action<List<FirebaseConversationMessage>> onComplete)
+        public static void LoadRecentMessages(string conversationGroup, string conversationId, int limit, Action<List<FirebaseConversationMessage>> onComplete)
         {
             var db = FirebaseFirestore.DefaultInstance;
-            db.Collection(FirebaseCollections.Conversations).Document(convId)
+            db.Collection(conversationGroup).Document(conversationId)
                 .Collection(FirebaseCollections.Messages)
                 .OrderByDescending("timestamp")
                 .Limit(limit)
@@ -293,7 +295,7 @@ namespace YuankunHuang.SynthMind.Core
                         foreach (var doc in task.Result.Documents)
                         {
                             messages.Add(new FirebaseConversationMessage(
-                                convId,
+                                conversationId,
                                 doc.GetValue<string>("messageId"),
                                 doc.GetValue<string>("senderId"),
                                 doc.GetValue<string>("content"),
@@ -307,7 +309,7 @@ namespace YuankunHuang.SynthMind.Core
                 });
         }
 
-        public static void LoadMessagesBefore(string convId, DocumentSnapshot lastDoc, int limit, Action<List<FirebaseConversationMessage>, DocumentSnapshot> onComplete)
+        public static void LoadMessagesBefore(string conversationGroup, string conversationId, DocumentSnapshot lastDoc, int limit, Action<List<FirebaseConversationMessage>, DocumentSnapshot> onComplete)
         {
             if (lastDoc == null)
             {
@@ -317,7 +319,7 @@ namespace YuankunHuang.SynthMind.Core
             }
 
             var db = FirebaseFirestore.DefaultInstance;
-            var query = db.Collection(FirebaseCollections.Conversations).Document(convId)
+            var query = db.Collection(conversationGroup).Document(conversationId)
                           .Collection(FirebaseCollections.Messages)
                           .OrderByDescending("timestamp")
                           .StartAfter(lastDoc)
@@ -338,7 +340,7 @@ namespace YuankunHuang.SynthMind.Core
                 foreach (var doc in result.Documents)
                 {
                     messages.Add(new FirebaseConversationMessage(
-                        convId,
+                        conversationId,
                         doc.GetValue<string>("messageId"),
                         doc.GetValue<string>("senderId"),
                         doc.GetValue<string>("content"),
@@ -353,11 +355,13 @@ namespace YuankunHuang.SynthMind.Core
             });
         }
 
-        public static void LoadConversationMessages(string conversationId, Action<List<FirebaseConversationMessage>> onComplete)
+        public static void LoadConversationMessages(string conversationGroup, string conversationId, Action<List<FirebaseConversationMessage>> onComplete)
         {
+            LogHelper.LogError($"LoadConversationMessages - conversationGroup: {conversationGroup} | conversationId: {conversationId}");
+
             var db = FirebaseFirestore.DefaultInstance;
             db
-            .Collection(FirebaseCollections.Conversations).Document(conversationId)
+            .Collection(conversationGroup).Document(conversationId)
             .Collection(FirebaseCollections.Messages)
             .OrderBy("timestamp")
             .GetSnapshotAsync()
@@ -394,7 +398,8 @@ namespace YuankunHuang.SynthMind.Core
 
     public class FirebaseCollections
     {
-        public static readonly string Conversations = "conversations";
+        public static readonly string AI_Conversations = "ai_conversations";
+        public static readonly string Command_Conversations = "command_conversations";
         public static readonly string Messages = "messages";
     }
 

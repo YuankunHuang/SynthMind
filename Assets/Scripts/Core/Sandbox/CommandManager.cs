@@ -36,9 +36,6 @@ namespace YuankunHuang.SynthMind.Core
             }
 
             var parts = input.Split(' ', System.StringSplitOptions.RemoveEmptyEntries);
-
-            LogHelper.LogError($"TryExecuteCommand - parts: {string.Join(" ", parts)}");
-
             if (parts.Length < 1)
             {
                 return false;
@@ -46,8 +43,6 @@ namespace YuankunHuang.SynthMind.Core
 
             var commandName = parts[0].ToLower();
             var parameters = parts.Skip(0).ToArray();
-
-            LogHelper.LogError($"TryExecuteCommand - commandName: {commandName} | parameters: {parameters}");
 
             if (_commands.TryGetValue(commandName, out var command))
             {
