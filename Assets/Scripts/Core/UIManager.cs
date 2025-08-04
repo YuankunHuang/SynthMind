@@ -6,9 +6,9 @@ using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.ResourceManagement.ResourceProviders;
-using YuankunHuang.SynthMind.Util;
+using YuankunHuang.Unity.Util;
 
-namespace YuankunHuang.SynthMind.Core
+namespace YuankunHuang.Unity.Core
 {
     public enum WindowShowState
     {

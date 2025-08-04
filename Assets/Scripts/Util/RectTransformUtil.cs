@@ -1,7 +1,7 @@
 using UnityEngine;
-using YuankunHuang.SynthMind.Core;
+using YuankunHuang.Unity.Core;
 
-namespace YuankunHuang.SynthMind.Util
+namespace YuankunHuang.Unity.Util
 {
     public static class RectTransformUtil
     {

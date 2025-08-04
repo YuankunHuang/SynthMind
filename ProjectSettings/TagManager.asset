@@ -8,6 +8,8 @@ TagManager:
   - StackableRoot
   - WindowRoot
   - SandboxCamera
+  - AI_Character
+  - AISpawned
   layers:
   - Default
   - TransparentFX

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace YuankunHuang.SynthMind.GameDataConfig
+namespace YuankunHuang.Unity.GameDataConfig
 {
     public class AvatarData
     {

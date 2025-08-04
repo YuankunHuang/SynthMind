@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace YuankunHuang.SynthMind.Core
+namespace YuankunHuang.Unity.Core
 {
     public class BuildCommand : IGameCommand
     {

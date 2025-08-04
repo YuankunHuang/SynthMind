@@ -1,10 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using YuankunHuang.SynthMind.Core;
-using YuankunHuang.SynthMind.Util;
+using YuankunHuang.Unity.Core;
+using YuankunHuang.Unity.Util;
 
-namespace YuankunHuang.SynthMind.HotUpdate
+namespace YuankunHuang.Unity.HotUpdate
 {
     public class MainMenuAboutController : IMainMenuWidgetController
     {

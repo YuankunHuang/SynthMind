@@ -6,7 +6,7 @@ using UnityEngine.Rendering.Universal;
 using UnityEngine.UI;
 using UnityEngine.WSA;
 
-namespace YuankunHuang.SynthMind.Core
+namespace YuankunHuang.Unity.Core
 {
     public class SandboxManager : MonoBehaviour
     {
@@ -103,8 +103,8 @@ namespace YuankunHuang.SynthMind.Core
             _sandboxCam.clearFlags = CameraClearFlags.Skybox;
 
             // position to view the sandbox
-            _sandboxCam.transform.position = new Vector3(0, 5, -8);
-            _sandboxCam.transform.rotation = Quaternion.Euler(25, 0, 0);
+            //_sandboxCam.transform.position = new Vector3(0, 5, -8);
+            //_sandboxCam.transform.rotation = Quaternion.Euler(25, 0, 0);
 
             // must be "base" camera
             var urpData = _sandboxCam.GetUniversalAdditionalCameraData();

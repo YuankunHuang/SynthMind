@@ -1,9 +1,9 @@
 using System;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
-using YuankunHuang.SynthMind.GameDataConfig;
+using YuankunHuang.Unity.GameDataConfig;
 
-namespace YuankunHuang.SynthMind.Core
+namespace YuankunHuang.Unity.Core
 {
     public class GameManager : MonoBehaviour
     {

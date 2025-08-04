@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace YuankunHuang.SynthMind.Core
+namespace YuankunHuang.Unity.Core
 {
     public class EventBus
     {

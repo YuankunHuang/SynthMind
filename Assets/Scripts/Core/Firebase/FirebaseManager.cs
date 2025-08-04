@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace YuankunHuang.SynthMind.Core
+namespace YuankunHuang.Unity.Core
 {
     public class FirebaseManager
     {
@@ -357,8 +357,6 @@ namespace YuankunHuang.SynthMind.Core
 
         public static void LoadConversationMessages(string conversationGroup, string conversationId, Action<List<FirebaseConversationMessage>> onComplete)
         {
-            LogHelper.LogError($"LoadConversationMessages - conversationGroup: {conversationGroup} | conversationId: {conversationId}");
-
             var db = FirebaseFirestore.DefaultInstance;
             db
             .Collection(conversationGroup).Document(conversationId)

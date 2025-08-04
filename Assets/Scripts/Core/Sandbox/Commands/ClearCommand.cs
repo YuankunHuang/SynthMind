@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace YuankunHuang.SynthMind.Core
+namespace YuankunHuang.Unity.Core
 {
     public class ClearCommand : IGameCommand
     {
@@ -11,7 +11,7 @@ namespace YuankunHuang.SynthMind.Core
 
         public bool CanExecute(string[] parameters)
         {
-            return parameters.Length >= 1 && parameters[0].ToLower() == "all" &&
+            return parameters.Length >= 1 && parameters[1].ToLower() == "all" &&
                    SandboxManager.Instance != null;
         }
 

@@ -3,7 +3,7 @@ using System.Collections;
 using UnityEngine.Networking;
 using UnityEngine;
 
-namespace YuankunHuang.SynthMind.Core
+namespace YuankunHuang.Unity.Core
 {
     [Serializable]
     public class MessageWrapper

@@ -4,9 +4,9 @@ using UnityEngine;
 using System;
 using System.IO;
 using System.IO.Compression;
-using LogHelper = YuankunHuang.SynthMind.Core.LogHelper;
+using YuankunHuang.Unity.Core;
 
-namespace YuankunHuang.SynthMind.Util
+namespace YuankunHuang.Unity.Util
 {
     /// <summary>
     /// @ingroup Utility

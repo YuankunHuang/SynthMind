@@ -1,4 +1,4 @@
-namespace YuankunHuang.SynthMind.GameDataConfig
+namespace YuankunHuang.Unity.GameDataConfig
 {
     /// <summary>
     /// Field types for binary data reading

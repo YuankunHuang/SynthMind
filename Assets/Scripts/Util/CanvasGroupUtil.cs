@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace YuankunHuang.SynthMind.Util
+namespace YuankunHuang.Unity.Util
 {
     /// <summary>
     /// @ingroup Utility

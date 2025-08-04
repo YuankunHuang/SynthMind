@@ -1,6 +1,6 @@
 using System.Text.RegularExpressions;
 
-namespace YuankunHuang.SynthMind.Core
+namespace YuankunHuang.Unity.Core
 {
     public static class NaturalLanguagePatterns
     {
@@ -48,6 +48,8 @@ namespace YuankunHuang.SynthMind.Core
     {
         public static CommandParseResult ParseNaturalInput(string input)
         {
+            LogHelper.LogError($"ParseNaturalInput - input: {input}");
+
             if (string.IsNullOrEmpty(input))
             {
                 return new CommandParseResult { Success = false };
@@ -57,21 +59,29 @@ namespace YuankunHuang.SynthMind.Core
 
             if (MatchesAnyPattern(normalizedInput, NaturalLanguagePatterns.TreePatterns))
             {
+                LogHelper.LogError($"Matched TreePatterns");
+
                 return ParseTreeCommand(normalizedInput);
             }
 
             if (MatchesAnyPattern(normalizedInput, NaturalLanguagePatterns.MovePatterns))
             {
+                LogHelper.LogError($"Matched MovePatterns");
+
                 return ParseMoveCommand(normalizedInput);
             }
 
             if (MatchesAnyPattern(normalizedInput, NaturalLanguagePatterns.BuildingPatterns))
             {
+                LogHelper.LogError($"Matched BuildingPatterns");
+
                 return ParseBuildingCommand(normalizedInput);
             }
 
             if (MatchesAnyPattern(normalizedInput, NaturalLanguagePatterns.ClearPatterns))
             {
+                LogHelper.LogError($"Matched ClearPatterns");
+
                 return ParseClearCommand(normalizedInput);
             }
 
@@ -98,6 +108,9 @@ namespace YuankunHuang.SynthMind.Core
             var command = pos.HasValue
                 ? $"spawn tree {pos.Value.x} {pos.Value.z}"
                 : "spawn tree";
+
+            LogHelper.LogError($"ParseTreeCommand - pos: {pos} | command: {command}");
+
             return new CommandParseResult
             {
                 Success = true,
@@ -112,6 +125,9 @@ namespace YuankunHuang.SynthMind.Core
             var command = pos.HasValue
                 ? $"move {pos.Value.x} {pos.Value.z}"
                 : "move random";
+
+            LogHelper.LogError($"ParseMoveCommand - pos: {pos} | command: {command}");
+
             return new CommandParseResult
             {
                 Success = true,
@@ -126,6 +142,9 @@ namespace YuankunHuang.SynthMind.Core
             var command = pos.HasValue
                 ? $"build house {pos.Value.x} {pos.Value.z}"
                 : "build house";
+
+            LogHelper.LogError($"ParseBuildingCommand - pos: {pos} | command: {command}");
+
             return new CommandParseResult
             {
                 Success = true,
@@ -150,6 +169,8 @@ namespace YuankunHuang.SynthMind.Core
         {
             var match = Regex.Match(input, NaturalLanguagePatterns.PositionPattern);
 
+            LogHelper.LogError($"Matching Position Pattern -> {match}");
+
             // try coordinate
             if (match.Success)
             {
@@ -162,6 +183,9 @@ namespace YuankunHuang.SynthMind.Core
 
             // try direction
             var directionMatch = Regex.Match(input, NaturalLanguagePatterns.DirectionPattern);
+
+            LogHelper.LogError($"Matching DirectionPattern -> {directionMatch}");
+
             if (directionMatch.Success)
             {
                 var direction = directionMatch.Groups[1].Value.ToLower();

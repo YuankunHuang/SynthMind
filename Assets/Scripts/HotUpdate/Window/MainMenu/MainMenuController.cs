@@ -1,12 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
-using YuankunHuang.SynthMind.Core;
-using YuankunHuang.SynthMind.Util;
+using YuankunHuang.Unity.Core;
+using YuankunHuang.Unity.Util;
 using System;
 using UnityEngine;
 
-namespace YuankunHuang.SynthMind.HotUpdate
+namespace YuankunHuang.Unity.HotUpdate
 {
     public class MainMenuController : WindowControllerBase
     {

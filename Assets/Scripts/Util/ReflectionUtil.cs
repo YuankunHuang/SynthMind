@@ -5,7 +5,7 @@ using System.Reflection;
 using System;
 using System.Linq;
 
-namespace YuankunHuang.SynthMind.Util
+namespace YuankunHuang.Unity.Util
 {
     /// <summary>
     /// @ingroup Utility

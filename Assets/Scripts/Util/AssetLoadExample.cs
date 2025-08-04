@@ -1,10 +1,10 @@
 using UnityEngine;
 using UnityEngine.UI;
-using YuankunHuang.SynthMind.Core;
+using YuankunHuang.Unity.Core;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 
-namespace YuankunHuang.SynthMind.Util
+namespace YuankunHuang.Unity.Util
 {
     /// <summary>
     /// 智能资源加载使用示例 - 避免死锁版本

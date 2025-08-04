@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.U2D;
 
-namespace YuankunHuang.SynthMind.Core
+namespace YuankunHuang.Unity.Core
 {
     /// <summary>
     /// 简单实用的资源配置

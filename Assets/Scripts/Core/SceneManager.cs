@@ -7,7 +7,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine;
 using System;
 
-namespace YuankunHuang.SynthMind.Core
+namespace YuankunHuang.Unity.Core
 {
     public class SceneManager
     {

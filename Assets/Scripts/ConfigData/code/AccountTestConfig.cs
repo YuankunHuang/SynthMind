@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace YuankunHuang.SynthMind.GameDataConfig
+namespace YuankunHuang.Unity.GameDataConfig
 {
     public class AccountTestData
     {
@@ -21,7 +21,6 @@ namespace YuankunHuang.SynthMind.GameDataConfig
         public string email { get; set; }
 
         public int avatar { get; set; }
-
     }
 
     public partial class AccountTestConfig : BaseConfigData<AccountTestData>

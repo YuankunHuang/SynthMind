@@ -1,9 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using LogHelper = YuankunHuang.SynthMind.Core.LogHelper;
+using YuankunHuang.Unity.Core;
 
-namespace YuankunHuang.SynthMind.Util
+namespace YuankunHuang.Unity.Util
 {
     /// <summary>
     /// @ingroup Utility

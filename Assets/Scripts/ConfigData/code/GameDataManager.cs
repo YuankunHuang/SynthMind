@@ -2,7 +2,7 @@ using System;
 using System.Reflection;
 using System.Linq;
 
-namespace YuankunHuang.SynthMind.GameDataConfig
+namespace YuankunHuang.Unity.GameDataConfig
 {
     /// <summary>
     /// Centralized Game Data Manager

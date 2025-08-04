@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.UI;
 
-namespace YuankunHuang.SynthMind.Core
+namespace YuankunHuang.Unity.Core
 {
     public abstract class WindowControllerBase
     {

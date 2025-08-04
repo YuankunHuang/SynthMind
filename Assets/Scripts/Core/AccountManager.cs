@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using YuankunHuang.SynthMind.GameDataConfig;
+using YuankunHuang.Unity.GameDataConfig;
 
-namespace YuankunHuang.SynthMind.Core
+namespace YuankunHuang.Unity.Core
 {
     public class Account : IAccount
     {

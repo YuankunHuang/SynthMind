@@ -3,7 +3,7 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
-namespace YuankunHuang.SynthMind.Editor
+namespace YuankunHuang.Unity.Editor
 {
     /// <summary>
     /// 资源优化编辑器工具

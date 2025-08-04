@@ -1,4 +1,4 @@
-namespace YuankunHuang.SynthMind.HotUpdate
+namespace YuankunHuang.Unity.HotUpdate
 {
     public interface IMainMenuWidgetController
     {

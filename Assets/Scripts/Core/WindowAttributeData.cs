@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace YuankunHuang.SynthMind.Core
+namespace YuankunHuang.Unity.Core
 {
     [CreateAssetMenu(fileName = "WindowAttributeData", menuName = "SynthMind/Window Attribute Data", order = 1)]
     public class WindowAttributeData : ScriptableObject

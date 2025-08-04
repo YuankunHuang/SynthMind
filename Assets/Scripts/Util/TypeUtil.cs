@@ -4,7 +4,7 @@ using UnityEngine;
 using System;
 using System.Text;
 
-namespace YuankunHuang.SynthMind.Util
+namespace YuankunHuang.Unity.Util
 {
     /// <summary>
     /// @ingroup Utility

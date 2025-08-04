@@ -1,8 +1,8 @@
 using UnityEngine;
 using UnityEditor;
-using YuankunHuang.SynthMind.Core;
+using YuankunHuang.Unity.Core;
 
-namespace YuankunHuang.SynthMind.Editor
+namespace YuankunHuang.Unity.Editor
 {
     /// <summary>
     /// AssetLoader设置检查工具

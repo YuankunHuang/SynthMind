@@ -4,7 +4,7 @@ using System.IO;
 using System.Reflection;
 using System.Linq;
 
-namespace YuankunHuang.SynthMind.GameDataConfig
+namespace YuankunHuang.Unity.GameDataConfig
 {
     public abstract class BaseConfigData<T> where T : new()
     {

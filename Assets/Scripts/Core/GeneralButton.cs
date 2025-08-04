@@ -8,7 +8,7 @@ using UnityEngine.UI;
 using UnityEditor;
 #endif
 
-namespace YuankunHuang.SynthMind.Core
+namespace YuankunHuang.Unity.Core
 {
     public class GeneralButton : Button, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler
     {

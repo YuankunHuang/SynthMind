@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace YuankunHuang.SynthMind.Core
+namespace YuankunHuang.Unity.Core
 {
     public class SpawnCommand : IGameCommand
     {
@@ -17,8 +17,8 @@ namespace YuankunHuang.SynthMind.Core
 
         public void Execute(string[] parameters)
         {
-            var objType = parameters[0];
-            var pos = GetSpawnPosition(parameters.Skip(1).ToArray());
+            var objType = parameters[1];
+            var pos = GetSpawnPosition(parameters.Skip(2).ToArray());
             switch (objType)
             {
                 case "tree":
@@ -26,6 +26,12 @@ namespace YuankunHuang.SynthMind.Core
                     break;
                 case "house":
                     SpawnHouse(pos);
+                    break;
+                case "rock":
+                    SpawnRock(pos);
+                    break;
+                default:
+                    LogHelper.LogError($"Undefined obj: {objType}");
                     break;
             }
         }

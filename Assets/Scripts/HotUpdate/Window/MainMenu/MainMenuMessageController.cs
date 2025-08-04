@@ -3,10 +3,10 @@ using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using YuankunHuang.SynthMind.Core;
-using YuankunHuang.SynthMind.Util;
+using YuankunHuang.Unity.Core;
+using YuankunHuang.Unity.Util;
 
-namespace YuankunHuang.SynthMind.HotUpdate
+namespace YuankunHuang.Unity.HotUpdate
 {
     public enum MainMenuMessageType
     {
