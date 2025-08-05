@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace YuankunHuang.Unity.Core
@@ -87,6 +88,25 @@ namespace YuankunHuang.Unity.Core
         string Description { get; }
         bool CanExecute(string[] parameters);
         void Execute(string[] parameters);
+    }
+    #endregion
+
+    #region Localization
+    public interface ILocalizationManager : IModule
+    {
+        Task InitializeAsync();
+        Task<string> GetLocalizedText(string key);
+        Task<string> GetLocalizedText(string table, string key);
+        Task<string> GetLocalizedTextFormatted(string key, params object[] args);
+        Task<string> GetLocalizedTextFormatted(string table, string key, params object[] args);
+        void SetLanguage(string langCode);
+        Task SetLanguageAsync(string langCode);
+        string GetLanguageDisplayName(string langCode);
+        List<string> GetAvailableLanguages();
+        void ForceRefresh();
+        string CurrentLanguage { get; }
+        bool IsInitialized { get; }
+        event Action<string> OnLanguageChanged;
     }
     #endregion
 }

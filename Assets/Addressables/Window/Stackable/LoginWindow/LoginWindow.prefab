@@ -920,6 +920,7 @@ GameObject:
   - component: {fileID: 6734551272142425192}
   - component: {fileID: 6389424932792106548}
   - component: {fileID: 6695336636663090635}
+  - component: {fileID: 3826654348835197991}
   m_Layer: 5
   m_Name: TMP - Title
   m_TagString: Untagged
@@ -1043,6 +1044,34 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &3826654348835197991
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4373474499839355970}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56eb0353ae6e5124bb35b17aff880f16, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_StringReference:
+    m_TableReference:
+      m_TableCollectionName: GUID:38f2989028b243842a55eca132e84e1b
+    m_TableEntryReference:
+      m_KeyId: 309938454528
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  m_FormatArguments: []
+  m_UpdateString:
+    m_PersistentCalls:
+      m_Calls: []
+  references:
+    version: 2
+    RefIds: []
 --- !u!1 &4948224094460342362
 GameObject:
   m_ObjectHideFlags: 0

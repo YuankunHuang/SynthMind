@@ -63,7 +63,7 @@ namespace YuankunHuang.Unity.HotUpdate
             string password = _passwordInputField.text.Trim();
             if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
             {
-                _noticeTxt.text = "Username and password cannot be empty.";
+                _noticeTxt.text = ""; // kun todo
                 return;
             }
 
