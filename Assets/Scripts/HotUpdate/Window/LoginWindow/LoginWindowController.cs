@@ -1,4 +1,5 @@
 using TMPro;
+using UnityEngine.Localization.Settings;
 using YuankunHuang.Unity.Core;
 
 namespace YuankunHuang.Unity.HotUpdate
@@ -63,7 +64,7 @@ namespace YuankunHuang.Unity.HotUpdate
             string password = _passwordInputField.text.Trim();
             if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
             {
-                _noticeTxt.text = ""; // kun todo
+                _noticeTxt.text = ModuleRegistry.Get<ILocalizationManager>().GetLocalizedText(LocalizationKeys.MainMenuNoticeEmptyUsernameOrPassword);
                 return;
             }
 
@@ -73,13 +74,14 @@ namespace YuankunHuang.Unity.HotUpdate
 
         private void OnLoginSuccess()
         {
-            _noticeTxt.text = "Login successful!";
+            _noticeTxt.text = ModuleRegistry.Get<ILocalizationManager>().GetLocalizedText(LocalizationKeys.MainMenuNoticeSuccess);
+
             ModuleRegistry.Get<IUIManager>().ShowStackableWindow(WindowNames.MainMenu);
         }
 
         private void OnLoginError(string errorMessage)
         {
-            _noticeTxt.text = $"Login failed: {errorMessage}";
+            _noticeTxt.text = string.Format(ModuleRegistry.Get<ILocalizationManager>().GetLocalizedText(LocalizationKeys.MainMenuNoticeFailed), errorMessage);
         }
         #endregion
     }

@@ -1,0 +1,8 @@
+﻿Key,en,zh-Hans
+MainMenu_Login,LOGIN,登录
+MainMenu_Notice_EmptyUsernameOrPassword,Username and password cannot be empty.,用户名或密码不能为空
+MainMenu_Notice_Failed,Login failed: {0},登录失败：{0}
+MainMenu_Notice_Success,Login successful!,登录成功！
+MainMenu_Password,Password,密码
+MainMenu_Title,SynthMind - AI Sandbox Playground,心智合成：AI创意沙盒
+MainMenu_Username,Username,用户名

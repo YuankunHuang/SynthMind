@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -20,9 +21,13 @@ namespace YuankunHuang.Unity.Core
         private bool _isInitialized;
         private string _currentLanguage = "en";
 
-        // cache
-        private Dictionary<string, string> _stringCache = new();
-        private Dictionary<string, LocalizedString> _locStringCache = new();
+        private static readonly int MaxCacheSize = 1000;
+
+        // Cache system
+        private readonly ConcurrentDictionary<string, Task> _loadingTasks = new();
+        private readonly LRUCache<string, string> _stringCache = new(MaxCacheSize);
+        private readonly ConcurrentDictionary<string, LocalizedString> _locStringCache = new();
+        private readonly object _cacheLock = new();
 
         public async Task InitializeAsync()
         {
@@ -48,78 +53,50 @@ namespace YuankunHuang.Unity.Core
             }
         }
 
-        public async Task<string> GetLocalizedText(string key)
+        public string GetLocalizedText(string key)
         {
-            return await GetLocalizedText(DefaultLocalizationTable, key);
+            return GetLocalizedText(DefaultLocalizationTable, key);
         }
 
-        public async Task<string> GetLocalizedText(string table, string key)
+        public string GetLocalizedText(string table, string key)
         {
-            if (!_isInitialized)
+            var cacheKey = $"{table}_{key}";
+
+            // Check cache first
+            lock (_cacheLock)
             {
-                LogHelper.LogError($"[LocalizationManager] System not initialized when trying to get a localized string. Attempting to initialize...");
-                await InitializeAsync();
-            }
-
-            try
-            {
-                // check cache
-                var locKey = $"{table}/{key}";
-                if (!_locStringCache.TryGetValue(locKey, out var locString))
+                if (_stringCache.TryGet(cacheKey, out var cachedValue))
                 {
-                    locString = new LocalizedString(table, key);
-                    _locStringCache[locKey] = locString;
-                }
-
-                var handle = locString.GetLocalizedStringAsync();
-                await handle.Task;
-
-                if (handle.Status == UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationStatus.Succeeded)
-                {
-                    var result = handle.Result;
-                    _stringCache[locKey] = result;
-                }
-                else
-                {
-                    LogHelper.LogError($"[LocalizationManager] Failed to get localized text for key {key} in table {table}");
-                    if (handle.OperationException != null)
-                    {
-                        LogHelper.LogException(handle.OperationException);
-                    }
+                    return cachedValue;
                 }
             }
-            catch (Exception e)
-            {
-                LogHelper.LogException(e);
-            }
 
-            return $"[MISSING: {table}/{key}]";
+            // Start async loading in background
+            _ = LoadTextAsync(table, key);
+
+            // Return placeholder immediately
+            return GetPlaceholder(key);
         }
 
-        public async Task<string> GetLocalizedTextFormatted(string key, params object[] args)
+        public string GetLocalizedTextFormatted(string key, params object[] args)
         {
-            var template = await GetLocalizedText(key);
-            try
-            {
-                return string.Format(template, args);
-            }
-            catch (Exception e)
-            {
-                LogHelper.LogException(e);
+            return GetLocalizedTextFormatted(DefaultLocalizationTable, key, args);
+        }
+
+        public string GetLocalizedTextFormatted(string table, string key, params object[] args)
+        {
+            var template = GetLocalizedText(table, key);
+
+            if (IsPlaceholder(template))
                 return template;
-            }
-        }
 
-        public async Task<string> GetLocalizedTextFormatted(string table, string key, params object[] args)
-        {
-            var template = await GetLocalizedText(table, key);
             try
             {
                 return string.Format(template, args);
             }
             catch (Exception e)
             {
-                LogHelper.LogException(e);
+                LogHelper.LogWarning($"[LocalizationManager] String format error for key {key}: {e.Message}");
                 return template;
             }
         }
@@ -127,12 +104,6 @@ namespace YuankunHuang.Unity.Core
         public void SetLanguage(string langCode)
         {
             MonoManager.Instance.StartCoroutine(SetLanguageCoroutine(langCode));
-        }
-
-        private IEnumerator SetLanguageCoroutine(string langCode)
-        {
-            var task = SetLanguageAsync(langCode);
-            yield return new WaitUntil(() => task.IsCompleted);
         }
 
         public async Task SetLanguageAsync(string langCode)
@@ -148,9 +119,7 @@ namespace YuankunHuang.Unity.Core
                 }
 
                 LocalizationSettings.SelectedLocale = targetLocale;
-
                 await Task.Yield();
-
                 ClearCache();
             }
             catch (Exception e)
@@ -160,45 +129,13 @@ namespace YuankunHuang.Unity.Core
             }
         }
 
-        private void OnSelectedLocaleChanged(Locale locale)
-        {
-            if (locale != null)
-            {
-                var newLanguage = locale.Identifier.Code;
-                if (_currentLanguage != newLanguage)
-                {
-                    var oldLanguage = _currentLanguage;
-                    _currentLanguage = newLanguage;
-
-                    ClearCache();
-
-                    OnLanguageChanged?.Invoke(newLanguage);
-
-                    LogHelper.Log($"[LocalizationManager] Language changed from {oldLanguage} to {newLanguage}");
-                }
-            }
-        }
-
-        public void ForceRefresh()
-        {
-            LogHelper.Log($"[LocalizationManager] Can only force refresh by restarting the game.");
-
-            GameManager.Restart();
-        }
-
         public string GetLanguageDisplayName(string langCode)
         {
             if (!_isInitialized)
-            {
                 return langCode;
-            }
 
             var locale = LocalizationSettings.AvailableLocales.Locales.FirstOrDefault(l => l.Identifier.Code == langCode);
-            if (locale != null)
-            {
-                return locale.LocaleName;
-            }
-            return langCode;
+            return locale?.LocaleName ?? langCode;
         }
 
         public List<string> GetAvailableLanguages()
@@ -212,10 +149,10 @@ namespace YuankunHuang.Unity.Core
             return LocalizationSettings.AvailableLocales.Locales.Select(locale => locale.Identifier.Code).ToList();
         }
 
-        private void ClearCache()
+        public void ForceRefresh()
         {
-            _stringCache.Clear();
-            _locStringCache.Clear();
+            LogHelper.Log($"[LocalizationManager] Can only force refresh by restarting the game.");
+            GameManager.Restart();
         }
 
         public void Dispose()
@@ -223,13 +160,9 @@ namespace YuankunHuang.Unity.Core
             try
             {
                 LocalizationSettings.SelectedLocaleChanged -= OnSelectedLocaleChanged;
-
                 OnLanguageChanged = null;
-
                 ClearCache();
-
                 _isInitialized = false;
-
                 LogHelper.Log($"[LocalizationManager] Disposed");
             }
             catch (Exception e)
@@ -238,5 +171,129 @@ namespace YuankunHuang.Unity.Core
                 LogHelper.LogException(e);
             }
         }
+
+        #region Private Implementation
+
+        private async Task LoadTextAsync(string table, string key)
+        {
+            var cacheKey = $"{table}_{key}";
+            if (_loadingTasks.ContainsKey(cacheKey))
+                return;
+
+            var loadingTask = LoadTextInternalAsync(table, key);
+            _loadingTasks[cacheKey] = loadingTask;
+
+            try
+            {
+                await loadingTask;
+            }
+            catch (Exception e)
+            {
+                LogHelper.LogException(e);
+            }
+            finally
+            {
+                _loadingTasks.TryRemove(cacheKey, out _);
+            }
+        }
+
+        private async Task<string> LoadTextInternalAsync(string table, string key)
+        {
+            if (!_isInitialized)
+            {
+                LogHelper.LogError($"[LocalizationManager] System not initialized when trying to load text");
+                return GetPlaceholder(key);
+            }
+
+            try
+            {
+                var cacheKey = $"{table}_{key}";
+
+                if (!_locStringCache.TryGetValue(cacheKey, out var locString))
+                {
+                    locString = new LocalizedString(table, key);
+                    _locStringCache[cacheKey] = locString;
+                }
+
+                var handle = locString.GetLocalizedStringAsync();
+                await handle.Task;
+
+                if (handle.Status == UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationStatus.Succeeded)
+                {
+                    var result = handle.Result ?? GetPlaceholder(key);
+
+                    lock (_cacheLock)
+                    {
+                        _stringCache.Add(cacheKey, result);
+                    }
+
+                    return result;
+                }
+                else
+                {
+                    LogHelper.LogError($"[LocalizationManager] Failed to load text for key {key} in table {table}");
+                    if (handle.OperationException != null)
+                    {
+                        LogHelper.LogException(handle.OperationException);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                LogHelper.LogException(e);
+            }
+
+            var placeholder = GetPlaceholder(key);
+            lock (_cacheLock)
+            {
+                _stringCache.Add($"{table}_{key}", placeholder);
+            }
+            return placeholder;
+        }
+
+        private IEnumerator SetLanguageCoroutine(string langCode)
+        {
+            var task = SetLanguageAsync(langCode);
+            yield return new WaitUntil(() => task.IsCompleted);
+        }
+
+        private void OnSelectedLocaleChanged(Locale locale)
+        {
+            if (locale != null)
+            {
+                var newLanguage = locale.Identifier.Code;
+                if (_currentLanguage != newLanguage)
+                {
+                    var oldLanguage = _currentLanguage;
+                    _currentLanguage = newLanguage;
+
+                    ClearCache();
+                    OnLanguageChanged?.Invoke(newLanguage);
+
+                    LogHelper.Log($"[LocalizationManager] Language changed from {oldLanguage} to {newLanguage}");
+                }
+            }
+        }
+
+        private void ClearCache()
+        {
+            lock (_cacheLock)
+            {
+                _stringCache.Clear();
+                _locStringCache.Clear();
+            }
+        }
+
+        private static string GetPlaceholder(string key)
+        {
+            return $"#{key}#";
+        }
+
+        private static bool IsPlaceholder(string text)
+        {
+            return text != null && text.StartsWith('#') && text.EndsWith('#');
+        }
+
+        #endregion
     }
 }

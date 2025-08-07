@@ -15,32 +15,32 @@ MonoBehaviour:
   m_TableCollectionName: Localization
   m_TableCollectionNameGuidString: 38f2989028b243842a55eca132e84e1b
   m_Entries:
-  - m_Id: 309938454528
-    m_Key: MainMenu/Title
+  - m_Id: 1416685256704
+    m_Key: MainMenu_Username
     m_Metadata:
       m_Items: []
-  - m_Id: 1416685256704
-    m_Key: MainMenu/Username
+  - m_Id: 309938454528
+    m_Key: MainMenu_Title
     m_Metadata:
       m_Items: []
   - m_Id: 1617621778432
-    m_Key: MainMenu/Password
-    m_Metadata:
-      m_Items: []
-  - m_Id: 2273388625920
-    m_Key: MainMenu/Login
-    m_Metadata:
-      m_Items: []
-  - m_Id: 2339406970880
-    m_Key: MainMenu/Notice/EmptyUsernameOrPassword
+    m_Key: MainMenu_Password
     m_Metadata:
       m_Items: []
   - m_Id: 2600393342976
-    m_Key: MainMenu/Notice/Success
+    m_Key: MainMenu_Notice_Success
     m_Metadata:
       m_Items: []
   - m_Id: 2891364794368
-    m_Key: MainMenu/Notice/Failed
+    m_Key: MainMenu_Notice_Failed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2339406970880
+    m_Key: MainMenu_Notice_EmptyUsernameOrPassword
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2273388625920
+    m_Key: MainMenu_Login
     m_Metadata:
       m_Items: []
   m_Metadata:

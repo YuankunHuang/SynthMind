@@ -94,16 +94,20 @@ namespace YuankunHuang.Unity.Core
     #region Localization
     public interface ILocalizationManager : IModule
     {
+        // core
+        string GetLocalizedText(string key);
+        string GetLocalizedText(string table, string key);
+        string GetLocalizedTextFormatted(string key, params object[] args);
+        string GetLocalizedTextFormatted(string table, string key, params object[] args);
+
+        // management
         Task InitializeAsync();
-        Task<string> GetLocalizedText(string key);
-        Task<string> GetLocalizedText(string table, string key);
-        Task<string> GetLocalizedTextFormatted(string key, params object[] args);
-        Task<string> GetLocalizedTextFormatted(string table, string key, params object[] args);
         void SetLanguage(string langCode);
         Task SetLanguageAsync(string langCode);
         string GetLanguageDisplayName(string langCode);
         List<string> GetAvailableLanguages();
-        void ForceRefresh();
+
+        // state + event
         string CurrentLanguage { get; }
         bool IsInitialized { get; }
         event Action<string> OnLanguageChanged;
