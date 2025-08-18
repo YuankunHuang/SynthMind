@@ -5,8 +5,9 @@ using TMPro;
 using UnityEngine.UI;
 using UnityEngine.U2D;
 using System;
+using YuankunHuang.Unity.Core;
 
-namespace YuankunHuang.Unity.Core
+namespace YuankunHuang.Unity.UICore
 {
     /// @ingroup Core
     /// @class GeneralWidgetConfig

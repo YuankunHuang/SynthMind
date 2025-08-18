@@ -2,10 +2,11 @@ using System;
 using System.Collections;
 using System.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.UI;
+using YuankunHuang.Unity.Core;
+using YuankunHuang.Unity.ModuleCore;
 
-namespace YuankunHuang.Unity.Core
+namespace YuankunHuang.Unity.UICore
 {
     public abstract class WindowControllerBase
     {

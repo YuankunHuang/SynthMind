@@ -1,8 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using YuankunHuang.Unity.Core;
+using YuankunHuang.Unity.ModuleCore;
 
-namespace YuankunHuang.Unity.Core
+namespace YuankunHuang.Unity.CommandCore
 {
     public class ClearCommand : IGameCommand
     {

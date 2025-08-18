@@ -2,8 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
+using YuankunHuang.Unity.Core;
+using YuankunHuang.Unity.ModuleCore;
 
-namespace YuankunHuang.Unity.Core
+namespace YuankunHuang.Unity.CameraCore
 {
     public class CameraManager : ICameraManager
     {

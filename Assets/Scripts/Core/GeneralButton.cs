@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using YuankunHuang.Unity.Core;
 
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
 
-namespace YuankunHuang.Unity.Core
+namespace YuankunHuang.Unity.UICore
 {
     public class GeneralButton : Button, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler
     {

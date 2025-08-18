@@ -2,8 +2,11 @@ using Firebase.Analytics;
 using Firebase.Firestore;
 using System;
 using System.Collections.Generic;
+using YuankunHuang.Unity.Core;
+using YuankunHuang.Unity.ModuleCore;
+using YuankunHuang.Unity.AccountCore;
 
-namespace YuankunHuang.Unity.Core
+namespace YuankunHuang.Unity.NetworkCore
 {
     public class NetworkManager : INetworkManager
     {

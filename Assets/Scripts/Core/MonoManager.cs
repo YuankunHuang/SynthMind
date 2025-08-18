@@ -15,18 +15,36 @@ namespace YuankunHuang.Unity.Core
         public event Action OnTickPerSec;
 
         private float _tickPerSecTimer = 0f;
-        private float _restartTimer = 0f;
 
-        private void Awake()
+        public static void CreateInstance()
         {
             if (Instance != null)
             {
-                Destroy(gameObject);
-                return;
+                Debug.LogWarning("MonoManager instance already exists. Destroying the old instance.");
+                Destroy(Instance.gameObject);
             }
+            GameObject go = new GameObject("MonoManager");
+            Instance = go.AddComponent<MonoManager>();
+            DontDestroyOnLoad(go);
+        }
 
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
+        public static void DestroyInstance()
+        {
+            if (Instance != null)
+            {
+                Instance.Shutdown();
+                Destroy(Instance.gameObject);
+                Instance = null;
+            }
+        }
+
+        private void Shutdown()
+        {
+            OnTick = null;
+            OnLateTick = null;
+            OnFixedTick = null;
+            OnTickPerSec = null;
+            StopAllCoroutines();
         }
 
         private void Update()
@@ -38,23 +56,6 @@ namespace YuankunHuang.Unity.Core
             {
                 _tickPerSecTimer -= 1f;
                 OnTickPerSec?.Invoke();
-            }
-
-            if (InputManager.GetKey(KeyCode.Escape))
-            {
-                if (_restartTimer > -0.1f) // only trigger once per press
-                {
-                    _restartTimer += Time.deltaTime;
-                    if (_restartTimer >= 1f)
-                    {
-                        GameManager.Restart();
-                        _restartTimer = -1f;
-                    }
-                }
-            }
-            else
-            {
-                _restartTimer = 0;
             }
         }
 

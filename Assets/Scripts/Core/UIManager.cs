@@ -5,10 +5,11 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
-using UnityEngine.ResourceManagement.ResourceProviders;
+using YuankunHuang.Unity.ModuleCore;
 using YuankunHuang.Unity.Util;
+using YuankunHuang.Unity.Core;
 
-namespace YuankunHuang.Unity.Core
+namespace YuankunHuang.Unity.UICore
 {
     public enum WindowShowState
     {
@@ -21,7 +22,7 @@ namespace YuankunHuang.Unity.Core
         Covered,
     }
 
-    public struct WindowStackEntry
+    public struct WindowStackEntry : IWindowStackEntry
     {
         public string WindowName;
         public WindowControllerBase Controller;
@@ -129,7 +130,7 @@ namespace YuankunHuang.Unity.Core
             _windowStack.Push(entry);
         }
 
-        public WindowStackEntry? GetWindowOnTop()
+        public IWindowStackEntry GetWindowOnTop()
         {
             return _windowStack.Count > 0 ? _windowStack.Peek() : null;
         }

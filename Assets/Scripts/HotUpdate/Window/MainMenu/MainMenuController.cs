@@ -1,10 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
-using YuankunHuang.Unity.Core;
 using YuankunHuang.Unity.Util;
-using System;
-using UnityEngine;
+using YuankunHuang.Unity.UICore;
 
 namespace YuankunHuang.Unity.HotUpdate
 {

@@ -7,8 +7,10 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
+using YuankunHuang.Unity.Core;
+using YuankunHuang.Unity.ModuleCore;
 
-namespace YuankunHuang.Unity.Core
+namespace YuankunHuang.Unity.LocalizationCore
 {
     public class LocalizationManager : ILocalizationManager
     {
@@ -152,7 +154,7 @@ namespace YuankunHuang.Unity.Core
         public void ForceRefresh()
         {
             LogHelper.Log($"[LocalizationManager] Can only force refresh by restarting the game.");
-            GameManager.Restart();
+            //GameManager.Restart();
         }
 
         public void Dispose()

@@ -1,8 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using YuankunHuang.Unity.Core;
 using YuankunHuang.Unity.Util;
+using YuankunHuang.Unity.UICore;
 
 namespace YuankunHuang.Unity.HotUpdate
 {

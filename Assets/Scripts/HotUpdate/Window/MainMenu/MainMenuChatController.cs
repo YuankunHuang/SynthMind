@@ -7,6 +7,10 @@ using UnityEngine;
 using UnityEngine.UI;
 using YuankunHuang.Unity.Core;
 using YuankunHuang.Unity.Util;
+using YuankunHuang.Unity.UICore;
+using YuankunHuang.Unity.ModuleCore;
+using YuankunHuang.Unity.AccountCore;
+using YuankunHuang.Unity.NetworkCore;
 
 namespace YuankunHuang.Unity.HotUpdate
 {

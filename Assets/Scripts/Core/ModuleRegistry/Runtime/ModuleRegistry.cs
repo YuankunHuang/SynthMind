@@ -1,8 +1,13 @@
 using System;
 using System.Collections.Generic;
 
-namespace YuankunHuang.Unity.Core
+namespace YuankunHuang.Unity.ModuleCore
 {
+    public interface IModule
+    {
+        void Dispose();
+    }
+
     public static class ModuleRegistry
     {
         private static Dictionary<Type, object> Instances = new();

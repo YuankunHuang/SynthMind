@@ -1,12 +1,24 @@
 using System;
 using UnityEngine;
-using UnityEngine.AddressableAssets;
+using YuankunHuang.Unity.AssetCore;
 using YuankunHuang.Unity.GameDataConfig;
+using YuankunHuang.Unity.ModuleCore;
+using YuankunHuang.Unity.UICore;
+using YuankunHuang.Unity.CameraCore;
+using YuankunHuang.Unity.AccountCore;
+using YuankunHuang.Unity.NetworkCore;
+using YuankunHuang.Unity.CommandCore;
+using YuankunHuang.Unity.LocalizationCore;
 
 namespace YuankunHuang.Unity.Core
 {
     public class GameManager : MonoBehaviour
     {
+        [Header("Module Configurations")]
+        [SerializeField] private AssetManagerConfig _assetManagerConfig;
+
+        private float _restartTimer = 0f;
+
         private void OnEnable()
         {
             Init();
@@ -17,12 +29,36 @@ namespace YuankunHuang.Unity.Core
             Dispose(null);
         }
 
-        private static void Init()
+        private void Update()
+        {
+            if (InputManager.GetKey(KeyCode.Escape))
+            {
+                if (_restartTimer > -0.1f) // only trigger once per press
+                {
+                    _restartTimer += Time.deltaTime;
+                    if (_restartTimer >= 1f)
+                    {
+                        Restart();
+                        _restartTimer = -1f;
+                    }
+                }
+            }
+            else
+            {
+                _restartTimer = 0;
+            }
+        }
+
+        private void Init()
         {
             LogHelper.Log($"[GameManager]::Init");
 
             GameDataManager.Initialize();
+            MonoManager.CreateInstance();
 
+            var assetManager = new AssetManager();
+            assetManager.Initialize(_assetManagerConfig);
+            ModuleRegistry.Register<IAssetManager>(assetManager);
             ModuleRegistry.Register<IUIManager>(new UIManager());
             ModuleRegistry.Register<ICameraManager>(new CameraManager());
             ModuleRegistry.Register<IAccountManager>(new AccountManager());
@@ -39,10 +75,11 @@ namespace YuankunHuang.Unity.Core
             });
         }
 
-        private static void Dispose(Action onFinished)
+        private void Dispose(Action onFinished)
         {
             LogHelper.Log($"[GameManager]::Dispose");
 
+            ModuleRegistry.Get<IAssetManager>().Dispose();
             ModuleRegistry.Get<IUIManager>().Dispose();
             ModuleRegistry.Get<ICameraManager>().Dispose();
             ModuleRegistry.Get<IAccountManager>().Dispose();
@@ -50,6 +87,7 @@ namespace YuankunHuang.Unity.Core
             ModuleRegistry.Get<ICommandManager>().Dispose();
             ModuleRegistry.Get<ILocalizationManager>().Dispose();
 
+            ModuleRegistry.Unregister<IAssetManager>();
             ModuleRegistry.Unregister<IUIManager>();
             ModuleRegistry.Unregister<ICameraManager>();
             ModuleRegistry.Unregister<IAccountManager>();
@@ -57,11 +95,13 @@ namespace YuankunHuang.Unity.Core
             ModuleRegistry.Unregister<ICommandManager>();
             ModuleRegistry.Unregister<ILocalizationManager>();
 
+            MonoManager.DestroyInstance();
+
             SceneManager.UnloadAll(onFinished);
             FirebaseManager.Dispose();
         }
 
-        public static void Restart()
+        public void Restart()
         {
             LogHelper.Log($"[GameManager]::Restart");
 

@@ -1,7 +1,8 @@
 using System.Collections.Generic;
 using YuankunHuang.Unity.GameDataConfig;
+using YuankunHuang.Unity.ModuleCore;
 
-namespace YuankunHuang.Unity.Core
+namespace YuankunHuang.Unity.AccountCore
 {
     public class Account : IAccount
     {

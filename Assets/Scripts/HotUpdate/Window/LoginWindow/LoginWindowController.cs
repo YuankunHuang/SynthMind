@@ -1,6 +1,10 @@
 using TMPro;
 using UnityEngine.Localization.Settings;
 using YuankunHuang.Unity.Core;
+using YuankunHuang.Unity.UICore;
+using YuankunHuang.Unity.ModuleCore;
+using YuankunHuang.Unity.AccountCore;
+using YuankunHuang.Unity.LocalizationCore;
 
 namespace YuankunHuang.Unity.HotUpdate
 {

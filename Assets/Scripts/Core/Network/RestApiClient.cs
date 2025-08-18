@@ -2,8 +2,10 @@ using System;
 using System.Collections;
 using UnityEngine.Networking;
 using UnityEngine;
+using YuankunHuang.Unity.ModuleCore;
+using YuankunHuang.Unity.Core;
 
-namespace YuankunHuang.Unity.Core
+namespace YuankunHuang.Unity.NetworkCore
 {
     [Serializable]
     public class MessageWrapper
