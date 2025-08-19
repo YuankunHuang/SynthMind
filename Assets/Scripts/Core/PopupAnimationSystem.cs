@@ -57,6 +57,9 @@ namespace YuankunHuang.Unity.UICore
 
     public static class PopupAnimator
     {
+        private const float FINAL_FRAME_THRESHOLD = 0.99f;
+        private const float MAX_OVERSHOOT = 1.05f;
+
         public static class Easing
         {
             public static float BounceOut(float t)
@@ -90,15 +93,18 @@ namespace YuankunHuang.Unity.UICore
             public static float ElasticOut(float t)
             {
                 if (t == 0) return 0;
-                if (t == 1) return 1;
+                if (t >= FINAL_FRAME_THRESHOLD) return 1;
 
                 float p = 0.3f;
                 float s = p / 4f;
-                return Mathf.Pow(2, -10 * t) * Mathf.Sin((t - s) * (2 * Mathf.PI) / p) + 1;
+                float result = Mathf.Pow(2, -10 * t) * Mathf.Sin((t - s) * (2 * Mathf.PI) / p) + 1;
+                return Mathf.Clamp(result, 0f, 1.1f);
             }
 
             public static float ElasticIn(float t)
             {
+                if (t == 0) return 0;
+                if (t >= FINAL_FRAME_THRESHOLD) return 1;
                 return 1f - ElasticOut(1f - t);
             }
 
@@ -106,7 +112,8 @@ namespace YuankunHuang.Unity.UICore
             {
                 const float c1 = 1.70158f;
                 const float c3 = c1 + 1f;
-                return 1f + c3 * Mathf.Pow(t - 1f, 3f) + c1 * Mathf.Pow(t - 1f, 2f);
+                float result = 1f + c3 * Mathf.Pow(t - 1f, 3f) + c1 * Mathf.Pow(t - 1f, 2f);
+                return Mathf.Min(result, MAX_OVERSHOOT);
             }
 
             public static float BackIn(float t)
@@ -131,16 +138,14 @@ namespace YuankunHuang.Unity.UICore
 
             if (container == null)
             {
-                yield break; // Exit if container is null
+                yield break;
             }
 
-            // stay as original state
             var originalScale = container.localScale;
             var originalPosition = container.localPosition;
             var originalRotation = container.localRotation;
             var originalAlpha = canvasGroup ? canvasGroup.alpha : 1f;
 
-            // set initial state based on animation type
             SetInitialState(container, canvasGroup, settings.enterAnimation);
 
             float time = 0f;
@@ -157,18 +162,21 @@ namespace YuankunHuang.Unity.UICore
 
             if (container == null)
             {
-                yield break; // Exit if container is null
+                yield break;
             }
 
-            // ensure final state is correct
-            container.localScale = originalScale;
-            container.localPosition = originalPosition;
-            container.localRotation = originalRotation;
-            if (canvasGroup) canvasGroup.alpha = originalAlpha;
+            ApplyEnterAnimation(container, canvasGroup, settings, 1.0f,
+                             originalScale, originalPosition, originalRotation, originalAlpha);
         }
 
         public static IEnumerator AnimatePopupExit(Transform container, CanvasGroup canvasGroup, PopupAnimationSettings settings, Action onComplete = null)
         {
+            if (container == null)
+            {
+                onComplete?.Invoke();
+                yield break;
+            }
+
             var originalScale = container.localScale;
             var originalPosition = container.localPosition;
             var originalRotation = container.localRotation;
@@ -186,6 +194,24 @@ namespace YuankunHuang.Unity.UICore
                 yield return null;
             }
 
+            ApplyExitAnimation(container, canvasGroup, settings, 1.0f,
+                             originalScale, originalPosition, originalRotation, originalAlpha);
+
+            if (settings.exitAnimation != PopupExitType.None)
+            {
+                switch (settings.exitAnimation)
+                {
+                    case PopupExitType.ScaleOut:
+                    case PopupExitType.FadeOutScale:
+                    case PopupExitType.ElasticOut:
+                    case PopupExitType.RotateOut:
+                    case PopupExitType.PunchOut:
+                        if (container != null)
+                            container.localScale = Vector3.zero;
+                        break;
+                }
+            }
+
             onComplete?.Invoke();
         }
 
@@ -194,13 +220,14 @@ namespace YuankunHuang.Unity.UICore
             switch (animationType)
             {
                 case PopupAnimationType.None:
-                    // No initial state change
                     break;
+
                 case PopupAnimationType.BounceIn:
                 case PopupAnimationType.ElasticIn:
                 case PopupAnimationType.BackIn:
                 case PopupAnimationType.PunchScale:
                 case PopupAnimationType.SpringIn:
+                case PopupAnimationType.Wobble:
                     container.localScale = Vector3.zero;
                     break;
 
@@ -221,31 +248,31 @@ namespace YuankunHuang.Unity.UICore
                     container.localScale = Vector3.zero;
                     if (canvasGroup) canvasGroup.alpha = 0f;
                     break;
-
-                case PopupAnimationType.Wobble:
-                    container.localScale = Vector3.zero;
-                    break;
             }
         }
 
         private static void ApplyEnterAnimation(Transform container, CanvasGroup canvasGroup, PopupAnimationSettings settings,
             float t, Vector3 originalScale, Vector3 originalPosition, Quaternion originalRotation, float originalAlpha)
         {
-            if (container == null)
-            {
-                return;
-            }
+            if (container == null) return;
+
+            bool isFinalFrame = t >= FINAL_FRAME_THRESHOLD;
 
             switch (settings.enterAnimation)
             {
                 case PopupAnimationType.None:
-                    // No animation, just set to original state
                     container.localScale = originalScale;
                     container.localPosition = originalPosition;
                     container.localRotation = originalRotation;
                     if (canvasGroup) canvasGroup.alpha = originalAlpha;
                     break;
+
                 case PopupAnimationType.BounceIn:
+                    if (isFinalFrame)
+                    {
+                        container.localScale = originalScale;
+                    }
+                    else
                     {
                         float bounceT = Easing.BounceOut(t);
                         container.localScale = Vector3.Lerp(Vector3.zero, originalScale, bounceT);
@@ -253,53 +280,91 @@ namespace YuankunHuang.Unity.UICore
                     break;
 
                 case PopupAnimationType.ElasticIn:
+                    if (isFinalFrame)
+                    {
+                        container.localScale = originalScale;
+                    }
+                    else
                     {
                         float elasticT = Easing.ElasticOut(t);
-                        container.localScale = Vector3.Lerp(Vector3.zero, originalScale, elasticT);
+                        float clampedT = Mathf.Clamp(elasticT, 0f, MAX_OVERSHOOT);
+                        container.localScale = Vector3.Lerp(Vector3.zero, originalScale, clampedT);
                     }
                     break;
 
                 case PopupAnimationType.BackIn:
+                    if (isFinalFrame)
+                    {
+                        container.localScale = originalScale;
+                    }
+                    else
                     {
                         float backT = Easing.BackOut(t);
-                        container.localScale = Vector3.Lerp(Vector3.zero, originalScale, backT);
+                        container.localScale = Vector3.Lerp(Vector3.zero, originalScale, Mathf.Clamp01(backT));
                     }
                     break;
 
                 case PopupAnimationType.ScaleInWithRotation:
+                    if (isFinalFrame)
+                    {
+                        container.localScale = originalScale;
+                        container.localRotation = originalRotation;
+                    }
+                    else
                     {
                         float scaleT = Easing.BackOut(t);
-                        container.localScale = Vector3.Lerp(Vector3.zero, originalScale, scaleT);
+                        container.localScale = Vector3.Lerp(Vector3.zero, originalScale, Mathf.Clamp01(scaleT));
                         container.localRotation = Quaternion.Lerp(
                             Quaternion.Euler(0, 0, -180f), originalRotation, t);
                     }
                     break;
 
                 case PopupAnimationType.SlideInFromTop:
+                    if (isFinalFrame)
+                    {
+                        container.localPosition = originalPosition;
+                    }
+                    else
                     {
                         float slideT = Easing.BackOut(t);
                         Vector3 startPos = originalPosition + Vector3.up * Screen.height;
-                        container.localPosition = Vector3.Lerp(startPos, originalPosition, slideT);
+                        container.localPosition = Vector3.Lerp(startPos, originalPosition, Mathf.Clamp01(slideT));
                     }
                     break;
 
                 case PopupAnimationType.SlideInFromBottom:
+                    if (isFinalFrame)
+                    {
+                        container.localPosition = originalPosition;
+                    }
+                    else
                     {
                         float slideT = Easing.BackOut(t);
                         Vector3 startPos = originalPosition + Vector3.down * Screen.height;
-                        container.localPosition = Vector3.Lerp(startPos, originalPosition, slideT);
+                        container.localPosition = Vector3.Lerp(startPos, originalPosition, Mathf.Clamp01(slideT));
                     }
                     break;
 
                 case PopupAnimationType.FadeInScale:
+                    if (isFinalFrame)
+                    {
+                        container.localScale = originalScale;
+                        if (canvasGroup) canvasGroup.alpha = originalAlpha;
+                    }
+                    else
                     {
                         float easeT = Easing.BackOut(t);
-                        container.localScale = Vector3.Lerp(Vector3.zero, originalScale, easeT);
+                        container.localScale = Vector3.Lerp(Vector3.zero, originalScale, Mathf.Clamp01(easeT));
                         if (canvasGroup) canvasGroup.alpha = Mathf.Lerp(0f, originalAlpha, t);
                     }
                     break;
 
                 case PopupAnimationType.PunchScale:
+                    if (isFinalFrame)
+                    {
+                        container.localScale = originalScale;
+                    }
+                    else
                     {
                         float punchT = t < 0.5f ?
                             Mathf.Sin(t * Mathf.PI * 4f) * (1f - t) + t :
@@ -309,13 +374,24 @@ namespace YuankunHuang.Unity.UICore
                     break;
 
                 case PopupAnimationType.SpringIn:
+                    if (isFinalFrame)
+                    {
+                        container.localScale = originalScale;
+                    }
+                    else
                     {
                         float springT = Easing.SpringDamping(t, 0.6f);
-                        container.localScale = Vector3.Lerp(Vector3.zero, originalScale, springT);
+                        container.localScale = Vector3.Lerp(Vector3.zero, originalScale, Mathf.Clamp01(springT));
                     }
                     break;
 
                 case PopupAnimationType.Wobble:
+                    if (isFinalFrame)
+                    {
+                        container.localScale = originalScale;
+                        container.localRotation = originalRotation;
+                    }
+                    else
                     {
                         float wobbleScale = Easing.BounceOut(t);
                         float wobbleRotation = Mathf.Sin(t * Mathf.PI * 8f) * (1f - t) * 15f;
@@ -329,25 +405,36 @@ namespace YuankunHuang.Unity.UICore
         private static void ApplyExitAnimation(Transform container, CanvasGroup canvasGroup, PopupAnimationSettings settings,
             float t, Vector3 originalScale, Vector3 originalPosition, Quaternion originalRotation, float originalAlpha)
         {
-            if (container == null)
-            {
-                return;
-            }
+            if (container == null) return;
+
+            bool isFinalFrame = t >= FINAL_FRAME_THRESHOLD;
 
             switch (settings.exitAnimation)
             {
                 case PopupExitType.None:
-                    // No exit animation, just set to original state
                     container.localScale = originalScale;
                     container.localPosition = originalPosition;
                     container.localRotation = originalRotation;
                     if (canvasGroup) canvasGroup.alpha = originalAlpha;
                     break;
+
                 case PopupExitType.ScaleOut:
-                    container.localScale = Vector3.Lerp(originalScale, Vector3.zero, t);
+                    if (isFinalFrame)
+                    {
+                        container.localScale = Vector3.zero;
+                    }
+                    else
+                    {
+                        container.localScale = Vector3.Lerp(originalScale, Vector3.zero, t);
+                    }
                     break;
 
                 case PopupExitType.SlideOutToTop:
+                    if (isFinalFrame)
+                    {
+                        container.localPosition = originalPosition + Vector3.up * Screen.height;
+                    }
+                    else
                     {
                         Vector3 endPos = originalPosition + Vector3.up * Screen.height;
                         container.localPosition = Vector3.Lerp(originalPosition, endPos, Easing.BackIn(t));
@@ -355,6 +442,11 @@ namespace YuankunHuang.Unity.UICore
                     break;
 
                 case PopupExitType.SlideOutToBottom:
+                    if (isFinalFrame)
+                    {
+                        container.localPosition = originalPosition + Vector3.down * Screen.height;
+                    }
+                    else
                     {
                         Vector3 endPos = originalPosition + Vector3.down * Screen.height;
                         container.localPosition = Vector3.Lerp(originalPosition, endPos, Easing.BackIn(t));
@@ -362,16 +454,36 @@ namespace YuankunHuang.Unity.UICore
                     break;
 
                 case PopupExitType.FadeOutScale:
-                    container.localScale = Vector3.Lerp(originalScale, Vector3.zero, t);
-                    if (canvasGroup) canvasGroup.alpha = Mathf.Lerp(originalAlpha, 0f, t);
+                    if (isFinalFrame)
+                    {
+                        container.localScale = Vector3.zero;
+                        if (canvasGroup) canvasGroup.alpha = 0f;
+                    }
+                    else
+                    {
+                        container.localScale = Vector3.Lerp(originalScale, Vector3.zero, t);
+                        if (canvasGroup) canvasGroup.alpha = Mathf.Lerp(originalAlpha, 0f, t);
+                    }
                     break;
 
                 case PopupExitType.RotateOut:
-                    container.localScale = Vector3.Lerp(originalScale, Vector3.zero, t);
-                    container.localRotation = originalRotation * Quaternion.Euler(0, 0, t * 360f);
+                    if (isFinalFrame)
+                    {
+                        container.localScale = Vector3.zero;
+                    }
+                    else
+                    {
+                        container.localScale = Vector3.Lerp(originalScale, Vector3.zero, t);
+                        container.localRotation = originalRotation * Quaternion.Euler(0, 0, t * 360f);
+                    }
                     break;
 
                 case PopupExitType.PunchOut:
+                    if (isFinalFrame)
+                    {
+                        container.localScale = Vector3.zero;
+                    }
+                    else
                     {
                         float punchScale = 1f + Mathf.Sin(t * Mathf.PI * 2f) * 0.3f * (1f - t);
                         container.localScale = originalScale * Mathf.Lerp(punchScale, 0f, t);
@@ -379,6 +491,11 @@ namespace YuankunHuang.Unity.UICore
                     break;
 
                 case PopupExitType.ElasticOut:
+                    if (isFinalFrame)
+                    {
+                        container.localScale = Vector3.zero;
+                    }
+                    else
                     {
                         float elasticT = Easing.ElasticIn(t);
                         container.localScale = Vector3.Lerp(originalScale, Vector3.zero, elasticT);

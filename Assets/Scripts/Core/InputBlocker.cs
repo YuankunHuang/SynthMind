@@ -25,14 +25,19 @@ namespace YuankunHuang.Unity.UICore
         [SerializeField] private float spinnerRotationSpeed = 360f;
         [SerializeField] private float loadingIndicatorDelay = 2f;
 
+        [Header("Animation Settings")]
+        [SerializeField] private float fadeInDuration = 0.2f;
+        [SerializeField] private float fadeOutDuration = 0.2f;
+
         private Canvas _blockerCanvas;
         private CanvasGroup _blockerCanvasGroup;
         private GraphicRaycaster _graphicRaycaster;
         private GameObject _currentLoadingIndicator;
         private GameObject _maskGO;
         private bool _isBlocking = false;
-        private int _blockCount = 0; // Support nested blocking
+        private int _blockCount = 0;
         private Coroutine _currentAnimationCoroutine;
+        private Coroutine _loadingIndicatorCoroutine;
 
         public static void Initialize(InputBlocker instance)
         {
@@ -46,11 +51,11 @@ namespace YuankunHuang.Unity.UICore
             _blockerCanvas.renderMode = RenderMode.ScreenSpaceOverlay;
             _blockerCanvas.sortingOrder = 9999;
 
-            // Add CanvasGroup to control visibility and interaction
             _blockerCanvasGroup = gameObject.AddComponent<CanvasGroup>();
-            _blockerCanvasGroup.CanvasGroupOff();
+            _blockerCanvasGroup.alpha = 0f;
+            _blockerCanvasGroup.blocksRaycasts = false;
+            _blockerCanvasGroup.interactable = false;
 
-            // Use GraphicRaycaster to block input raycasts
             _graphicRaycaster = gameObject.AddComponent<GraphicRaycaster>();
 
             CreateBackgroundMask();
@@ -73,12 +78,9 @@ namespace YuankunHuang.Unity.UICore
 
         private void DisposeInternal()
         {
-            if (_currentAnimationCoroutine != null)
-            {
-                StopCoroutine(_currentAnimationCoroutine);
-                _currentAnimationCoroutine = null;
-            }
             StopAllCoroutines();
+            _currentAnimationCoroutine = null;
+            _loadingIndicatorCoroutine = null;
 
             if (_graphicRaycaster != null)
             {
@@ -119,7 +121,7 @@ namespace YuankunHuang.Unity.UICore
             if (_maskGO == null)
             {
                 _maskGO = new GameObject("BackgroundMask");
-                _maskGO.transform.SetParent(transform);
+                _maskGO.transform.SetParent(transform, false);
 
                 var rt = _maskGO.AddComponent<RectTransform>();
                 rt.anchorMin = Vector2.zero;
@@ -157,7 +159,7 @@ namespace YuankunHuang.Unity.UICore
         private GameObject CreateSimpleSpinner()
         {
             var spinnerGO = new GameObject("LoadingSpinner");
-            spinnerGO.transform.SetParent(transform);
+            spinnerGO.transform.SetParent(transform, false);
 
             var rt = spinnerGO.AddComponent<RectTransform>();
             rt.anchoredPosition = Vector2.zero;
@@ -233,7 +235,7 @@ namespace YuankunHuang.Unity.UICore
         private GameObject CreateSimpleTextIndicator()
         {
             var textGO = new GameObject("LoadingText");
-            textGO.transform.SetParent(transform);
+            textGO.transform.SetParent(transform, false);
 
             var rt = textGO.AddComponent<RectTransform>();
             rt.anchoredPosition = Vector2.zero;
@@ -247,7 +249,7 @@ namespace YuankunHuang.Unity.UICore
             text.alignment = TextAnchor.MiddleCenter;
             text.raycastTarget = false;
 
-            var blinker = textGO.AddComponent<TextBlinker>();
+            textGO.AddComponent<TextBlinker>();
 
             return textGO;
         }
@@ -276,25 +278,36 @@ namespace YuankunHuang.Unity.UICore
 
         private void StartBlockingInternal(float duration, float loadingDelay)
         {
-            if (_currentAnimationCoroutine != null)
-            {
-                StopCoroutine(_currentAnimationCoroutine);
-                _currentAnimationCoroutine = null;
-            }
-
             _blockCount++;
 
             if (!_isBlocking)
             {
                 _isBlocking = true;
 
-                _blockerCanvasGroup.alpha = 0f;
-                _blockerCanvasGroup.blocksRaycasts = true;
-                _blockerCanvasGroup.interactable = true;
+                if (_currentAnimationCoroutine != null)
+                {
+                    StopCoroutine(_currentAnimationCoroutine);
+                    _currentAnimationCoroutine = null;
+                }
+
+                if (_loadingIndicatorCoroutine != null)
+                {
+                    StopCoroutine(_loadingIndicatorCoroutine);
+                    _loadingIndicatorCoroutine = null;
+                }
 
                 LogHelper.Log($"[InputBlocker] Started blocking (count: {_blockCount})");
 
-                _currentAnimationCoroutine = StartCoroutine(FadeInCoroutine(loadingDelay));
+                _currentAnimationCoroutine = StartCoroutine(FadeInCoroutine());
+
+                if (showLoadingIndicator && _currentLoadingIndicator != null && loadingDelay >= 0)
+                {
+                    _loadingIndicatorCoroutine = StartCoroutine(ShowLoadingIndicatorDelayed(loadingDelay));
+                }
+            }
+            else
+            {
+                LogHelper.Log($"[InputBlocker] Block count increased: {_blockCount}");
             }
 
             if (duration > 0)
@@ -309,17 +322,91 @@ namespace YuankunHuang.Unity.UICore
 
             if (_blockCount == 0 && _isBlocking)
             {
-                _isBlocking = false;
-
                 if (_currentAnimationCoroutine != null)
                 {
                     StopCoroutine(_currentAnimationCoroutine);
+                    _currentAnimationCoroutine = null;
                 }
 
-                _currentAnimationCoroutine = StartCoroutine(FadeOutCoroutine());
+                if (_loadingIndicatorCoroutine != null)
+                {
+                    StopCoroutine(_loadingIndicatorCoroutine);
+                    _loadingIndicatorCoroutine = null;
+                }
+
+                _currentAnimationCoroutine = StartCoroutine(FadeOutAndDisable());
 
                 LogHelper.Log("[InputBlocker] Stopped blocking");
             }
+            else if (_blockCount > 0)
+            {
+                LogHelper.Log($"[InputBlocker] Block count decreased: {_blockCount}");
+            }
+        }
+
+        private IEnumerator FadeInCoroutine()
+        {
+            _blockerCanvasGroup.blocksRaycasts = true;
+            _blockerCanvasGroup.interactable = true;
+
+            float startAlpha = _blockerCanvasGroup.alpha;
+            float elapsedTime = 0f;
+
+            while (elapsedTime < fadeInDuration)
+            {
+                elapsedTime += Time.unscaledDeltaTime;
+                float t = Mathf.Clamp01(elapsedTime / fadeInDuration);
+                _blockerCanvasGroup.alpha = Mathf.Lerp(startAlpha, 1f, t);
+                yield return null;
+            }
+
+            _blockerCanvasGroup.alpha = 1f;
+
+            LogHelper.Log("[InputBlocker] Fade in completed");
+        }
+
+        private IEnumerator ShowLoadingIndicatorDelayed(float delay)
+        {
+            if (delay > 0)
+            {
+                yield return new WaitForSeconds(delay);
+            }
+
+            if (_isBlocking && _currentLoadingIndicator != null)
+            {
+                _currentLoadingIndicator.SetActive(true);
+            }
+        }
+
+        private IEnumerator FadeOutAndDisable()
+        {
+            if (_currentLoadingIndicator != null)
+            {
+                _currentLoadingIndicator.SetActive(false);
+            }
+
+            float startAlpha = _blockerCanvasGroup.alpha;
+            float elapsedTime = 0f;
+
+            while (elapsedTime < fadeOutDuration)
+            {
+                elapsedTime += Time.unscaledDeltaTime;
+                float t = Mathf.Clamp01(elapsedTime / fadeOutDuration);
+                _blockerCanvasGroup.alpha = Mathf.Lerp(startAlpha, 0f, t);
+                yield return null;
+            }
+
+            _blockerCanvasGroup.alpha = 0f;
+
+            yield return null;
+
+            _blockerCanvasGroup.blocksRaycasts = false;
+            _blockerCanvasGroup.interactable = false;
+
+            _isBlocking = false;
+            _currentAnimationCoroutine = null;
+
+            LogHelper.Log("[InputBlocker] Fade out completed");
         }
 
         private IEnumerator AutoStopBlocking(float delay)
@@ -328,47 +415,40 @@ namespace YuankunHuang.Unity.UICore
             StopBlockingInternal();
         }
 
-        private IEnumerator FadeInCoroutine(float loadingDelay)
-        {
-            if (loadingDelay > 0)
-            {
-                yield return new WaitForSeconds(loadingDelay);
-            }
-
-            if (showLoadingIndicator && _currentLoadingIndicator != null)
-            {
-                _currentLoadingIndicator.SetActive(true);
-            }
-
-            _blockerCanvasGroup.alpha = 1f;
-
-            LogHelper.Log("[InputBlocker] Fade in completed");
-        }
-
-        private IEnumerator FadeOutCoroutine()
-        {
-            if (showLoadingIndicator && _currentLoadingIndicator != null)
-            {
-                _currentLoadingIndicator.SetActive(false);
-            }
-
-            _blockerCanvasGroup.CanvasGroupOff();
-
-            LogHelper.Log("[InputBlocker] Fade out completed");
-
-            yield break;
-        }
-
-        /// <summary>
-        /// Force stop blocking immediately, resetting the block count. 
-        /// This should be used with caution, as it may interrupt ongoing operations.
-        /// </summary>
         public static void ForceStopBlocking()
         {
             if (Instance != null)
             {
-                Instance._blockCount = 0;
-                Instance.StopBlockingInternal();
+                Instance.ForceStopBlockingInternal();
+            }
+        }
+
+        private void ForceStopBlockingInternal()
+        {
+            StopAllCoroutines();
+            _currentAnimationCoroutine = null;
+            _loadingIndicatorCoroutine = null;
+
+            _blockCount = 0;
+            _isBlocking = false;
+
+            if (_currentLoadingIndicator != null)
+            {
+                _currentLoadingIndicator.SetActive(false);
+            }
+
+            _blockerCanvasGroup.alpha = 0f;
+            _blockerCanvasGroup.blocksRaycasts = false;
+            _blockerCanvasGroup.interactable = false;
+
+            LogHelper.Log("[InputBlocker] Force stopped");
+        }
+
+        private void OnDestroy()
+        {
+            if (Instance == this)
+            {
+                Instance = null;
             }
         }
     }
@@ -395,6 +475,8 @@ namespace YuankunHuang.Unity.UICore
 
         private void Update()
         {
+            if (_text == null) return;
+
             _timer += Time.unscaledDeltaTime;
             float alpha = (Mathf.Sin(_timer * 3f) + 1f) * 0.5f;
             alpha = Mathf.Lerp(0.3f, 1f, alpha);
