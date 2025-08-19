@@ -15,12 +15,11 @@ namespace YuankunHuang.Unity.LocalizationCore
     public class LocalizationManager : ILocalizationManager
     {
         public static string DefaultLocalizationTable = "Localization";
-
+        
+        public bool IsInitialized { get; private set; } = false;
         public event Action<string> OnLanguageChanged;
         public string CurrentLanguage => _currentLanguage;
-        public bool IsInitialized => _isInitialized;
 
-        private bool _isInitialized;
         private string _currentLanguage = "en";
 
         private static readonly int MaxCacheSize = 1000;
@@ -45,7 +44,7 @@ namespace YuankunHuang.Unity.LocalizationCore
 
                 LocalizationSettings.SelectedLocaleChanged += OnSelectedLocaleChanged;
 
-                _isInitialized = true;
+                IsInitialized = true;
                 LogHelper.Log($"[LocalizationManager] Initialized successfully. Current language: {_currentLanguage}");
             }
             catch (Exception e)
@@ -133,7 +132,7 @@ namespace YuankunHuang.Unity.LocalizationCore
 
         public string GetLanguageDisplayName(string langCode)
         {
-            if (!_isInitialized)
+            if (!IsInitialized)
                 return langCode;
 
             var locale = LocalizationSettings.AvailableLocales.Locales.FirstOrDefault(l => l.Identifier.Code == langCode);
@@ -142,7 +141,7 @@ namespace YuankunHuang.Unity.LocalizationCore
 
         public List<string> GetAvailableLanguages()
         {
-            if (!_isInitialized)
+            if (!IsInitialized)
             {
                 LogHelper.LogError($"[LocalizationManager] System is not initialized.");
                 return new List<string>();
@@ -164,7 +163,7 @@ namespace YuankunHuang.Unity.LocalizationCore
                 LocalizationSettings.SelectedLocaleChanged -= OnSelectedLocaleChanged;
                 OnLanguageChanged = null;
                 ClearCache();
-                _isInitialized = false;
+                IsInitialized = false;
                 LogHelper.Log($"[LocalizationManager] Disposed");
             }
             catch (Exception e)
@@ -201,7 +200,7 @@ namespace YuankunHuang.Unity.LocalizationCore
 
         private async Task<string> LoadTextInternalAsync(string table, string key)
         {
-            if (!_isInitialized)
+            if (!IsInitialized)
             {
                 LogHelper.LogError($"[LocalizationManager] System not initialized when trying to load text");
                 return GetPlaceholder(key);

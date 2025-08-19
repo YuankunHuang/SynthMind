@@ -203,8 +203,6 @@ namespace YuankunHuang.Unity.Core
 
         public static void CreateNewConversation(string conversationGroup, List<string> participantIds, Action<string> onComplete)
         {
-            LogHelper.LogError($"CreateNewConversation - conversationGroup: {conversationGroup} | participantIds: {string.Join(",", participantIds)}");
-
             if (participantIds == null || participantIds.Count < 1)
             {
                 LogHelper.LogError("Cannot create conversation with no participants.");

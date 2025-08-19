@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using YuankunHuang.Unity.GameDataConfig;
-using YuankunHuang.Unity.ModuleCore;
+using YuankunHuang.Unity.Core;
 
 namespace YuankunHuang.Unity.AccountCore
 {
@@ -28,8 +28,16 @@ namespace YuankunHuang.Unity.AccountCore
 
     public class AccountManager : IAccountManager
     {
+        public bool IsInitialized { get; private set; } = false;
         public IAccount AI { get; private set; }
         public IAccount Self { get; private set; }
+
+        public AccountManager()
+        {
+            IsInitialized = true;
+
+            LogHelper.Log("[AccountManager] Initialized with default accounts.");
+        }
 
         public IAccount GetAccount(string uuid)
         {
@@ -70,6 +78,8 @@ namespace YuankunHuang.Unity.AccountCore
                 account.Dispose();
             }
             _accounts.Clear();
+
+            IsInitialized = false;
         }
 
         public void Login(string username, string password, System.Action onSuccess, System.Action<string> onError)

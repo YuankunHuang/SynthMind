@@ -39,7 +39,7 @@
   },
   "Avatar": {
     "FieldCount": 2,
-    "RowCount": 2,
+    "RowCount": 48,
     "Fields": [
       {
         "Name": "id",

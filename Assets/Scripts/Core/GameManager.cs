@@ -14,8 +14,12 @@ namespace YuankunHuang.Unity.Core
 {
     public class GameManager : MonoBehaviour
     {
-        [Header("Module Configurations")]
+        public AssetManagerConfig AssetManagerConfig => _assetManagerConfig;
+
+        [Header("Modules")]
         [SerializeField] private AssetManagerConfig _assetManagerConfig;
+        [SerializeField] private MonoManager _monoManager;
+        [SerializeField] private InputBlocker _inputBlocker;
 
         private float _restartTimer = 0f;
 
@@ -49,22 +53,26 @@ namespace YuankunHuang.Unity.Core
             }
         }
 
-        private void Init()
+        private async void Init()
         {
             LogHelper.Log($"[GameManager]::Init");
 
             GameDataManager.Initialize();
-            MonoManager.CreateInstance();
+            MonoManager.Initialize(_monoManager);
+            InputBlocker.Initialize(_inputBlocker);
 
             var assetManager = new AssetManager();
             assetManager.Initialize(_assetManagerConfig);
             ModuleRegistry.Register<IAssetManager>(assetManager);
             ModuleRegistry.Register<IUIManager>(new UIManager());
+            ModuleRegistry.Register<INetworkManager>(new NetworkManager());
             ModuleRegistry.Register<ICameraManager>(new CameraManager());
             ModuleRegistry.Register<IAccountManager>(new AccountManager());
-            ModuleRegistry.Register<INetworkManager>(new NetworkManager());
             ModuleRegistry.Register<ICommandManager>(new CommandManager());
-            ModuleRegistry.Register<ILocalizationManager>(new LocalizationManager());
+
+            var localizationManager = new LocalizationManager();
+            await localizationManager.InitializeAsync();
+            ModuleRegistry.Register<ILocalizationManager>(localizationManager);
 
             SceneManager.LoadSceneAsync(SceneKeys.UIScene, onFinished: () =>
             {
@@ -79,26 +87,28 @@ namespace YuankunHuang.Unity.Core
         {
             LogHelper.Log($"[GameManager]::Dispose");
 
+            FirebaseManager.Dispose();
+
             ModuleRegistry.Get<IAssetManager>().Dispose();
             ModuleRegistry.Get<IUIManager>().Dispose();
             ModuleRegistry.Get<ICameraManager>().Dispose();
-            ModuleRegistry.Get<IAccountManager>().Dispose();
-            ModuleRegistry.Get<INetworkManager>().Dispose();
             ModuleRegistry.Get<ICommandManager>().Dispose();
             ModuleRegistry.Get<ILocalizationManager>().Dispose();
+            ModuleRegistry.Get<INetworkManager>().Dispose();
+            ModuleRegistry.Get<IAccountManager>().Dispose();
 
             ModuleRegistry.Unregister<IAssetManager>();
             ModuleRegistry.Unregister<IUIManager>();
             ModuleRegistry.Unregister<ICameraManager>();
-            ModuleRegistry.Unregister<IAccountManager>();
-            ModuleRegistry.Unregister<INetworkManager>();
             ModuleRegistry.Unregister<ICommandManager>();
             ModuleRegistry.Unregister<ILocalizationManager>();
+            ModuleRegistry.Unregister<INetworkManager>();
+            ModuleRegistry.Unregister<IAccountManager>();
 
-            MonoManager.DestroyInstance();
+            MonoManager.Dispose();
+            InputBlocker.Dispose();
 
             SceneManager.UnloadAll(onFinished);
-            FirebaseManager.Dispose();
         }
 
         public void Restart()

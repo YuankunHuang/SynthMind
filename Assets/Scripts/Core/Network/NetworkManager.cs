@@ -10,6 +10,8 @@ namespace YuankunHuang.Unity.NetworkCore
 {
     public class NetworkManager : INetworkManager
     {
+        public bool IsInitialized { get; private set; } = false;
+
         public void Connect(string address, int port)
         {
             // Implement connection logic here
@@ -35,19 +37,27 @@ namespace YuankunHuang.Unity.NetworkCore
         public NetworkManager()
         {
             RestApi = new RestApiClient();
+
+            IsInitialized = true;
+
             LogHelper.Log("NetworkManager initialized");
         }
 
         public void Dispose()
         {
             var self = ModuleRegistry.Get<IAccountManager>().Self;
-            FirebaseManager.CleanUpEmptyConversations(FirebaseCollections.AI_Conversations, self.UUID, null);
-            FirebaseManager.CleanUpEmptyConversations(FirebaseCollections.Command_Conversations, self.UUID, null);
+            if (self != null)
+            {
+                FirebaseManager.CleanUpEmptyConversations(FirebaseCollections.AI_Conversations, self.UUID, null);
+                FirebaseManager.CleanUpEmptyConversations(FirebaseCollections.Command_Conversations, self.UUID, null);
+            }
 
             RestApi.Dispose();
             RestApi = null;
 
             Disconnect();
+
+            IsInitialized = false;
 
             LogHelper.Log("NetworkManager disposed");
         }

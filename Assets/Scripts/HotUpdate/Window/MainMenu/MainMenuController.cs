@@ -1,8 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
-using YuankunHuang.Unity.Util;
+using YuankunHuang.Unity.AccountCore;
+using YuankunHuang.Unity.Core;
+using YuankunHuang.Unity.GameDataConfig;
+using YuankunHuang.Unity.ModuleCore;
 using YuankunHuang.Unity.UICore;
+using YuankunHuang.Unity.Util;
 
 namespace YuankunHuang.Unity.HotUpdate
 {
@@ -26,6 +30,7 @@ namespace YuankunHuang.Unity.HotUpdate
             Sandbox = 2,
             Setting = 3,
             About = 4,
+            Avatar = 5,
         }
 
         private enum ExtraTMP
@@ -43,6 +48,7 @@ namespace YuankunHuang.Unity.HotUpdate
         }
 
         private Dictionary<Page, IMainMenuWidgetController> _widgetControllers;
+        private GeneralWidgetConfig _avatarConfig;
 
         private TMP_Text _titleTxt;
 
@@ -72,6 +78,7 @@ namespace YuankunHuang.Unity.HotUpdate
             {
                 widgetController.Init();
             }
+            _avatarConfig = Config.ExtraWidgetConfigList[(int)ExtraConfig.Avatar];
 
             _titleTxt = Config.ExtraTextMeshProList[(int)ExtraTMP.Title];
 
@@ -98,6 +105,12 @@ namespace YuankunHuang.Unity.HotUpdate
             {
                 ShowWidget(_currentPage, true);
             }
+
+            var self = ModuleRegistry.Get<IAccountManager>().Self;
+            CommPlayerAvatarController.Show(_avatarConfig, new CommPlayerAvatarData(self.Avatar, self.Nickname, () =>
+            {
+                ModuleRegistry.Get<IUIManager>().ShowStackableWindow(WindowNames.InfoWindow, new InfoWindowData("Avatar", "This is your avatar. You can change it in the settings."));
+            }));
 
             Config.CanvasGroup.CanvasGroupOn();
         }

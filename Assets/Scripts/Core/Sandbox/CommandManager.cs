@@ -9,6 +9,8 @@ namespace YuankunHuang.Unity.CommandCore
 {
     public class CommandManager : ICommandManager
     {
+        public bool IsInitialized { get; private set; } = false;
+
         private Dictionary<string, IGameCommand> _commands = new();
 
         public CommandManager()
@@ -17,6 +19,9 @@ namespace YuankunHuang.Unity.CommandCore
             RegisterCommand(new BuildCommand());
             RegisterCommand(new MoveCommand());
             RegisterCommand(new ClearCommand());
+
+            IsInitialized = true;
+            LogHelper.Log("[CommandManager] Initialized with default commands.");
         }
 
         public void RegisterCommand(IGameCommand command)

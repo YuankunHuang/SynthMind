@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
 using YuankunHuang.Unity.Core;
-using YuankunHuang.Unity.ModuleCore;
 
 namespace YuankunHuang.Unity.CameraCore
 {
     public class CameraManager : ICameraManager
     {
+        public bool IsInitialized { get; private set; } = false;
+
         public Camera MainCamera
         {
             get
@@ -49,6 +50,7 @@ namespace YuankunHuang.Unity.CameraCore
 
         public CameraManager()
         {
+            IsInitialized = true;
             LogHelper.Log($"CameraManager initialized");
         }
 
@@ -148,6 +150,8 @@ namespace YuankunHuang.Unity.CameraCore
             _camOwnerDict.Clear();
             _mainCam = null;
             _uiCam = null;
+
+            IsInitialized = false;
         }
     }
 }

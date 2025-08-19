@@ -5,6 +5,8 @@ namespace YuankunHuang.Unity.ModuleCore
 {
     public interface IModule
     {
+        bool IsInitialized { get; }
+
         void Dispose();
     }
 

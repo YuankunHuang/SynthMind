@@ -1,0 +1,159 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e71876969c42d84598623678787217a, type: 3}
+  m_Name: AssetManagerConfig
+  m_EditorClassIdentifier: 
+  _assetEntries:
+  - key: Avatar01
+    asset: {fileID: 21300000, guid: a7ef97e3c358bec46b06677e9c4aceeb, type: 3}
+    type: 2
+  - key: Avatar02
+    asset: {fileID: 21300000, guid: 3b5fe20dae443784fab784d282855ea9, type: 3}
+    type: 2
+  - key: Avatar03
+    asset: {fileID: 21300000, guid: 9681f02c387075540b6b2ea7915bf207, type: 3}
+    type: 2
+  - key: Avatar04
+    asset: {fileID: 21300000, guid: 25d653ab42dc0ea44b3de1e0e6917923, type: 3}
+    type: 2
+  - key: Avatar05
+    asset: {fileID: 21300000, guid: 1ed917893ecdefe419388b6012b7f2ee, type: 3}
+    type: 2
+  - key: Avatar06
+    asset: {fileID: 21300000, guid: 58b02b5f106e3f841b58289f8405b008, type: 3}
+    type: 2
+  - key: Avatar07
+    asset: {fileID: 21300000, guid: fb5ba76a5494d6742b595f64f08df4cb, type: 3}
+    type: 2
+  - key: Avatar08
+    asset: {fileID: 21300000, guid: 76093a45a51416845a0c4146a7d34a1b, type: 3}
+    type: 2
+  - key: Avatar09
+    asset: {fileID: 21300000, guid: e5ddd001aa8a30a41b9237c190bc7bd6, type: 3}
+    type: 2
+  - key: Avatar10
+    asset: {fileID: 21300000, guid: 9fa4926533d6e9c45b51b6e9bf79f558, type: 3}
+    type: 2
+  - key: Avatar11
+    asset: {fileID: 21300000, guid: 3eff49727913d3e49a804511a29745c7, type: 3}
+    type: 2
+  - key: Avatar12
+    asset: {fileID: 21300000, guid: 196a7be6d592ba3428d2c2d168e7d7f1, type: 3}
+    type: 2
+  - key: Avatar13
+    asset: {fileID: 21300000, guid: 20686000904976f47b77cee81828d9d0, type: 3}
+    type: 2
+  - key: Avatar14
+    asset: {fileID: 21300000, guid: f14666168edda9b4fb99b48a1eca3e7d, type: 3}
+    type: 2
+  - key: Avatar15
+    asset: {fileID: 21300000, guid: eee607dde12b7bc4386b75d79d893331, type: 3}
+    type: 2
+  - key: Avatar16
+    asset: {fileID: 21300000, guid: a8ba3437ae5c0fe468aa7a3987688614, type: 3}
+    type: 2
+  - key: Avatar17
+    asset: {fileID: 21300000, guid: 719199ebf7b46ed40b3490e53d7e2fe0, type: 3}
+    type: 2
+  - key: Avatar18
+    asset: {fileID: 21300000, guid: 8ca22ccba8d6ca04e82d70f0ee80ee9e, type: 3}
+    type: 2
+  - key: Avatar19
+    asset: {fileID: 21300000, guid: ff5f16e578344f647b5dd75d6852e595, type: 3}
+    type: 2
+  - key: Avatar20
+    asset: {fileID: 21300000, guid: f4fdd65ef0b3f524a9abfe4f4222a37f, type: 3}
+    type: 2
+  - key: Avatar21
+    asset: {fileID: 21300000, guid: b98300265d5212b4bab7d8629c41e4ad, type: 3}
+    type: 2
+  - key: Avatar22
+    asset: {fileID: 21300000, guid: 3b521c47ea56d744c8eb90895e2955b7, type: 3}
+    type: 2
+  - key: Avatar23
+    asset: {fileID: 21300000, guid: dacb6f5406bb0064690f374d198565f4, type: 3}
+    type: 2
+  - key: Avatar24
+    asset: {fileID: 21300000, guid: 39feb0e9291b91e49a02187f8a67431c, type: 3}
+    type: 2
+  - key: Avatar25
+    asset: {fileID: 21300000, guid: 387e0e83a821daa4cb7abb54c6a447d7, type: 3}
+    type: 2
+  - key: Avatar26
+    asset: {fileID: 21300000, guid: 2f3860f3ac1c71e42af0c6706e35aa35, type: 3}
+    type: 2
+  - key: Avatar27
+    asset: {fileID: 21300000, guid: 874f2f94b7fd10b4d8cac98d5e7595f9, type: 3}
+    type: 2
+  - key: Avatar28
+    asset: {fileID: 21300000, guid: 2c7ddc7c6ba780740b88ab76728565a0, type: 3}
+    type: 2
+  - key: Avatar29
+    asset: {fileID: 21300000, guid: ef5b59d0f8aac124394f2faad62b097e, type: 3}
+    type: 2
+  - key: Avatar30
+    asset: {fileID: 21300000, guid: 6f930617871a51b46a09915bdd521e43, type: 3}
+    type: 2
+  - key: Avatar31
+    asset: {fileID: 21300000, guid: 451ee721bd93b104b903a631192e423f, type: 3}
+    type: 2
+  - key: Avatar32
+    asset: {fileID: 21300000, guid: a27d584fa89e5d945b20a85ea2c68c77, type: 3}
+    type: 2
+  - key: Avatar33
+    asset: {fileID: 21300000, guid: de1597f113ce65c44873adb5a15f04bf, type: 3}
+    type: 2
+  - key: Avatar34
+    asset: {fileID: 21300000, guid: 35c492810ac675e46a9070a427dcd09f, type: 3}
+    type: 2
+  - key: Avatar35
+    asset: {fileID: 21300000, guid: 67d5a03ed05c2a64abf71c425dfd1091, type: 3}
+    type: 2
+  - key: Avatar36
+    asset: {fileID: 21300000, guid: 85571d708bb87e44daee47e167803b91, type: 3}
+    type: 2
+  - key: Avatar37
+    asset: {fileID: 21300000, guid: bd654166f2d25d041aa1896cfe80f535, type: 3}
+    type: 2
+  - key: Avatar38
+    asset: {fileID: 21300000, guid: 06e41bd0cc1769a438595f24f2c18453, type: 3}
+    type: 2
+  - key: Avatar39
+    asset: {fileID: 21300000, guid: 0c3e0b0034917e0449f5c7d8e4170252, type: 3}
+    type: 2
+  - key: Avatar40
+    asset: {fileID: 21300000, guid: 8f398861fe497aa46bf2d0b8235fca70, type: 3}
+    type: 2
+  - key: Avatar41
+    asset: {fileID: 21300000, guid: 902460d2128f8b84fb5aa3b10cc371b1, type: 3}
+    type: 2
+  - key: Avatar42
+    asset: {fileID: 21300000, guid: cf19525f4c27b9742932b43d76b72f10, type: 3}
+    type: 2
+  - key: Avatar43
+    asset: {fileID: 21300000, guid: 40470719a8883a94598480797310a8a6, type: 3}
+    type: 2
+  - key: Avatar44
+    asset: {fileID: 21300000, guid: 9889947c107c0a346aacfe8d09c50bea, type: 3}
+    type: 2
+  - key: Avatar45
+    asset: {fileID: 21300000, guid: 990785ce2f2f0c14092134e81fa4cab6, type: 3}
+    type: 2
+  - key: Avatar46
+    asset: {fileID: 21300000, guid: 14a5e3eef05264f48a48ceb2fbdca5ea, type: 3}
+    type: 2
+  - key: Avatar47
+    asset: {fileID: 21300000, guid: 83cef7253343ecc43a3c777a4f7993f2, type: 3}
+    type: 2
+  - key: Avatar48
+    asset: {fileID: 21300000, guid: ab447f88dc50cf64d9819b9891be45dc, type: 3}
+    type: 2

@@ -12,7 +12,7 @@
     "enableCode": true
   },
   "codeGeneration": {
-    "namespace": "YuankunHuang.SynthMind.GameDataConfig",
+    "namespace": "YuankunHuang.Unity.GameDataConfig",
     "language": "csharp",
     "generateEnum": true,
     "generateLoader": true

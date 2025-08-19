@@ -17,8 +17,13 @@ MonoBehaviour:
     m_SerializedData: []
   m_GUID: 5f7f829e706575948a1bdf9b6443ff00
   m_SerializeEntries:
-  - m_GUID: 8f5329ce77623b74ca2440c46686fab6
-    m_Address: Assets/Addressables/Window/Stackable/MainMenu/MainMenu.prefab
+  - m_GUID: 0a5a4fb81a5974948b19b02cb9728c53
+    m_Address: Assets/Addressables/Window/Stackable/InfoWindow/InfoWindow.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 13b5fbdfd297e5f4ba658463260ecf86
+    m_Address: Assets/Addressables/Window/Stackable/PlayerInfoWindow/PlayerInfoWindow.prefab
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -29,6 +34,11 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 6f4f623e42600db4bb444494e5a6baa7
     m_Address: Assets/Addressables/Window/Stackable/LoginWindow/LoginWindow.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 8f5329ce77623b74ca2440c46686fab6
+    m_Address: Assets/Addressables/Window/Stackable/MainMenu/MainMenu.prefab
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

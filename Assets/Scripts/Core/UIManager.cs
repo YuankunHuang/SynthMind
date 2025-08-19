@@ -1,13 +1,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
-using YuankunHuang.Unity.ModuleCore;
-using YuankunHuang.Unity.Util;
 using YuankunHuang.Unity.Core;
+using YuankunHuang.Unity.Util;
 
 namespace YuankunHuang.Unity.UICore
 {
@@ -45,6 +43,9 @@ namespace YuankunHuang.Unity.UICore
     public class UIManager : IUIManager
     {
         private readonly Stack<WindowStackEntry> _windowStack = new();
+        private readonly List<WindowStackEntry> _pendingDestroyWindows = new();
+
+        public bool IsInitialized { get; private set; } = false;
 
         public Transform StackableRoot
         {
@@ -61,6 +62,7 @@ namespace YuankunHuang.Unity.UICore
 
         public UIManager()
         {
+            IsInitialized = true;
             LogHelper.Log("UIManager initialized");
         }
 
@@ -72,62 +74,71 @@ namespace YuankunHuang.Unity.UICore
 
         private IEnumerator ShowStackableWindowCoroutine(string windowName, IWindowData data = null)
         {
-            // Load prefab
-            var key = string.Format(AddressablePaths.StackableWindow, windowName, windowName);
-            var handle = Addressables.LoadAssetAsync<GameObject>(key);
-            yield return handle;
+            InputBlocker.StartBlocking();
 
-            if (handle.Status != AsyncOperationStatus.Succeeded)
+            try
             {
-                LogHelper.LogError($"[UIManager]::LoadStackableWindowPrefabAsync: Failed to load prefab: {key}, Exception: {handle.OperationException}");
-                Addressables.Release(handle);
-                yield break;
-            }
+                // Load prefab
+                var key = string.Format(AddressablePaths.StackableWindow, windowName, windowName);
+                var handle = Addressables.LoadAssetAsync<GameObject>(key);
+                yield return handle;
 
-            // Load Attribute Data
-            var attrKey = string.Format(AddressablePaths.WindowAttributeData, windowName);
-            var attrHandle = Addressables.LoadAssetAsync<WindowAttributeData>(attrKey);
-            yield return attrHandle;
-
-            // Instantiate window
-            var windowGO = GameObject.Instantiate(handle.Result, StackableRoot);
-            windowGO.transform.SetAsLastSibling();
-
-            // Create window controller
-            var controllerTypeName = $"{Namespaces.HotUpdate}.{windowName}Controller";
-            var controllerType = TypeUtil.GetType(controllerTypeName);
-            if (controllerType == null)
-            {
-                LogHelper.LogError($"[UIManager]::CreateWindowController: Controller type not found: {controllerTypeName}");
-                yield break;
-            }
-            var controller = Activator.CreateInstance(controllerType) as WindowControllerBase;
-            if (controller == null)
-            {
-                LogHelper.LogError($"[UIManager]::CreateWindowController: Failed to create controller: {controllerTypeName}");
-                yield break;
-            }
-
-            // Hide window on top
-            if (_windowStack.Count > 0)
-            {
-                var top = _windowStack.Peek();
-                if (top.AttributeDataHandle.Result.selfDestructOnCovered)
+                if (handle.Status != AsyncOperationStatus.Succeeded)
                 {
-                    ReleaseEntry(top);
-                    _windowStack.Pop();
+                    LogHelper.LogError($"[UIManager]::LoadStackableWindowPrefabAsync: Failed to load prefab: {key}, Exception: {handle.OperationException}");
+                    Addressables.Release(handle);
+                    yield break;
                 }
-                else
-                {
-                    top.Controller.Hide(WindowHideState.Covered);
-                }
-            }
 
-            // Push to stack and show
-            var entry = new WindowStackEntry(windowName, controller, data, windowGO, attrHandle, handle);
-            controller.Init(entry);
-            controller.Show(data, WindowShowState.New);
-            _windowStack.Push(entry);
+                // Load Attribute Data
+                var attrKey = string.Format(AddressablePaths.WindowAttributeData, windowName);
+                var attrHandle = Addressables.LoadAssetAsync<WindowAttributeData>(attrKey);
+                yield return attrHandle;
+
+                // Instantiate window
+                var windowGO = GameObject.Instantiate(handle.Result, StackableRoot);
+                windowGO.transform.SetAsLastSibling();
+
+                // Create window controller
+                var controllerTypeName = $"{Namespaces.HotUpdate}.{windowName}Controller";
+                var controllerType = TypeUtil.GetType(controllerTypeName);
+                if (controllerType == null)
+                {
+                    LogHelper.LogError($"[UIManager]::CreateWindowController: Controller type not found: {controllerTypeName}");
+                    yield break;
+                }
+                var controller = Activator.CreateInstance(controllerType) as WindowControllerBase;
+                if (controller == null)
+                {
+                    LogHelper.LogError($"[UIManager]::CreateWindowController: Failed to create controller: {controllerTypeName}");
+                    yield break;
+                }
+
+                if (_windowStack.Count > 0)
+                {
+                    var top = _windowStack.Peek();
+                    if (top.AttributeDataHandle.Result.selfDestructOnCovered)
+                    {
+                        ReleaseEntryImmediate(top);
+                        _windowStack.Pop();
+                    }
+
+                    if (attrHandle.Result.hasMask)
+                    {
+                        top.Controller.Hide(WindowHideState.Covered, 0);
+                    }
+                }
+
+                // Push to stack and show
+                var entry = new WindowStackEntry(windowName, controller, data, windowGO, attrHandle, handle);
+                controller.Init(entry);
+                controller.Show(data, WindowShowState.New);
+                _windowStack.Push(entry);
+            }
+            finally
+            {
+                InputBlocker.StopBlocking();
+            }
         }
 
         public IWindowStackEntry GetWindowOnTop()
@@ -156,14 +167,29 @@ namespace YuankunHuang.Unity.UICore
                 return;
             }
 
-            var entry = _windowStack.Pop();
-            ReleaseEntry(entry);
+            MonoManager.Instance.StartCoroutine(GoBackCoroutine());
+        }
 
-            if (_windowStack.Count > 0)
+        private IEnumerator GoBackCoroutine()
+        {
+            InputBlocker.StartBlocking();
+
+            try
             {
-                var top = _windowStack.Peek();
-                top.Controller.Show(top.Data, WindowShowState.Uncovered);
+                var entry = _windowStack.Pop();
+                yield return MonoManager.Instance.StartCoroutine(ReleaseEntryWithAnimation(entry));
+
+                if (_windowStack.Count > 0)
+                {
+                    var top = _windowStack.Peek();
+                    top.Controller.Show(top.Data, WindowShowState.Uncovered);
+                }
             }
+            finally
+            {
+                InputBlocker.StopBlocking();
+            }
+
         }
 
         public void GoBackTo(string windowName)
@@ -190,33 +216,71 @@ namespace YuankunHuang.Unity.UICore
                 return;
             }
 
-            while (_windowStack.Count > 0)
-            {
-                var entry = _windowStack.Peek();
-                if (entry.WindowName == windowName)
-                {
-                    entry.Controller.Show(entry.Data, WindowShowState.Uncovered);
-                    break;
-                }
+            MonoManager.Instance.StartCoroutine(GoBackToCoroutine(windowName));
+        }
 
-                entry = _windowStack.Pop();
-                ReleaseEntry(entry);
+        private IEnumerator GoBackToCoroutine(string windowName)
+        {
+            InputBlocker.StartBlocking();
+
+            try
+            {
+                while (_windowStack.Count > 0)
+                {
+                    var entry = _windowStack.Peek();
+                    if (entry.WindowName == windowName)
+                    {
+                        entry.Controller.Show(entry.Data, WindowShowState.Uncovered);
+                        break;
+                    }
+
+                    entry = _windowStack.Pop();
+                    yield return MonoManager.Instance.StartCoroutine(ReleaseEntryWithAnimation(entry));
+                }
             }
+            finally
+            {
+                InputBlocker.StopBlocking();
+            }
+        }
+
+        private IEnumerator ReleaseEntryWithAnimation(WindowStackEntry entry)
+        {
+            _pendingDestroyWindows.Add(entry);
+
+            var hasExitAnimation = entry.AttributeDataHandle.IsValid() && entry.AttributeDataHandle.Result.usePopupAnimation;
+            if (hasExitAnimation)
+            {
+                var animationSettings = entry.AttributeDataHandle.Result.animationSettings;
+                entry.Controller.Hide(WindowHideState.Removed, animationSettings.exitDuration);
+
+                yield return new WaitForSeconds(animationSettings.exitDuration);
+            }
+            else
+            {
+                entry.Controller.Hide(WindowHideState.Removed, 0);
+            }
+
+            ReleaseEntryImmediate(entry);
+
+            _pendingDestroyWindows.Remove(entry);
         }
 
         public void Dispose()
         {
             foreach (var entry in _windowStack)
             {
-                ReleaseEntry(entry);
+                ReleaseEntryImmediate(entry);
             }
             _windowStack.Clear();
+
+            IsInitialized = false;
 
             LogHelper.Log("UIManager disposed");
         }
         #endregion
 
-        private void ReleaseEntry(WindowStackEntry entry)
+        private void ReleaseEntryImmediate(WindowStackEntry entry)
         {
             if (entry.WindowHandle.IsValid())
             {
@@ -226,9 +290,13 @@ namespace YuankunHuang.Unity.UICore
             {
                 Addressables.Release(entry.AttributeDataHandle);
             }
-            entry.Controller.Hide(WindowHideState.Removed);
-            entry.Controller.Dispose();
-            GameObject.Destroy(entry.WindowGO);
+            
+            entry.Controller?.Dispose();
+            
+            if (entry.WindowGO != null)
+            {
+                GameObject.Destroy(entry.WindowGO);
+            }
         }
     }
 }

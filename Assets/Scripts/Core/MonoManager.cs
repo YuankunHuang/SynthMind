@@ -2,12 +2,14 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using YuankunHuang.Unity.ModuleCore;
 
 namespace YuankunHuang.Unity.Core
 {
     public class MonoManager : MonoBehaviour
     {
         public static MonoManager Instance { get; private set; }
+        public static bool IsInitialized => Instance != null;
 
         public event Action OnTick;
         public event Action OnLateTick;
@@ -16,26 +18,21 @@ namespace YuankunHuang.Unity.Core
 
         private float _tickPerSecTimer = 0f;
 
-        public static void CreateInstance()
+        public static void Initialize(MonoManager instance)
         {
-            if (Instance != null)
-            {
-                Debug.LogWarning("MonoManager instance already exists. Destroying the old instance.");
-                Destroy(Instance.gameObject);
-            }
-            GameObject go = new GameObject("MonoManager");
-            Instance = go.AddComponent<MonoManager>();
-            DontDestroyOnLoad(go);
+            Instance = instance;
+            LogHelper.Log("[MonoManager] Initialized");
         }
 
-        public static void DestroyInstance()
+        public static void Dispose()
         {
             if (Instance != null)
             {
                 Instance.Shutdown();
-                Destroy(Instance.gameObject);
                 Instance = null;
             }
+            
+            LogHelper.Log("[MonoManager] Disposed");
         }
 
         private void Shutdown()

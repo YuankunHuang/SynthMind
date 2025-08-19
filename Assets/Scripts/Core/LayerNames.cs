@@ -6,6 +6,7 @@ namespace YuankunHuang.Unity.Core
 {
     public class LayerNames
     {
+        public static string UI = "UI";
         public static string Sandbox = "Sandbox";
     }
 }

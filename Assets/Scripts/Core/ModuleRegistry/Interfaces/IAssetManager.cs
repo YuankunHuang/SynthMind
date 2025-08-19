@@ -17,22 +17,15 @@ namespace YuankunHuang.Unity.AssetCore
         Font = 8,
         TextAsset = 9,
         ScriptableObject = 10,
-        Prefab = 11,
-        ColorPreset = 12,
-    }
-
-    public interface IAssetEntry
-    {
-        string Key { get; }
-        UnityEngine.Object Asset { get; }
-        AssetType Type { get; }
-        void AutoDetectType();
-        bool IsTypeMatched();
+        TMP_ColorGradient = 11,
+        Animation = 12,
+        SpriteAtlas = 13,
+        TMP_FontAsset = 14,
+        AnimatorController = 15,
     }
 
     public interface IAssetManagerConfig
     {
-        List<IAssetEntry> AssetEntries { get; }
         UnityEngine.Object GetAsset(string key);
     }
 

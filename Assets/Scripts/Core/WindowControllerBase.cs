@@ -15,6 +15,7 @@ namespace YuankunHuang.Unity.UICore
         protected WindowAttributeData AttributeData { get; private set; }
 
         private RenderTexture _blurRenderTex;
+        private Coroutine _currentAnimationCoroutine;
 
         public void Init(WindowStackEntry entry)
         {
@@ -27,33 +28,39 @@ namespace YuankunHuang.Unity.UICore
             // attributes
             if (AttributeData != null)
             {
+                if (AttributeData.usePopupAnimation)
+                {
+                    _currentAnimationCoroutine = MonoManager.Instance.StartCoroutine(PopupAnimator.AnimatePopupEnter(Config.transform, Config.CanvasGroup, AttributeData.animationSettings));
+                }
+
                 if (AttributeData.hasMask)
                 {
-                    var maskGO = new GameObject("Mask");
-                    var rt = maskGO.AddComponent<RectTransform>();
-                    var img = maskGO.AddComponent<Image>();
-                    img.color = new Color(0, 0, 0, 0);
-                    img.raycastTarget = true;
-
-                    rt.SetParent(Config.transform);
-                    rt.SetAsFirstSibling();
-                    rt.anchorMin = new Vector2(0, 0);
-                    rt.anchorMax = new Vector2(1, 1);
-                    rt.offsetMin = rt.offsetMax = Vector2.zero;
+                    CreateMask();
                 }
 
                 if (AttributeData.useBlurredBackground)
                 {
                     LoadBlurAsync();
                 }
-
-                if (AttributeData.usePopupScaleAnimation)
-                {
-                    MonoManager.Instance.StartCoroutine(PopupScaleIn());
-                }
             }
 
             OnInit();
+        }
+
+        private void CreateMask()
+        {
+            var maskGO = new GameObject("Mask");
+            var rt = maskGO.AddComponent<RectTransform>();
+            var img = maskGO.AddComponent<Image>();
+            img.color = new Color(0, 0, 0, 1);
+            img.raycastTarget = true;
+
+            rt.SetParent(Config.transform);
+            rt.SetAsFirstSibling();
+            rt.anchorMin = new Vector2(0, 0);
+            rt.anchorMax = new Vector2(1, 1);
+            rt.offsetMin = rt.offsetMax = Vector2.zero;
+            rt.localPosition = Vector3.zero;
         }
 
         private async void LoadBlurAsync()
@@ -86,31 +93,27 @@ namespace YuankunHuang.Unity.UICore
             }
         }
 
-        private IEnumerator PopupScaleIn()
-        {
-            float time = 0f;
-            float duration = AttributeData.popupScaleDuration;
-            var start = Vector3.zero;
-            var end = Vector3.one;
-            Config.transform.localScale = start;
-            while (time < duration)
-            {
-                time += Time.deltaTime;
-                float t = Mathf.Clamp01(time / duration);
-                Config.transform.localScale = Vector3.LerpUnclamped(start, end, t);
-                yield return null;
-            }
-            Config.transform.localScale = end;
-        }
-
         public void Show(IWindowData data, WindowShowState state)
         {
             LogHelper.Log($"[WindowControllerBase]::Show: {WindowName}");
             OnShow(data, state);
         }
-        public void Hide(WindowHideState state)
+        public void Hide(WindowHideState state, float delay)
         {
             LogHelper.Log($"[WindowControllerBase]::Hide: {WindowName}");
+            MonoManager.Instance.StartCoroutine(HideCoroutine(state, delay));
+        }
+        private IEnumerator HideCoroutine(WindowHideState state, float delay)
+        {
+            if (AttributeData != null)
+            {
+                if (AttributeData.usePopupAnimation)
+                {
+                    _currentAnimationCoroutine = MonoManager.Instance.StartCoroutine(PopupAnimator.AnimatePopupExit(Config.transform, Config.CanvasGroup, AttributeData.animationSettings));
+                }
+            }
+
+            yield return new WaitForSeconds(delay);
             OnHide(state);
         }
         public void Dispose()

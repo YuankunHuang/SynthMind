@@ -1,24 +1,22 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using YuankunHuang.Unity.AssetCore;
 using YuankunHuang.Unity.Core;
+using YuankunHuang.Unity.GameDataConfig;
+using YuankunHuang.Unity.ModuleCore;
 using YuankunHuang.Unity.UICore;
 
 namespace YuankunHuang.Unity.HotUpdate
 {
     public class CommPlayerAvatarData
     {
-        public object Owner { get; private set; }
         public int Avatar { get; private set; }
         public string Name { get ; private set; }
         public Action OnClick { get; private set; }
 
-        public GeneralWidgetConfig Config { get; set; }
-        public string AssetKey => string.Format(AddressablePaths.PlayerAvatar, Avatar);
-
-        public CommPlayerAvatarData(object owner, int avatar, string name, Action onClick)
+        public CommPlayerAvatarData(int avatar, string name, Action onClick)
         {
-            Owner = owner;
             Avatar = avatar;
             Name = name;
             OnClick = onClick;
@@ -42,38 +40,37 @@ namespace YuankunHuang.Unity.HotUpdate
             Clickable = 0,
         }
 
-        private static Dictionary<object, Dictionary<GeneralWidgetConfig, CommPlayerAvatarData>> _loaded = new();
-
-        public static async void Show(GeneralWidgetConfig config, CommPlayerAvatarData data)
+        public static void Show(GeneralWidgetConfig config, CommPlayerAvatarData data)
         {
-            // if loaded
-            if (_loaded.TryGetValue(data.Owner, out var loadedDict) && loadedDict.TryGetValue(config, out var loadedData))
-            {
-                // check if updated
-                // if updated, reload (release old + load new)
-                // otherwise, retain + return
-                var toUpdate = false;
-
-                //if (Config && data.Avatar != 0 ||
-                //    !string.IsNullOrEmpty(loadedData.AssetKey) && data.Avatar == 0 ||
-                //    loadedData.Avatar != data.Avatar)
-                //{
-
-                //}
-            }
-
-
-            // otherwise,
-            // load & save
-
-            var key = string.Format(AddressablePaths.PlayerAvatar, data.Avatar);
-            var avatarSprtie = await ResManager.LoadAssetAsync<Sprite>(key);
+            ShowAvatar(config, data.Avatar);
+            ShowName(config, data.Name);
+            SetOnClick(config, data.OnClick);
         }
 
-        public static void Release()
+        private static void SetOnClick(GeneralWidgetConfig config, Action onClick)
         {
-            // release all data with the same owner
+            var btn = config.ExtraButtonList[(int)ExtraBtn.Clickable];
+            btn.onClick.RemoveAllListeners();
+            if (onClick != null)
+            {
+                btn.onClick.AddListener(() => onClick());
+            }
+        }
 
+        private static void ShowName(GeneralWidgetConfig config, string name)
+        {
+            var nameTmp = config.ExtraTextMeshProList[(int)ExtraTMP.Name];
+            nameTmp.text = name;
+        }
+
+        private static void ShowAvatar(GeneralWidgetConfig config, int avatarId)
+        {
+            var avatarData = AvatarConfig.GetById(avatarId);
+            var assetManager = ModuleRegistry.Get<IAssetManager>();
+            var sprite = assetManager.GetAsset<Sprite>(avatarData.asset);
+
+            var avatarImg = config.ExtraImageList[(int)ExtraImg.Avatar];
+            avatarImg.sprite = sprite;
         }
     }
 }

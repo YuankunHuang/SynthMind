@@ -21,6 +21,7 @@ namespace YuankunHuang.Unity.GameDataConfig
         public string email { get; set; }
 
         public int avatar { get; set; }
+
     }
 
     public partial class AccountTestConfig : BaseConfigData<AccountTestData>

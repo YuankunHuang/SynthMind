@@ -671,8 +671,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
-  pressedScale: 0.9
-  animationDuration: 0.05
+  _enableScaleAnimation: 1
+  _pressedScale: 0.9
+  _animationDuration: 0.05
 --- !u!95 &7039316448854623546
 Animator:
   serializedVersion: 5
@@ -760,7 +761,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 4be50377d40ecb14582d63c13f2f5cb4, type: 3}
+  m_Sprite: {fileID: 21300000, guid: ba4a7bb7ee2c8b248ab5ddf8c3201f1c, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1553,7 +1554,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 4be50377d40ecb14582d63c13f2f5cb4, type: 3}
+  m_Sprite: {fileID: 21300000, guid: ba4a7bb7ee2c8b248ab5ddf8c3201f1c, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1904,7 +1905,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 4be50377d40ecb14582d63c13f2f5cb4, type: 3}
+  m_Sprite: {fileID: 21300000, guid: ba4a7bb7ee2c8b248ab5ddf8c3201f1c, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -2804,7 +2805,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 4be50377d40ecb14582d63c13f2f5cb4, type: 3}
+  m_Sprite: {fileID: 21300000, guid: ba4a7bb7ee2c8b248ab5ddf8c3201f1c, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -3090,8 +3091,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
-  pressedScale: 0.9
-  animationDuration: 0.05
+  _enableScaleAnimation: 1
+  _pressedScale: 0.9
+  _animationDuration: 0.05
 --- !u!95 &655344137405379704
 Animator:
   serializedVersion: 5
@@ -3257,7 +3259,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 4be50377d40ecb14582d63c13f2f5cb4, type: 3}
+  m_Sprite: {fileID: 21300000, guid: ba4a7bb7ee2c8b248ab5ddf8c3201f1c, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1

@@ -7,6 +7,8 @@ using YuankunHuang.Unity.Util;
 using YuankunHuang.Unity.ModuleCore;
 using YuankunHuang.Unity.UICore;
 using YuankunHuang.Unity.AccountCore;
+using YuankunHuang.Unity.GameDataConfig;
+using YuankunHuang.Unity.AssetCore;
 
 namespace YuankunHuang.Unity.HotUpdate
 {
@@ -76,6 +78,9 @@ namespace YuankunHuang.Unity.HotUpdate
             config.ExtraTextMeshProList[(int)ExtraTMP.Nickname].text = data.Sender != null
                 ? data.Sender.Nickname
                 : "Unknown User";
+            config.ExtraImageList[(int)ExtraImg.Avatar].sprite = ModuleRegistry.Get<IAssetManager>()
+                .GetAsset<Sprite>(AvatarConfig.GetById(data.Sender?.Avatar ?? 0).asset);
+
             config.CanvasGroup.CanvasGroupOn();
         }
 
@@ -85,6 +90,7 @@ namespace YuankunHuang.Unity.HotUpdate
             {
                 return;
             }
+
             config.CanvasGroup.CanvasGroupOff();
         }
     }

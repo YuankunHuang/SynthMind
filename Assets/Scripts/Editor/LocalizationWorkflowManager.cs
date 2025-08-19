@@ -20,7 +20,7 @@ namespace YuankunHuang.Unity.Core.Editor
         private Vector2 scrollPosition;
         private string csvFileName = "localization_export";
 
-        [MenuItem("SynthMind/Tools/Localization Workflow Manager")]
+        [MenuItem("Tools/Localization/Localization Workflow Manager")]
         public static void ShowWindow()
         {
             GetWindow<LocalizationWorkflowManager>("Localization Workflow");

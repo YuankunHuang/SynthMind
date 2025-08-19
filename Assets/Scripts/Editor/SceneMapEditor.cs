@@ -20,7 +20,7 @@ namespace YuankunHuang.Unity.Editor
         private string _groupName = "Scenes";
         private string _outputScriptPath = "Assets/Scripts/Core/SceneKeys.cs";
 
-        [MenuItem("SynthMind/Tools/Scene Map Generator")]
+        [MenuItem("Tools/Scene/Scene Map Generator")]
         public static void ShowWindow()
         {
             GetWindow<SceneMapEditor>("Scene Map Generator");

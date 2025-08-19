@@ -22,7 +22,6 @@ namespace YuankunHuang.Unity.LocalizationCore
 
         // state + event
         string CurrentLanguage { get; }
-        bool IsInitialized { get; }
         event Action<string> OnLanguageChanged;
     }
 }
