@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace YuankunHuang.Unity.Core
 {
@@ -13,12 +14,21 @@ namespace YuankunHuang.Unity.Core
         public static bool IsInitialized { get; private set; } = false;
         public static bool IsInitializing { get; private set; } = false;
 
+        private static FirebaseApp _firebaseApp;
+        private static List<System.Threading.CancellationTokenSource> _activeTasks = new List<System.Threading.CancellationTokenSource>();
+
         public static void InitializeDataBase(Action<bool> onComplete = null)
         {
             if (IsInitialized)
             {
                 onComplete?.Invoke(true);
                 LogHelper.Log($"Firebase is already initialized.");
+                return;
+            }
+
+            if (IsInitializing)
+            {
+                LogHelper.Log($"Firebase is already initializing.");
                 return;
             }
 
@@ -33,6 +43,7 @@ namespace YuankunHuang.Unity.Core
                 if (dependencyStatus == DependencyStatus.Available)
                 {
                     // Firebase is ready to use
+                    _firebaseApp = FirebaseApp.DefaultInstance;
                     IsInitialized = true;
                     LogHelper.Log("Firebase initialized successfully.");
                     onComplete?.Invoke(true);
@@ -49,14 +60,77 @@ namespace YuankunHuang.Unity.Core
 
         public static void Dispose()
         {
-            // Firebase does not provide a direct dispose method, but you can clean up resources if needed.
-            IsInitialized = false;
-            LogHelper.Log("FirebaseManager disposed.");
+            if (!IsInitialized && !IsInitializing)
+            {
+                return;
+            }
+
+            try
+            {
+                foreach (var tokenSource in _activeTasks)
+                {
+                    try
+                    {
+                        tokenSource.Cancel();
+                        tokenSource.Dispose();
+                    }
+                    catch (Exception ex)
+                    {
+                        LogHelper.LogError($"Error disposing task: {ex.Message}");
+                    }
+                }
+                _activeTasks.Clear();
+
+                if (_firebaseApp != null)
+                {
+                    _firebaseApp.Dispose();
+                    _firebaseApp = null;
+                }
+
+                FirebaseApp.DefaultInstance?.Dispose();
+
+                var firebaseServices = GameObject.Find("Firebase Services");
+                if (firebaseServices != null)
+                {
+                    GameObject.DestroyImmediate(firebaseServices);
+                }
+
+                IsInitialized = false;
+                IsInitializing = false;
+             
+                LogHelper.Log("FirebaseManager disposed.");
+            }
+            catch (Exception ex)
+            {
+                LogHelper.LogError($"Error disposing FirebaseManager: {ex.Message}");
+            }
+        }
+
+        private static System.Threading.CancellationTokenSource CreateCancellationToken()
+        {
+            var tokenSource = new System.Threading.CancellationTokenSource();
+            _activeTasks.Add(tokenSource);
+            return tokenSource;
+        }
+
+        private static void RemoveCancellationToken(System.Threading.CancellationTokenSource tokenSource)
+        {
+            if (tokenSource != null)
+            {
+                _activeTasks.Remove(tokenSource);
+                tokenSource.Dispose();
+            }
         }
 
         #region Conversation
         public static void CleanUpEmptyConversations(string conversationGroup, string uuid, Action<int> onComplete)
         {
+            if (!IsInitialized)
+            {
+                onComplete?.Invoke(0);
+                return;
+            }
+
             var db = FirebaseFirestore.DefaultInstance;
             db.Collection(conversationGroup)
                 .WhereArrayContains("participants", uuid) // which the user parcipates
@@ -115,6 +189,13 @@ namespace YuankunHuang.Unity.Core
 
         public static void CheckIsConversationEmpty(string conversationGroup, string conversationId, Action<bool> onComplete)
         {
+            if (!IsInitialized)
+            {
+                LogHelper.LogError("Firebase is not initialized. Cannot check if conversation is empty.");
+                onComplete?.Invoke(false);
+                return;
+            }
+
             var db = FirebaseFirestore.DefaultInstance;
             db.Collection(conversationGroup)
                 .Document(conversationId)
@@ -130,7 +211,7 @@ namespace YuankunHuang.Unity.Core
 
         public static void DeleteConversation(string conversationGroup, string conversationId, Action<bool> onComplete)
         {
-            if (string.IsNullOrEmpty(conversationId))
+            if (!IsInitialized || string.IsNullOrEmpty(conversationId))
             {
                 onComplete?.Invoke(false);
                 return;
@@ -178,6 +259,13 @@ namespace YuankunHuang.Unity.Core
 
         public static void LoadMostRecentConversation(string conversationGroup, Action<string> onComplete)
         {
+            if (!IsInitialized)
+            {
+                LogHelper.LogError("Firebase is not initialized. Cannot load recent conversation.");
+                onComplete?.Invoke(null);
+                return;
+            }
+
             var db = FirebaseFirestore.DefaultInstance;
             db.Collection(conversationGroup)
                 .OrderByDescending("lastUpdated")
@@ -203,6 +291,13 @@ namespace YuankunHuang.Unity.Core
 
         public static void CreateNewConversation(string conversationGroup, List<string> participantIds, Action<string> onComplete)
         {
+            if (!IsInitialized)
+            {
+                LogHelper.LogError("Firebase is not initialized. Cannot create conversation.");
+                onComplete?.Invoke(null);
+                return;
+            }
+
             if (participantIds == null || participantIds.Count < 1)
             {
                 LogHelper.LogError("Cannot create conversation with no participants.");
@@ -236,6 +331,12 @@ namespace YuankunHuang.Unity.Core
 
         public static void SendMessageToConversation(string conversationGroup, string conversationId, string senderId, string content, Dictionary<string, object> metadata = null)
         {
+            if (!IsInitialized || string.IsNullOrEmpty(conversationId) || string.IsNullOrEmpty(senderId) || string.IsNullOrEmpty(content))
+            {
+                LogHelper.LogError("Firebase is not initialized or invalid parameters provided for sending message.");
+                return;
+            }
+
             var db = FirebaseFirestore.DefaultInstance;
             var msgRef = db
                 .Collection(conversationGroup).Document(conversationId)
@@ -280,6 +381,13 @@ namespace YuankunHuang.Unity.Core
 
         public static void LoadRecentMessages(string conversationGroup, string conversationId, int limit, Action<List<FirebaseConversationMessage>> onComplete)
         {
+            if (!IsInitialized)
+            {
+                LogHelper.LogError("Firebase is not initialized. Cannot load recent messages.");
+                onComplete?.Invoke(new List<FirebaseConversationMessage>());
+                return;
+            }
+
             var db = FirebaseFirestore.DefaultInstance;
             db.Collection(conversationGroup).Document(conversationId)
                 .Collection(FirebaseCollections.Messages)
@@ -309,6 +417,13 @@ namespace YuankunHuang.Unity.Core
 
         public static void LoadMessagesBefore(string conversationGroup, string conversationId, DocumentSnapshot lastDoc, int limit, Action<List<FirebaseConversationMessage>, DocumentSnapshot> onComplete)
         {
+            if (!IsInitialized)
+            {
+                LogHelper.LogError("Firebase is not initialized. Cannot load messages before.");
+                onComplete?.Invoke(new List<FirebaseConversationMessage>(), null);
+                return;
+            }
+
             if (lastDoc == null)
             {
                 LogHelper.LogError("lastDoc is null in LoadMessagesBefore.");
@@ -355,6 +470,13 @@ namespace YuankunHuang.Unity.Core
 
         public static void LoadConversationMessages(string conversationGroup, string conversationId, Action<List<FirebaseConversationMessage>> onComplete)
         {
+            if (!IsInitialized)
+            {
+                LogHelper.LogError("Firebase is not initialized. Cannot load conversation messages.");
+                onComplete?.Invoke(new List<FirebaseConversationMessage>());
+                return;
+            }
+
             var db = FirebaseFirestore.DefaultInstance;
             db
             .Collection(conversationGroup).Document(conversationId)

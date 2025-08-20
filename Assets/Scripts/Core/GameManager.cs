@@ -87,8 +87,6 @@ namespace YuankunHuang.Unity.Core
         {
             LogHelper.Log($"[GameManager]::Dispose");
 
-            FirebaseManager.Dispose();
-
             ModuleRegistry.Get<IAssetManager>().Dispose();
             ModuleRegistry.Get<IUIManager>().Dispose();
             ModuleRegistry.Get<ICameraManager>().Dispose();
@@ -107,6 +105,8 @@ namespace YuankunHuang.Unity.Core
 
             MonoManager.Dispose();
             InputBlocker.Dispose();
+
+            FirebaseManager.Dispose();
 
             SceneManager.UnloadAll(onFinished);
         }
