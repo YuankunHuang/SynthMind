@@ -21,7 +21,7 @@ namespace YuankunHuang.Unity.NetworkCore
 
     public class RestApiClient : IDisposable
     {
-        private static readonly string aiServerUrl = "http://localhost:5000/chat";
+        private static readonly string aiServerUrl = "https://synthmind-ai-proxy-99752854e0dd.herokuapp.com/chat";
 
         public void SendMessage(string message, ServerType server, Action<string> onSuccess, Action<string> onError)
         {
