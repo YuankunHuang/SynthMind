@@ -21,19 +21,12 @@ namespace YuankunHuang.Unity.Editor
 
         // animation
         private bool usePopupAnimation = true;
-        private PopupAnimationType enterAnimation = PopupAnimationType.BounceIn;
-        private PopupExitType exitAnimation = PopupExitType.ScaleOut;
-        private float enterDuration = 0.6f;
-        private float exitDuration = 0.3f;
-        private float delayBefore = 0f;
-        private float bounceAmplitude = 1.5f;
-        private float elasticStrength = 3f;
-        private float backOvershoot = 1.2f;
-
-        // extra
-        private bool useScaleEffect = true;
-        private bool useFadeEffect = false;
-        private bool useRotationEffect = false;
+        private AnimationType enterAnimation = AnimationType.Scale;
+        private AnimationType exitAnimation = AnimationType.Scale;
+        private SlideDirection slideDirection = SlideDirection.Up;
+        private float enterDuration = 0.3f;
+        private float exitDuration = 0.2f;
+        private AnimationCurve curve = AnimationCurve.EaseInOut(0, 0, 1, 1);
 
         // foldout states
         private bool showAnimationSettings = true;
@@ -96,7 +89,7 @@ namespace YuankunHuang.Unity.Editor
                 var previewText = $"Prefab: {STACKABLE_PATH}/{windowName}/{windowName}.prefab\n" +
                                 $"Controller: {WINDOW_CONTROLLER_PATH}/{windowName}/{windowName}Controller.cs\n" +
                                 $"Attribute Data: {ATTRIBUTE_DATA_PATH}/WindowAttributeData_{windowName}.asset\n" +
-                                $"Animation: {enterAnimation} ¡ú {exitAnimation}";
+                                $"Animation: {enterAnimation} â†’ {exitAnimation} ({slideDirection})";
 
                 EditorGUILayout.HelpBox(previewText, MessageType.Info);
             }
@@ -151,24 +144,25 @@ namespace YuankunHuang.Unity.Editor
                 {
                     EditorGUI.indentLevel++;
 
-                    // enter animation
-                    GUILayout.Label("Enter Animation Settings", EditorStyles.boldLabel);
-                    enterAnimation = (PopupAnimationType)EditorGUILayout.EnumPopup("Enter Animation", enterAnimation);
-                    enterDuration = EditorGUILayout.FloatField("Enter Duration", enterDuration);
-                    delayBefore = EditorGUILayout.FloatField("Delay Before Animation", delayBefore);
-
+                    // animations
+                    enterAnimation = (AnimationType)EditorGUILayout.EnumPopup("Enter Animation", enterAnimation);
+                    exitAnimation = (AnimationType)EditorGUILayout.EnumPopup("Exit Animation", exitAnimation);
+                    
+                    if (enterAnimation == AnimationType.Slide || exitAnimation == AnimationType.Slide)
+                    {
+                        slideDirection = (SlideDirection)EditorGUILayout.EnumPopup("Slide Direction", slideDirection);
+                    }
+                    
                     GUILayout.Space(5);
-
-                    // exit animation
-                    GUILayout.Label("Exit Animation Settings", EditorStyles.boldLabel);
-                    exitAnimation = (PopupExitType)EditorGUILayout.EnumPopup("Exit Animation", exitAnimation);
+                    
+                    // timing
+                    enterDuration = EditorGUILayout.FloatField("Enter Duration", enterDuration);
                     exitDuration = EditorGUILayout.FloatField("Exit Duration", exitDuration);
-
-                    // easing
-                    GUILayout.Label("Easing Settings", EditorStyles.boldLabel);
-                    bounceAmplitude = EditorGUILayout.FloatField("Bounce Amplitude", bounceAmplitude);
-                    elasticStrength = EditorGUILayout.FloatField("Elastic Strength", elasticStrength);
-                    backOvershoot = EditorGUILayout.FloatField("Back Overshoot", backOvershoot);
+                    
+                    GUILayout.Space(5);
+                    
+                    // curve
+                    curve = EditorGUILayout.CurveField("Animation Curve", curve);
 
                     GUILayout.Space(5);
 
@@ -368,15 +362,10 @@ namespace YuankunHuang.Unity.Editor
                 {
                     enterAnimation = enterAnimation,
                     exitAnimation = exitAnimation,
+                    slideDirection = slideDirection,
                     enterDuration = enterDuration,
                     exitDuration = exitDuration,
-                    delayBefore = delayBefore,
-                    bounceAmplitude = bounceAmplitude,
-                    elasticStrength = elasticStrength,
-                    backOvershoot = backOvershoot,
-                    useScaleEffect = useScaleEffect,
-                    useFadeEffect = useFadeEffect,
-                    useRotationEffect = useRotationEffect
+                    curve = curve
                 };
             }
 

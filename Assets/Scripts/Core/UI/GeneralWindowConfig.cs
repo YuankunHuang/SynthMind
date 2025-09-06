@@ -18,6 +18,7 @@ namespace YuankunHuang.Unity.UICore
     public class GeneralWindowConfig : MonoBehaviour
     {
         [SerializeField] private CanvasGroup _canvasGroup;
+        [SerializeField] private RectTransform _root;
 
         [Header("Extra")]
         [SerializeField] private List<GeneralWidgetConfig> _extraWidgetConfigList;
@@ -40,6 +41,7 @@ namespace YuankunHuang.Unity.UICore
         [SerializeField] private List<Canvas> _extraCanvasList;
 
         public CanvasGroup CanvasGroup => _canvasGroup;
+        public RectTransform Root => _root;
 
         // extra
         public List<GeneralWidgetConfig> ExtraWidgetConfigList => _extraWidgetConfigList;

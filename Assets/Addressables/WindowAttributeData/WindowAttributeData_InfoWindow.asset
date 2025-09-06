@@ -17,18 +17,12 @@ MonoBehaviour:
   selfDestructOnCovered: 0
   usePopupAnimation: 1
   animationSettings:
-    enterAnimation: 1
-    exitAnimation: 1
+    enterAnimation: 0
+    exitAnimation: 0
+    slideDirection: 0
     enterDuration: 0.25
     exitDuration: 0.25
-    delayBefore: 0
-    bounceAmplitude: 1.5
-    elasticStrength: 3
-    backOvershoot: 1.2
-    useScaleEffect: 1
-    useFadeEffect: 0
-    useRotationEffect: 0
-    customCurve:
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3

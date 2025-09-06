@@ -10,6 +10,7 @@ TagManager:
   - SandboxCamera
   - AI_Character
   - AISpawned
+  - MainCanvas
   layers:
   - Default
   - TransparentFX

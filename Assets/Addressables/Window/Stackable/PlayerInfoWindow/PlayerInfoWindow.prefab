@@ -486,6 +486,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _canvasGroup: {fileID: 1863639652491016034}
+  _root: {fileID: 3489188537148031539}
   _extraWidgetConfigList: []
   _extraRectTransformList: []
   _extraTMPTextList: []

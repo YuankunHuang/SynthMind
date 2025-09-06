@@ -53,34 +53,36 @@ namespace YuankunHuang.Unity.Core
             }
         }
 
-        private async void Init()
+        private void Init()
         {
             LogHelper.Log($"[GameManager]::Init");
 
-            GameDataManager.Initialize();
-            MonoManager.Initialize(_monoManager);
-            InputBlocker.Initialize(_inputBlocker);
+            SceneManager.LoadSceneAsync(SceneKeys.UIScene, onFinished: OnUISceneReady);
 
-            var assetManager = new AssetManager();
-            assetManager.Initialize(_assetManagerConfig);
-            ModuleRegistry.Register<IAssetManager>(assetManager);
-            ModuleRegistry.Register<IUIManager>(new UIManager());
-            ModuleRegistry.Register<INetworkManager>(new NetworkManager());
-            ModuleRegistry.Register<ICameraManager>(new CameraManager());
-            ModuleRegistry.Register<IAccountManager>(new AccountManager());
-            ModuleRegistry.Register<ICommandManager>(new CommandManager());
-
-            var localizationManager = new LocalizationManager();
-            await localizationManager.InitializeAsync();
-            ModuleRegistry.Register<ILocalizationManager>(localizationManager);
-
-            SceneManager.LoadSceneAsync(SceneKeys.UIScene, onFinished: () =>
+            async void OnUISceneReady()
             {
+                GameDataManager.Initialize();
+                MonoManager.Initialize(_monoManager);
+                InputBlocker.Initialize(_inputBlocker);
+
+                var assetManager = new AssetManager();
+                assetManager.Initialize(_assetManagerConfig);
+                ModuleRegistry.Register<IAssetManager>(assetManager);
+                ModuleRegistry.Register<IUIManager>(new UIManager());
+                ModuleRegistry.Register<INetworkManager>(new NetworkManager());
+                ModuleRegistry.Register<ICameraManager>(new CameraManager());
+                ModuleRegistry.Register<IAccountManager>(new AccountManager());
+                ModuleRegistry.Register<ICommandManager>(new CommandManager());
+
+                var localizationManager = new LocalizationManager();
+                await localizationManager.InitializeAsync();
+                ModuleRegistry.Register<ILocalizationManager>(localizationManager);
+
                 var camManager = ModuleRegistry.Get<ICameraManager>();
                 camManager.AddToMainStack(camManager.UICamera);
 
                 ModuleRegistry.Get<IUIManager>().Show(WindowNames.LoginWindow);
-            });
+            }
         }
 
         private void Dispose(Action onFinished)

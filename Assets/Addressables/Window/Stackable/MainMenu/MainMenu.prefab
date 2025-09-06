@@ -403,6 +403,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _canvasGroup: {fileID: 7658029725738963312}
+  _root: {fileID: 4190661041050650889}
   _extraWidgetConfigList:
   - {fileID: 1179667422589408359}
   - {fileID: 7691050401861194059}
@@ -532,6 +533,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _canvasGroup: {fileID: 8752529297985816322}
+  _root: {fileID: 0}
   _extraWidgetConfigList: []
   _extraRectTransformList: []
   _extraTMPTextList: []
@@ -916,6 +918,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _canvasGroup: {fileID: 8381985377502945079}
+  _root: {fileID: 0}
   _extraWidgetConfigList: []
   _extraRectTransformList: []
   _extraTMPTextList: []
@@ -2112,6 +2115,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _canvasGroup: {fileID: 5888393226554340078}
+  _root: {fileID: 0}
   _extraWidgetConfigList: []
   _extraRectTransformList: []
   _extraTMPTextList: []
@@ -2195,6 +2199,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _canvasGroup: {fileID: 3759463440161525278}
+  _root: {fileID: 0}
   _extraWidgetConfigList: []
   _extraRectTransformList: []
   _extraTMPTextList: []
@@ -2602,6 +2607,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _canvasGroup: {fileID: 3377785649982685611}
+  _root: {fileID: 0}
   _extraWidgetConfigList: []
   _extraRectTransformList: []
   _extraTMPTextList: []

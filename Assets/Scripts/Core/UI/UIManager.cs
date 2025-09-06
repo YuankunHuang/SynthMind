@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -17,28 +18,6 @@ namespace YuankunHuang.Unity.UICore
     {
         Removed,
         Covered,
-    }
-
-    public struct WindowStackEntry
-    {
-        public string WindowName;
-        public WindowControllerBase Controller;
-        public IWindowData Data;
-        public GameObject WindowGO;
-        public AsyncOperationHandle<WindowAttributeData> AttributeDataHandle;
-        public AsyncOperationHandle<GameObject> WindowHandle;
-
-        public WindowStackEntry(string windowName, WindowControllerBase controller, IWindowData data, 
-            GameObject windowGO, AsyncOperationHandle<WindowAttributeData> attributeDataHandle, 
-            AsyncOperationHandle<GameObject> windowHandle)
-        {
-            WindowName = windowName;
-            Controller = controller;
-            Data = data;
-            WindowGO = windowGO;
-            AttributeDataHandle = attributeDataHandle;
-            WindowHandle = windowHandle;
-        }
     }
 
     public class UIManager : IUIManager
@@ -77,24 +56,40 @@ namespace YuankunHuang.Unity.UICore
         {
             using (new InputBlock())
             {
+                // Load attributes first to check if blur is needed
+                var attributes = await _loader.LoadAttributeDataAsync(windowName);
+
+                // Capture screen using Coroutine for proper frame timing
+                var blurTexture = await CaptureBlurIfNeededAsync(attributes);
+
+                // Load window using async
                 var window = await _loader.LoadAsync(windowName);
-                var blurTexture = CaptureBlurIfNeeded(window.Attributes);
                 
                 HandleCurrentWindow(window.Attributes);
-                window.Show(data, WindowShowState.New, blurTexture);
+                window.Init(blurTexture);
+                window.Show(data, WindowShowState.New);
                 _stack.Push(window);
             }
         }
         
-        private RenderTexture CaptureBlurIfNeeded(WindowAttributeData attrs)
+        private Task<RenderTexture> CaptureBlurIfNeededAsync(WindowAttributeData attrs)
         {
-            if (!attrs.useBlurredBackground) return null;
+            if (!attrs.useBlurredBackground) 
+                return Task.FromResult<RenderTexture>(null);
             
-            var texture = new RenderTexture(Screen.width, Screen.height, 0, RenderTextureFormat.ARGB32);
-            ScreenCapture.CaptureScreenshotIntoRenderTexture(texture);
-            return texture;
+            var tcs = new TaskCompletionSource<RenderTexture>();
+            MonoManager.Instance.StartCoroutine(CaptureBlurCoroutine(tcs));
+            return tcs.Task;
         }
-        
+
+        private IEnumerator CaptureBlurCoroutine(TaskCompletionSource<RenderTexture> tcs)
+        {
+            yield return UIScreenCapture.CaptureFullFrameCoroutine(rt =>
+            {
+                tcs.TrySetResult(rt);
+            });
+        }
+
         private void HandleCurrentWindow(WindowAttributeData newAttrs)
         {
             if (_stack.Count == 0) return;
@@ -130,7 +125,7 @@ namespace YuankunHuang.Unity.UICore
             using (new InputBlock())
             {
                 var window = _stack.Pop();
-                await HideWithAnimation(window);
+                await HideWithAnimationAsync(window);
                 window.Dispose();
                 
                 if (_stack.Count > 0)
@@ -160,13 +155,13 @@ namespace YuankunHuang.Unity.UICore
                     }
                     
                     window = _stack.Pop();
-                    await HideWithAnimation(window);
+                    await HideWithAnimationAsync(window);
                     window.Dispose();
                 }
             }
         }
 
-        private async Task HideWithAnimation(Window window)
+        private async Task HideWithAnimationAsync(Window window)
         {
             var duration = window.Attributes.usePopupAnimation ? window.Attributes.animationSettings.exitDuration : 0;
             window.Hide(WindowHideState.Removed, duration);

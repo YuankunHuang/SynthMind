@@ -14,23 +14,23 @@ namespace YuankunHuang.Unity.UICore
         protected GeneralWindowConfig Config { get; private set; }
         protected WindowAttributeData AttributeData { get; private set; }
 
-        private RenderTexture _blurRenderTex;
+        private BlurBackground _blurBackground;
         private Coroutine _currentAnimationCoroutine;
 
-        public void Init(WindowStackEntry entry, RenderTexture blurTexture = null)
+        public void Init(string windowName, GameObject windowGO, WindowAttributeData attributeData, RenderTexture blurTexture = null)
         {
-            LogHelper.Log($"[WindowControllerBase]::Init: {entry.WindowName}");
+            LogHelper.Log($"[WindowControllerBase]::Init: {windowName}");
 
-            WindowName = entry.WindowName;
-            Config = entry.WindowGO.GetComponent<GeneralWindowConfig>();
-            AttributeData = entry.AttributeDataHandle.Result;
+            WindowName = windowName;
+            Config = windowGO.GetComponent<GeneralWindowConfig>();
+            AttributeData = attributeData;
 
             // attributes
             if (AttributeData != null)
             {
                 if (AttributeData.usePopupAnimation)
                 {
-                    _currentAnimationCoroutine = MonoManager.Instance.StartCoroutine(PopupAnimator.AnimatePopupEnter(Config.transform, Config.CanvasGroup, AttributeData.animationSettings));
+                    _currentAnimationCoroutine = MonoManager.Instance.StartCoroutine(WindowAnimation.PlayEnter(Config.Root, Config.CanvasGroup, AttributeData.animationSettings));
                 }
 
                 if (AttributeData.hasMask)
@@ -40,7 +40,7 @@ namespace YuankunHuang.Unity.UICore
 
                 if (AttributeData.useBlurredBackground && blurTexture != null)
                 {
-                    CreateBlurBackground(blurTexture);
+                    _ = CreateBlurBackgroundAsync(blurTexture);
                 }
             }
 
@@ -63,26 +63,15 @@ namespace YuankunHuang.Unity.UICore
             rt.localPosition = Vector3.zero;
         }
 
-        private async void CreateBlurBackground(RenderTexture blurTexture)
+        private async Task CreateBlurBackgroundAsync(RenderTexture blurTexture)
         {
-            _blurRenderTex = blurTexture;
-
-            var blurGO = new GameObject("Blur");
-            var rt = blurGO.AddComponent<RectTransform>();
-            var img = blurGO.AddComponent<RawImage>();
-            img.raycastTarget = false;
-            img.texture = _blurRenderTex;
-
-            rt.SetParent(Config.transform);
-            rt.SetAsFirstSibling();
-            rt.anchorMin = new Vector2(0, 0);
-            rt.anchorMax = new Vector2(1, 1);
-            rt.offsetMin = rt.offsetMax = Vector2.zero;
-
-            var mat = await ResManager.LoadAssetAsync<Material>(AddressablePaths.UIBoxBlurMaterial);
-            if (mat != null)
+            _blurBackground = new BlurBackground();
+            var success = await _blurBackground.CreateAsync(Config.transform, blurTexture);
+            
+            if (!success)
             {
-                img.material = mat;
+                _blurBackground = null;
+                LogHelper.LogError($"[WindowControllerBase] Failed to create blur background for {WindowName}");
             }
         }
 
@@ -102,7 +91,7 @@ namespace YuankunHuang.Unity.UICore
             {
                 if (AttributeData.usePopupAnimation)
                 {
-                    _currentAnimationCoroutine = MonoManager.Instance.StartCoroutine(PopupAnimator.AnimatePopupExit(Config.transform, Config.CanvasGroup, AttributeData.animationSettings));
+                    _currentAnimationCoroutine = MonoManager.Instance.StartCoroutine(WindowAnimation.PlayExit(Config.Root, Config.CanvasGroup, AttributeData.animationSettings));
                 }
             }
 
@@ -113,20 +102,15 @@ namespace YuankunHuang.Unity.UICore
         {
             LogHelper.Log($"[WindowControllerBase]::Dispose: {WindowName}");
 
-            if (AttributeData.useBlurredBackground)
-            {
-                ResManager.Release(AddressablePaths.UIBoxBlurMaterial);
-            }
-            if (_blurRenderTex != null)
-            {
-                _blurRenderTex.Release();
-                UnityEngine.Object.Destroy(_blurRenderTex);
-                _blurRenderTex = null;
-            }
+            _blurBackground?.Dispose();
+            _blurBackground = null;
 
             if (_currentAnimationCoroutine != null)
             {
-                MonoManager.Instance.StopCoroutine(_currentAnimationCoroutine);
+                if (MonoManager.Instance != null)
+                {
+                    MonoManager.Instance.StopCoroutine(_currentAnimationCoroutine);
+                }
                 _currentAnimationCoroutine = null;
             }
 

@@ -197,6 +197,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _canvasGroup: {fileID: 7658029725738963312}
+  _root: {fileID: 4190661041050650889}
   _extraWidgetConfigList: []
   _extraRectTransformList: []
   _extraTMPTextList:
@@ -392,8 +393,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
-  pressedScale: 0.9
-  animationDuration: 0.05
+  _enableScaleAnimation: 1
+  _pressedScale: 0.9
+  _animationDuration: 0.05
 --- !u!1 &2274012140497960302
 GameObject:
   m_ObjectHideFlags: 0

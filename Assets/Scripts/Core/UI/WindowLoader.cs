@@ -16,6 +16,17 @@ namespace YuankunHuang.Unity.UICore
             _root = root;
         }
 
+        public async Task<WindowAttributeData> LoadAttributeDataAsync(string windowName)
+        {
+            var attrKey = string.Format(AddressablePaths.WindowAttributeData, windowName);
+            var attrHandle = Addressables.LoadAssetAsync<WindowAttributeData>(attrKey);
+            var result = await attrHandle.Task;
+            
+            // Release immediately since we only need to check the data
+            Addressables.Release(attrHandle);
+            return result;
+        }
+
         public async Task<Window> LoadAsync(string windowName)
         {
             try

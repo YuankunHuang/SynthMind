@@ -28,11 +28,14 @@ namespace YuankunHuang.Unity.UICore
             _attrHandle = attrHandle;
         }
 
-        public void Show(IWindowData data, WindowShowState state, RenderTexture blurTexture = null)
+        public void Init(RenderTexture blurTexture = null) 
+        {
+            Controller.Init(Name, GameObject, Attributes, blurTexture);
+        }
+
+        public void Show(IWindowData data, WindowShowState state)
         {
             Data = data;
-            var entry = new WindowStackEntry(Name, Controller, data, GameObject, default, default);
-            Controller.Init(entry, blurTexture);
             Controller.Show(data, state);
         }
 
