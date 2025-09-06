@@ -5,9 +5,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
-using YuankunHuang.Unity.Core;
 using YuankunHuang.Unity.LocalizationCore;
-using YuankunHuang.Unity.ModuleCore;
 
 namespace YuankunHuang.Unity.Core
 {

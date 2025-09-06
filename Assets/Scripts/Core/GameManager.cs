@@ -79,7 +79,7 @@ namespace YuankunHuang.Unity.Core
                 var camManager = ModuleRegistry.Get<ICameraManager>();
                 camManager.AddToMainStack(camManager.UICamera);
 
-                ModuleRegistry.Get<IUIManager>().ShowStackableWindow(WindowNames.LoginWindow);
+                ModuleRegistry.Get<IUIManager>().Show(WindowNames.LoginWindow);
             });
         }
 

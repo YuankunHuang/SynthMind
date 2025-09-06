@@ -17,7 +17,7 @@ namespace YuankunHuang.Unity.UICore
         private RenderTexture _blurRenderTex;
         private Coroutine _currentAnimationCoroutine;
 
-        public void Init(WindowStackEntry entry)
+        public void Init(WindowStackEntry entry, RenderTexture blurTexture = null)
         {
             LogHelper.Log($"[WindowControllerBase]::Init: {entry.WindowName}");
 
@@ -38,9 +38,9 @@ namespace YuankunHuang.Unity.UICore
                     CreateMask();
                 }
 
-                if (AttributeData.useBlurredBackground)
+                if (AttributeData.useBlurredBackground && blurTexture != null)
                 {
-                    LoadBlurAsync();
+                    CreateBlurBackground(blurTexture);
                 }
             }
 
@@ -63,17 +63,14 @@ namespace YuankunHuang.Unity.UICore
             rt.localPosition = Vector3.zero;
         }
 
-        private async void LoadBlurAsync()
+        private async void CreateBlurBackground(RenderTexture blurTexture)
         {
-            await Task.Yield();
-
-            _blurRenderTex = new RenderTexture(Screen.width, Screen.height, 0, RenderTextureFormat.ARGB32);
-            ScreenCapture.CaptureScreenshotIntoRenderTexture(_blurRenderTex);
+            _blurRenderTex = blurTexture;
 
             var blurGO = new GameObject("Blur");
             var rt = blurGO.AddComponent<RectTransform>();
             var img = blurGO.AddComponent<RawImage>();
-            img.raycastTarget = true;
+            img.raycastTarget = false;
             img.texture = _blurRenderTex;
 
             rt.SetParent(Config.transform);
@@ -86,10 +83,6 @@ namespace YuankunHuang.Unity.UICore
             if (mat != null)
             {
                 img.material = mat;
-            }
-            else
-            {
-                LogHelper.LogError($"[WindowControllerBase]::LoadBlurAsync: Failed to load blur material.");
             }
         }
 

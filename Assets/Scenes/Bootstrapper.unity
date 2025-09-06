@@ -463,12 +463,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   showLoadingIndicator: 1
   dimBackground: 1
-  backgroundColor: {r: 0, g: 0, b: 0, a: 0.3}
+  backgroundColor: {r: 0, g: 0, b: 0, a: 0.101960786}
   loadingIndicatorPrefab: {fileID: 0}
   useSimpleSpinner: 1
   spinnerRotationSpeed: 360
   loadingIndicatorDelay: 2
-  useFadeAnimation: 0
   fadeInDuration: 0.15
   fadeOutDuration: 0.1
 --- !u!4 &1864168102

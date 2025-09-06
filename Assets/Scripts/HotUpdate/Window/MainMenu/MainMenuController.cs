@@ -109,7 +109,7 @@ namespace YuankunHuang.Unity.HotUpdate
             var self = ModuleRegistry.Get<IAccountManager>().Self;
             CommPlayerAvatarController.Show(_avatarConfig, new CommPlayerAvatarData(self.Avatar, self.Nickname, () =>
             {
-                ModuleRegistry.Get<IUIManager>().ShowStackableWindow(WindowNames.InfoWindow, new InfoWindowData("Avatar", "This is your avatar. You can change it in the settings."));
+                ModuleRegistry.Get<IUIManager>().Show(WindowNames.InfoWindow, new InfoWindowData("Avatar", "This is your avatar. You can change it in the settings."));
             }));
 
             Config.CanvasGroup.CanvasGroupOn();

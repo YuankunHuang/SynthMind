@@ -80,7 +80,7 @@ namespace YuankunHuang.Unity.HotUpdate
         {
             _noticeTxt.text = ModuleRegistry.Get<ILocalizationManager>().GetLocalizedText(LocalizationKeys.MainMenuNoticeSuccess);
 
-            ModuleRegistry.Get<IUIManager>().ShowStackableWindow(WindowNames.MainMenu);
+            ModuleRegistry.Get<IUIManager>().Show(WindowNames.MainMenu);
         }
 
         private void OnLoginError(string errorMessage)

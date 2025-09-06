@@ -5,14 +5,13 @@ using YuankunHuang.Unity.ModuleCore;
 
 namespace YuankunHuang.Unity.UICore
 {
-    public interface IWindowStackEntry { }
     public interface IWindowData { }
     public interface IUIManager : IModule
     {
-        void ShowStackableWindow(string windowName, IWindowData data = null);
-        IWindowStackEntry? GetWindowOnTop();
-        bool IsWindowInStack(string windowName);
+        void Show(string windowName, IWindowData data = null);
         void GoBack();
         void GoBackTo(string windowName);
+        bool Contains(string windowName);
+        string Current { get; }
     }
 }
