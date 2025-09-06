@@ -131,6 +131,12 @@ namespace YuankunHuang.Unity.UICore
                 _blurRenderTex = null;
             }
 
+            if (_currentAnimationCoroutine != null)
+            {
+                MonoManager.Instance.StopCoroutine(_currentAnimationCoroutine);
+                _currentAnimationCoroutine = null;
+            }
+
             OnDispose();
         }
 

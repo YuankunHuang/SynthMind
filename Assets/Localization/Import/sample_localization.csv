@@ -1,7 +1,0 @@
-﻿Key,English,Chinese
-ui.welcome_message,"Welcome to our game!","欢迎来到我们的游戏！"
-ui.start_button,"Start","开始"
-ui.settings_title,"Settings","设置"
-ui.quit_confirm,"Are you sure you want to quit?","确定要退出吗？"
-game.score_text,"Score: {0}","得分：{0}"
-game.level_complete,"Level Complete!","关卡完成！"

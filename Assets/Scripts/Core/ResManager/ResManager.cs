@@ -54,7 +54,7 @@ namespace YuankunHuang.Unity.Core
     {
         // general assets
         private static Dictionary<string, ResHandle> _loaded = new();
-        private static Dictionary<string, object> _loading = new(); // 修改为object类型，支持泛型Task<T>
+        private static Dictionary<string, object> _loading = new(); // Changed to object type to support generic Task<T>
         private static object _lock = new();
         private static Dictionary<string, HashSet<string>> _groupMap = new();
 
