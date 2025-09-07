@@ -109,6 +109,23 @@ MonoBehaviour:
       of modern Unity engineering practices</color></b>."
     m_Metadata:
       m_Items: []
+  - m_Id: 11946368000425984
+    m_Localized: Enter your username...
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11946505238052864
+    m_Localized: Enter your password...
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11950929176002560
+    m_Localized: Profile
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11951980386025472
+    m_Localized: Here is your profile page. In the future, you may be able to change
+      your avatar, add a personal signature, showcase badges, and more here.
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

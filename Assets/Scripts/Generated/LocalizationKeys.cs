@@ -6,13 +6,14 @@ namespace YuankunHuang.Unity.Core
 {
     public static class LocalizationKeys
     {
-        public const string Main = "Main";
         public const string MainMenuAbout = "MainMenu_About";
         public const string MainMenuAboutContent = "MainMenu_About_Content";
         public const string MainMenuChat = "MainMenu_Chat";
         public const string MainMenuHome = "MainMenu_Home";
         public const string MainMenuHomeIntro = "MainMenu_Home_Intro";
         public const string MainMenuLogin = "MainMenu_Login";
+        public const string MainMenuLoginEnterPassword = "MainMenu_Login_EnterPassword";
+        public const string MainMenuLoginEnterUsername = "MainMenu_Login_EnterUsername";
         public const string MainMenuNoticeEmptyUsernameOrPassword = "MainMenu_Notice_EmptyUsernameOrPassword";
         public const string MainMenuNoticeFailed = "MainMenu_Notice_Failed";
         public const string MainMenuNoticeSuccess = "MainMenu_Notice_Success";
@@ -22,6 +23,8 @@ namespace YuankunHuang.Unity.Core
         public const string MainMenuSettingLanguageTitle = "MainMenu_Setting_LanguageTitle";
         public const string MainMenuTitle = "MainMenu_Title";
         public const string MainMenuUsername = "MainMenu_Username";
+        public const string ProfileContent = "Profile_Content";
+        public const string ProfileTitle = "Profile_Title";
 
         private static List<string> _allKeys;
 

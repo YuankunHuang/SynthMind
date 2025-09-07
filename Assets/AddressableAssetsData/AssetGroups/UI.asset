@@ -23,7 +23,7 @@ MonoBehaviour:
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 13b5fbdfd297e5f4ba658463260ecf86
-    m_Address: Assets/Addressables/Window/Stackable/PlayerInfoWindow/PlayerInfoWindow.prefab
+    m_Address: Assets/Addressables/Window/Stackable/ProfileWindow/ProfileWindow.prefab
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

@@ -1,8 +1,188 @@
-﻿Key,en,zh-Hans
-MainMenu_Username,Username,用户名
-MainMenu_Title,SynthMind - AI Sandbox Playground,心智合成：AI创意沙盒
-MainMenu_Password,Password,密码
-MainMenu_Notice_Success,Login successful!,登录成功！
-MainMenu_Notice_Failed,Login failed: {0},登录失败：{0}
-MainMenu_Notice_EmptyUsernameOrPassword,Username and password cannot be empty.,用户名或密码不能为空
-MainMenu_Login,LOGIN,登录
+﻿Key,en,zh-Hans,ja,ko
+MainMenu_Username,Username,用户名,ユーザー名,사용자 이름
+MainMenu_Title,SynthMind - AI Sandbox Playground,心智合成：AI创意沙盒,SynthMind - AI サンドボックス プレイグラウンド,SynthMind - AI 샌드박스 플레이그라운드
+MainMenu_Password,Password,密码,パスワード,비밀번호
+MainMenu_Notice_Success,Login successful!,登录成功！,ログインに成功しました！,로그인 성공!
+MainMenu_Notice_Failed,Login failed: {0},登录失败：{0},ログインに失敗しました：{0},로그인 실패: {0}
+MainMenu_Notice_EmptyUsernameOrPassword,Username and password cannot be empty.,用户名或密码不能为空,ユーザー名とパスワードを空にすることはできません。,사용자 이름과 비밀번호는 비워 둘 수 없습니다.
+MainMenu_Login,LOGIN,登录,ログイン,로그인
+MainMenu_Home,HOME,首页,ホーム,홈
+MainMenu_Chat,CHAT,会话,チャット,채팅
+MainMenu_SandBox,SANDBOX,沙盒,サンドボックス,샌드박스
+MainMenu_Setting,SETTING,设置,設定,설정
+MainMenu_About,ABOUT,关于本应用,このアプリについて,앱 소개
+MainMenu_Setting_LanguageTitle,Language Setting,语言设置,言語設定,언어 설정
+MainMenu_Home_Intro,"<size=150%><b><color=#4DB8FF>Welcome to SynthMind · AI Creative Sandbox</color></b></size>
+I'm <b><color=#FF9E40>Yuankun Huang</color></b>.
+
+This little project grew out of <b><color=#4DB8FF>curiosity</color></b> and a <b><color=#4DB8FF>desire to practice</color></b>.
+I'm experimenting with a <b><color=#4DB8FF>clean, modular architecture</color></b> on <b><color=#4DB8FF>Unity 2022.3</color></b>,
+with basic <b><color=#4DB8FF>localization</color></b> and <b><color=#4DB8FF>Firebase integration</color></b> —
+trying to put <b><color=#4DB8FF>common engineering practices</color></b> into real use.
+
+If you spot a better approach or have ideas for improvement, I'd love to hear them.
+
+SynthMind isn't a perfect product;
+it's more like a <b><color=#FF9E40>training ground</color></b> that keeps evolving.
+I'll keep <b>strengthening features</b> and <b>polishing the experience</b>
+while staying mindful of <b><color=#4DB8FF>code clarity</color></b>.
+
+I also hope we can explore together:
+• How do we take an idea from <b><color=#4DB8FF>prototype</color></b> to <b><color=#4DB8FF>something usable</color></b>?
+• How do we balance <b><color=#4DB8FF>complexity</color></b> and <b><color=#4DB8FF>maintainability</color></b>?
+
+Thanks for stopping by —
+may this place <b><color=#FF9E40>spark a little inspiration</color></b> for you.","<size=150%><b><color=#4DB8FF>欢迎来到 SynthMind · AI 创意沙盒</color></b></size>
+我是 <b><color=#FF9E40>Yuankun Huang</color></b>。
+
+这个小项目源于我对技术的 <b><color=#4DB8FF>好奇</color></b> 和 <b><color=#4DB8FF>练手的需要</color></b>。
+我尝试在 <b><color=#4DB8FF>Unity 2022.3</color></b> 上搭建一套 <b><color=#4DB8FF>简洁的模块化架构</color></b>，
+并加入基础的 <b><color=#4DB8FF>本地化</color></b> 与 <b><color=#4DB8FF>Firebase 集成</color></b>，
+尽量把 <b><color=#4DB8FF>常用工程实践</color></b> 落到实处。
+
+如果你在使用中发现更好的做法或有改进建议，欢迎告诉我。
+
+SynthMind 不是一款完美的作品，
+更像一块 <b><color=#FF9E40>不断打磨的练兵场</color></b>。
+我会在保持 <b><color=#4DB8FF>代码清晰</color></b> 的前提下，
+持续完善功能、优化体验。
+
+也期待和你一起讨论：
+• 如何把一个想法从 <b><color=#4DB8FF>原型</color></b> 走到 <b><color=#4DB8FF>可用</color></b>？
+• 如何在 <b><color=#4DB8FF>复杂度</color></b> 与 <b><color=#4DB8FF>可维护性</color></b> 之间找到平衡？
+
+感谢你的到访，
+愿这里能为你的 <b><color=#FF9E40>灵感添一束火花</color></b>。","<size=150%><b><color=#4DB8FF>SynthMind · AI クリエイティブサンドボックスへようこそ</color></b></size>
+私は <b><color=#FF9E40>Yuankun Huang</color></b> です。
+
+この小さなプロジェクトは、<b><color=#4DB8FF>好奇心</color></b> と <b><color=#4DB8FF>実践したいという思い</color></b> から生まれました。
+<b><color=#4DB8FF>Unity 2022.3</color></b> 上で <b><color=#4DB8FF>クリーンでモジュール化されたアーキテクチャ</color></b> を試しながら、
+基本的な <b><color=#4DB8FF>ローカリゼーション</color></b> と <b><color=#4DB8FF>Firebase 統合</color></b> を組み込み、
+<b><color=#4DB8FF>一般的なエンジニアリング実践</color></b> を実際に活かすことを目指しています。
+
+もしもっと良い方法や改善のアイデアがあれば、ぜひ教えてください。
+
+SynthMind は完璧な製品ではありません。
+むしろ、進化を続ける <b><color=#FF9E40>トレーニンググラウンド</color></b> のようなものです。
+<b><color=#4DB8FF>コードの明確さ</color></b> を意識しながら、
+<b>機能を強化</b> し、<b>体験を磨き上げる</b> ことを続けます。
+
+また、あなたと一緒に探求したいこともあります：
+• <b><color=#4DB8FF>プロトタイプ</color></b> から <b><color=#4DB8FF>実際に使えるもの</color></b> へとアイデアを発展させるにはどうすればよいか？
+• <b><color=#4DB8FF>複雑さ</color></b> と <b><color=#4DB8FF>保守性</color></b> のバランスをどう取るか？
+
+立ち寄ってくださりありがとうございます。
+ここがあなたの <b><color=#FF9E40>インスピレーションを少しでも刺激する場所</color></b> となりますように。
+","<size=150%><b><color=#4DB8FF>SynthMind · AI 크리에이티브 샌드박스에 오신 것을 환영합니다</color></b></size>
+저는 <b><color=#FF9E40>Yuankun Huang</color></b> 입니다.
+
+이 작은 프로젝트는 <b><color=#4DB8FF>호기심</color></b> 과 <b><color=#4DB8FF>연습하고자 하는 열망</color></b> 에서 시작되었습니다.
+<b><color=#4DB8FF>Unity 2022.3</color></b> 기반에서 <b><color=#4DB8FF>깨끗하고 모듈화된 아키텍처</color></b> 를 실험하며,
+기본적인 <b><color=#4DB8FF>현지화</color></b> 와 <b><color=#4DB8FF>Firebase 통합</color></b> 을 포함해,
+<b><color=#4DB8FF>일반적인 엔지니어링 실무</color></b> 를 실제로 적용하려고 노력하고 있습니다.
+
+더 좋은 방법이나 개선 아이디어가 있다면 꼭 알려주세요.
+
+SynthMind 는 완벽한 제품이 아닙니다.
+진화하는 <b><color=#FF9E40>훈련의 장</color></b> 에 더 가깝습니다.
+<b><color=#4DB8FF>코드의 명확성</color></b> 을 유지하면서,
+<b>기능을 강화</b> 하고 <b>경험을 다듬는</b> 작업을 계속하겠습니다.
+
+또한 함께 탐구하고 싶은 주제들이 있습니다:
+• <b><color=#4DB8FF>프로토타입</color></b> 아이디어를 <b><color=#4DB8FF>실제로 쓸 수 있는 것</color></b> 으로 발전시키는 방법은?
+• <b><color=#4DB8FF>복잡성</color></b> 과 <b><color=#4DB8FF>유지보수성</color></b> 의 균형을 어떻게 맞출까?
+
+방문해 주셔서 감사합니다.
+이곳이 당신에게 <b><color=#FF9E40>작은 영감을 불어넣는 곳</color></b> 이 되기를 바랍니다.
+"
+MainMenu_About_Content,"<size=150%><b>SynthMind – AI Sandbox Playground</b></size>
+
+A personal showcase project demonstrating
+<b><color=#4DB8FF>scalable Unity development</color></b>
+through a <b><color=#4DB8FF>clean, modular architecture</color></b>.
+Built with <b><color=#4DB8FF>Unity 2022.3</color></b>, SynthMind integrates
+<b><color=#4DB8FF>modern engineering practices</color></b> and
+<b><color=#4DB8FF>AI-powered interactions</color></b>
+to explore next-generation gameplay experiences.
+
+<b><color=#FFCC66>Key Highlights</color></b>
+• <b><color=#4DB8FF>Modular architecture</color></b> with dependency injection
+• <b><color=#4DB8FF>Addressable asset management</color></b> for efficient content delivery
+• <b><color=#4DB8FF>Multi-language localization</color></b> for a global audience
+• <b><color=#4DB8FF>Firebase integration</color></b> for backend services and analytics
+
+<b><color=#FFCC66>About the Creator</color></b>
+Created by <b><color=#FF9E40>Yuankun Huang</color></b>,
+a <b><color=#4DB8FF>senior Unity developer</color></b> passionate about
+<b><color=#4DB8FF>AI-integrated interactive experiences</color></b> and
+<b><color=#4DB8FF>scalable game architecture</color></b>.
+SynthMind serves as both a <b><color=#FF9E40>learning playground</color></b>
+and a <b><color=#4DB8FF>showcase of modern Unity engineering practices</color></b>.","<size=150%><b>心智合成 – AI 创意沙盒</b></size>
+
+一个个人展示项目，旨在呈现
+<b><color=#4DB8FF>可扩展的 Unity 开发实践</color></b>，
+采用 <b><color=#4DB8FF>简洁、模块化的架构设计</color></b>。
+项目基于 <b><color=#4DB8FF>Unity 2022.3</color></b> 构建，
+融合 <b><color=#4DB8FF>现代工程理念</color></b>
+与 <b><color=#4DB8FF>AI 驱动的交互探索</color></b>，
+打造下一代创意体验。
+
+<b><color=#FFCC66>核心特色</color></b>
+• <b><color=#4DB8FF>模块化架构</color></b> + 依赖注入，实现高可维护性与可扩展性
+• <b><color=#4DB8FF>可寻址资产管理</color></b>，提升内容加载与更新效率
+• <b><color=#4DB8FF>多语言本地化支持</color></b>，面向全球玩家
+• <b><color=#4DB8FF>Firebase 集成</color></b>，提供后端服务与数据分析
+
+<b><color=#FFCC66>关于作者</color></b>
+本项目由 <b><color=#FF9E40>Yuankun Huang</color></b> 创建，
+他是一名专注于 <b><color=#4DB8FF>Unity 高级开发</color></b> 的开发者，
+热衷于探索 <b><color=#4DB8FF>AI 驱动的交互式体验</color></b>
+与 <b><color=#4DB8FF>可扩展的游戏架构</color></b>。
+“心智合成”既是一个<b><color=#FF9E40>学习实验场</color></b>，
+也是一个 <b><color=#4DB8FF>现代 Unity 工程实践的展示</color></b>。","<size=150%><b>SynthMind – AI サンドボックス プレイグラウンド</b></size>
+
+個人ショーケースプロジェクトとして、
+<b><color=#4DB8FF>スケーラブルな Unity 開発</color></b>を実現し、
+<b><color=#4DB8FF>クリーンでモジュール化されたアーキテクチャ</color></b>を採用しています。
+<b><color=#4DB8FF>Unity 2022.3</color></b> をベースに構築され、
+<b><color=#4DB8FF>現代的なエンジニアリング手法</color></b>と
+<b><color=#4DB8FF>AI 駆動のインタラクション</color></b>を融合し、
+次世代のゲームプレイ体験を探求しています。
+
+<b><color=#FFCC66>主な特徴</color></b>
+• <b><color=#4DB8FF>モジュラーアーキテクチャ</color></b> + 依存性注入による高い保守性と拡張性  
+• <b><color=#4DB8FF>アドレス可能なアセット管理</color></b>による効率的なコンテンツ配信  
+• <b><color=#4DB8FF>多言語ローカリゼーション</color></b>で世界中のプレイヤーに対応  
+• <b><color=#4DB8FF>Firebase 統合</color></b>によるバックエンドサービスとデータ分析
+
+<b><color=#FFCC66>作者について</color></b>
+本プロジェクトは <b><color=#FF9E40>Yuankun Huang</color></b> によって制作されました。
+彼は <b><color=#4DB8FF>Unity 上級開発</color></b>に特化した開発者で、
+<b><color=#4DB8FF>AI 統合型インタラクティブ体験</color></b>や
+<b><color=#4DB8FF>スケーラブルなゲームアーキテクチャ</color></b>に情熱を注いでいます。
+SynthMind は<b><color=#FF9E40>学習の場</color></b>であると同時に、
+<b><color=#4DB8FF>最新の Unity エンジニアリング実践のショーケース</color></b>でもあります。
+","<size=150%><b>SynthMind – AI 샌드박스 플레이그라운드</b></size>
+
+개인 쇼케이스 프로젝트로,
+<b><color=#4DB8FF>확장 가능한 Unity 개발</color></b>을 시연하며
+<b><color=#4DB8FF>깔끔하고 모듈화된 아키텍처</color></b>를 적용했습니다.
+<b><color=#4DB8FF>Unity 2022.3</color></b> 기반으로 구축되었으며,
+<b><color=#4DB8FF>현대적인 엔지니어링 기법</color></b>과
+<b><color=#4DB8FF>AI 기반 상호작용</color></b>을 통합하여
+차세대 게임 플레이 경험을 탐구하고 있습니다.
+
+<b><color=#FFCC66>핵심 특징</color></b>
+• <b><color=#4DB8FF>모듈형 아키텍처</color></b> + 의존성 주입을 통한 높은 유지보수성과 확장성  
+• <b><color=#4DB8FF>주소 지정 가능한 자산 관리</color></b>로 효율적인 콘텐츠 제공  
+• <b><color=#4DB8FF>다국어 현지화 지원</color></b>으로 전 세계 플레이어 대상  
+• <b><color=#4DB8FF>Firebase 통합</color></b>을 통한 백엔드 서비스 및 데이터 분석
+
+<b><color=#FFCC66>제작자 소개</color></b>
+이 프로젝트는 <b><color=#FF9E40>Yuankun Huang</color></b>이 제작했습니다.
+그는 <b><color=#4DB8FF>Unity 고급 개발</color></b>에 특화된 개발자이며,
+<b><color=#4DB8FF>AI 통합형 상호작용 경험</color></b>과
+<b><color=#4DB8FF>확장 가능한 게임 아키텍처</color></b>에 열정을 가지고 있습니다.
+SynthMind 는 <b><color=#FF9E40>학습의 장</color></b>이자,
+<b><color=#4DB8FF>최신 Unity 엔지니어링 실무의 쇼케이스</color></b>입니다.
+"

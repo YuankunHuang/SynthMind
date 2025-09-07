@@ -1,0 +1,157 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
+  m_Name: Localization_ko
+  m_EditorClassIdentifier: 
+  m_LocaleId:
+    m_Code: ko
+  m_SharedData: {fileID: 11400000, guid: 38f2989028b243842a55eca132e84e1b, type: 2}
+  m_Metadata:
+    m_Items: []
+  m_TableData:
+  - m_Id: 1416685256704
+    m_Localized: "\uC0AC\uC6A9\uC790 \uC774\uB984"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 309938454528
+    m_Localized: "SynthMind - AI \uC0CC\uB4DC\uBC15\uC2A4 \uD50C\uB808\uC774\uADF8\uB77C\uC6B4\uB4DC"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1617621778432
+    m_Localized: "\uBE44\uBC00\uBC88\uD638"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2600393342976
+    m_Localized: "\uB85C\uADF8\uC778 \uC131\uACF5!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2891364794368
+    m_Localized: "\uB85C\uADF8\uC778 \uC2E4\uD328: {0}"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2339406970880
+    m_Localized: "\uC0AC\uC6A9\uC790 \uC774\uB984\uACFC \uBE44\uBC00\uBC88\uD638\uB294
+      \uBE44\uC6CC \uB458 \uC218 \uC5C6\uC2B5\uB2C8\uB2E4."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2273388625920
+    m_Localized: "\uB85C\uADF8\uC778"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11849990289309696
+    m_Localized: "\uD648"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11849990293504000
+    m_Localized: "\uCC44\uD305"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11849990293504001
+    m_Localized: "\uC0CC\uB4DC\uBC15\uC2A4"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11849990293504002
+    m_Localized: "\uC124\uC815"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11849990293504003
+    m_Localized: "\uC571 \uC18C\uAC1C"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11856416587988992
+    m_Localized: "\uC5B8\uC5B4 \uC124\uC815"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11887847922024448
+    m_Localized: "<size=150%><b><color=#4DB8FF>SynthMind \xB7 AI \uD06C\uB9AC\uC5D0\uC774\uD2F0\uBE0C
+      \uC0CC\uB4DC\uBC15\uC2A4\uC5D0 \uC624\uC2E0 \uAC83\uC744 \uD658\uC601\uD569\uB2C8\uB2E4</color></b></size>\n\uC800\uB294
+      <b><color=#FF9E40>Yuankun Huang</color></b> \uC785\uB2C8\uB2E4.\n\n\uC774 \uC791\uC740
+      \uD504\uB85C\uC81D\uD2B8\uB294 <b><color=#4DB8FF>\uD638\uAE30\uC2EC</color></b>
+      \uACFC <b><color=#4DB8FF>\uC5F0\uC2B5\uD558\uACE0\uC790 \uD558\uB294 \uC5F4\uB9DD</color></b>
+      \uC5D0\uC11C \uC2DC\uC791\uB418\uC5C8\uC2B5\uB2C8\uB2E4.\n<b><color=#4DB8FF>Unity
+      2022.3</color></b> \uAE30\uBC18\uC5D0\uC11C <b><color=#4DB8FF>\uAE68\uB057\uD558\uACE0
+      \uBAA8\uB4C8\uD654\uB41C \uC544\uD0A4\uD14D\uCC98</color></b> \uB97C \uC2E4\uD5D8\uD558\uBA70,\n\uAE30\uBCF8\uC801\uC778
+      <b><color=#4DB8FF>\uD604\uC9C0\uD654</color></b> \uC640 <b><color=#4DB8FF>Firebase
+      \uD1B5\uD569</color></b> \uC744 \uD3EC\uD568\uD574,\n<b><color=#4DB8FF>\uC77C\uBC18\uC801\uC778
+      \uC5D4\uC9C0\uB2C8\uC5B4\uB9C1 \uC2E4\uBB34</color></b> \uB97C \uC2E4\uC81C\uB85C
+      \uC801\uC6A9\uD558\uB824\uACE0 \uB178\uB825\uD558\uACE0 \uC788\uC2B5\uB2C8\uB2E4.\n\n\uB354
+      \uC88B\uC740 \uBC29\uBC95\uC774\uB098 \uAC1C\uC120 \uC544\uC774\uB514\uC5B4\uAC00
+      \uC788\uB2E4\uBA74 \uAF2D \uC54C\uB824\uC8FC\uC138\uC694.\n\nSynthMind \uB294
+      \uC644\uBCBD\uD55C \uC81C\uD488\uC774 \uC544\uB2D9\uB2C8\uB2E4.\n\uC9C4\uD654\uD558\uB294
+      <b><color=#FF9E40>\uD6C8\uB828\uC758 \uC7A5</color></b> \uC5D0 \uB354 \uAC00\uAE5D\uC2B5\uB2C8\uB2E4.\n<b><color=#4DB8FF>\uCF54\uB4DC\uC758
+      \uBA85\uD655\uC131</color></b> \uC744 \uC720\uC9C0\uD558\uBA74\uC11C,\n<b>\uAE30\uB2A5\uC744
+      \uAC15\uD654</b> \uD558\uACE0 <b>\uACBD\uD5D8\uC744 \uB2E4\uB4EC\uB294</b>
+      \uC791\uC5C5\uC744 \uACC4\uC18D\uD558\uACA0\uC2B5\uB2C8\uB2E4.\n\n\uB610\uD55C
+      \uD568\uAED8 \uD0D0\uAD6C\uD558\uACE0 \uC2F6\uC740 \uC8FC\uC81C\uB4E4\uC774
+      \uC788\uC2B5\uB2C8\uB2E4:\n\u2022 <b><color=#4DB8FF>\uD504\uB85C\uD1A0\uD0C0\uC785</color></b>
+      \uC544\uC774\uB514\uC5B4\uB97C <b><color=#4DB8FF>\uC2E4\uC81C\uB85C \uC4F8
+      \uC218 \uC788\uB294 \uAC83</color></b> \uC73C\uB85C \uBC1C\uC804\uC2DC\uD0A4\uB294
+      \uBC29\uBC95\uC740?\n\u2022 <b><color=#4DB8FF>\uBCF5\uC7A1\uC131</color></b>
+      \uACFC <b><color=#4DB8FF>\uC720\uC9C0\uBCF4\uC218\uC131</color></b> \uC758
+      \uADE0\uD615\uC744 \uC5B4\uB5BB\uAC8C \uB9DE\uCD9C\uAE4C?\n\n\uBC29\uBB38\uD574
+      \uC8FC\uC154\uC11C \uAC10\uC0AC\uD569\uB2C8\uB2E4.\n\uC774\uACF3\uC774 \uB2F9\uC2E0\uC5D0\uAC8C
+      <b><color=#FF9E40>\uC791\uC740 \uC601\uAC10\uC744 \uBD88\uC5B4\uB123\uB294
+      \uACF3</color></b> \uC774 \uB418\uAE30\uB97C \uBC14\uB78D\uB2C8\uB2E4."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11906114577072128
+    m_Localized: "<size=150%><b>SynthMind \u2013 AI \uC0CC\uB4DC\uBC15\uC2A4 \uD50C\uB808\uC774\uADF8\uB77C\uC6B4\uB4DC</b></size>\n\n\uAC1C\uC778
+      \uC1FC\uCF00\uC774\uC2A4 \uD504\uB85C\uC81D\uD2B8\uB85C,\n<b><color=#4DB8FF>\uD655\uC7A5
+      \uAC00\uB2A5\uD55C Unity \uAC1C\uBC1C</color></b>\uC744 \uC2DC\uC5F0\uD558\uBA70\n<b><color=#4DB8FF>\uAE54\uB054\uD558\uACE0
+      \uBAA8\uB4C8\uD654\uB41C \uC544\uD0A4\uD14D\uCC98</color></b>\uB97C \uC801\uC6A9\uD588\uC2B5\uB2C8\uB2E4.\n<b><color=#4DB8FF>Unity
+      2022.3</color></b> \uAE30\uBC18\uC73C\uB85C \uAD6C\uCD95\uB418\uC5C8\uC73C\uBA70,\n<b><color=#4DB8FF>\uD604\uB300\uC801\uC778
+      \uC5D4\uC9C0\uB2C8\uC5B4\uB9C1 \uAE30\uBC95</color></b>\uACFC\n<b><color=#4DB8FF>AI
+      \uAE30\uBC18 \uC0C1\uD638\uC791\uC6A9</color></b>\uC744 \uD1B5\uD569\uD558\uC5EC\n\uCC28\uC138\uB300
+      \uAC8C\uC784 \uD50C\uB808\uC774 \uACBD\uD5D8\uC744 \uD0D0\uAD6C\uD558\uACE0
+      \uC788\uC2B5\uB2C8\uB2E4.\n\n<b><color=#FFCC66>\uD575\uC2EC \uD2B9\uC9D5</color></b>\n\u2022
+      <b><color=#4DB8FF>\uBAA8\uB4C8\uD615 \uC544\uD0A4\uD14D\uCC98</color></b> +
+      \uC758\uC874\uC131 \uC8FC\uC785\uC744 \uD1B5\uD55C \uB192\uC740 \uC720\uC9C0\uBCF4\uC218\uC131\uACFC
+      \uD655\uC7A5\uC131  \n\u2022 <b><color=#4DB8FF>\uC8FC\uC18C \uC9C0\uC815 \uAC00\uB2A5\uD55C
+      \uC790\uC0B0 \uAD00\uB9AC</color></b>\uB85C \uD6A8\uC728\uC801\uC778 \uCF58\uD150\uCE20
+      \uC81C\uACF5  \n\u2022 <b><color=#4DB8FF>\uB2E4\uAD6D\uC5B4 \uD604\uC9C0\uD654
+      \uC9C0\uC6D0</color></b>\uC73C\uB85C \uC804 \uC138\uACC4 \uD50C\uB808\uC774\uC5B4
+      \uB300\uC0C1  \n\u2022 <b><color=#4DB8FF>Firebase \uD1B5\uD569</color></b>\uC744
+      \uD1B5\uD55C \uBC31\uC5D4\uB4DC \uC11C\uBE44\uC2A4 \uBC0F \uB370\uC774\uD130
+      \uBD84\uC11D\n\n<b><color=#FFCC66>\uC81C\uC791\uC790 \uC18C\uAC1C</color></b>\n\uC774
+      \uD504\uB85C\uC81D\uD2B8\uB294 <b><color=#FF9E40>Yuankun Huang</color></b>\uC774
+      \uC81C\uC791\uD588\uC2B5\uB2C8\uB2E4.\n\uADF8\uB294 <b><color=#4DB8FF>Unity
+      \uACE0\uAE09 \uAC1C\uBC1C</color></b>\uC5D0 \uD2B9\uD654\uB41C \uAC1C\uBC1C\uC790\uC774\uBA70,\n<b><color=#4DB8FF>AI
+      \uD1B5\uD569\uD615 \uC0C1\uD638\uC791\uC6A9 \uACBD\uD5D8</color></b>\uACFC\n<b><color=#4DB8FF>\uD655\uC7A5
+      \uAC00\uB2A5\uD55C \uAC8C\uC784 \uC544\uD0A4\uD14D\uCC98</color></b>\uC5D0
+      \uC5F4\uC815\uC744 \uAC00\uC9C0\uACE0 \uC788\uC2B5\uB2C8\uB2E4.\nSynthMind
+      \uB294 <b><color=#FF9E40>\uD559\uC2B5\uC758 \uC7A5</color></b>\uC774\uC790,\n<b><color=#4DB8FF>\uCD5C\uC2E0
+      Unity \uC5D4\uC9C0\uB2C8\uC5B4\uB9C1 \uC2E4\uBB34\uC758 \uC1FC\uCF00\uC774\uC2A4</color></b>\uC785\uB2C8\uB2E4."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11946368000425984
+    m_Localized: "\uC0AC\uC6A9\uC790 \uC774\uB984\uC744 \uC785\uB825\uD558\uC138\uC694\u2026"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11946505238052864
+    m_Localized: "\uBE44\uBC00\uBC88\uD638\uB97C \uC785\uB825\uD558\uC138\uC694\u2026"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11950929176002560
+    m_Localized: "\uD504\uB85C\uD544"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11951980386025472
+    m_Localized: "\uC5EC\uAE30\uB294 \uB2F9\uC2E0\uC758 \uD504\uB85C\uD544 \uD398\uC774\uC9C0\uC785\uB2C8\uB2E4.
+      \uC55E\uC73C\uB85C \uC774\uACF3\uC5D0\uC11C \uC544\uBC14\uD0C0\uB97C \uBCC0\uACBD\uD558\uAC70\uB098,
+      \uAC1C\uC131 \uC788\uB294 \uC11C\uBA85\uC744 \uB0A8\uAE30\uAC70\uB098, \uBC30\uC9C0\uB97C
+      \uC804\uC2DC\uD558\uB294 \uB4F1\uC758 \uAE30\uB2A5\uC744 \uCD94\uAC00\uD560
+      \uC218 \uC788\uC2B5\uB2C8\uB2E4."
+    m_Metadata:
+      m_Items: []
+  references:
+    version: 2
+    RefIds: []

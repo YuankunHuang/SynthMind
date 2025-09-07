@@ -50,5 +50,23 @@
         "Type": "String"
       }
     ]
+  },
+  "Language": {
+    "FieldCount": 3,
+    "RowCount": 4,
+    "Fields": [
+      {
+        "Name": "id",
+        "Type": "Int"
+      },
+      {
+        "Name": "langCode",
+        "Type": "String"
+      },
+      {
+        "Name": "icon",
+        "Type": "String"
+      }
+    ]
   }
 }

@@ -23,7 +23,7 @@ MonoBehaviour:
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 7a605b0b854d79249a7f6b8619576ffd
-    m_Address: Assets/Addressables/WindowAttributeData/WindowAttributeData_PlayerInfoWindow.asset
+    m_Address: Assets/Addressables/WindowAttributeData/WindowAttributeData_ProfileWindow.asset
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
