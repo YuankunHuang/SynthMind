@@ -386,14 +386,14 @@ namespace YuankunHuang.Unity.Editor
             var uiGroup = settings.FindGroup(UI_GROUP_NAME);
             if (uiGroup == null)
             {
-                Debug.LogWarning($"Group '{UI_GROUP_NAME}' not found, creating it...");
+                LogHelper.LogWarning($"Group '{UI_GROUP_NAME}' not found, creating it...");
                 uiGroup = settings.CreateGroup(UI_GROUP_NAME, false, false, true, null);
             }
 
             var attributeGroup = settings.FindGroup(ATTRIBUTE_DATA_GROUP_NAME);
             if (attributeGroup == null)
             {
-                Debug.LogWarning($"Group '{ATTRIBUTE_DATA_GROUP_NAME}' not found, creating it...");
+                LogHelper.LogWarning($"Group '{ATTRIBUTE_DATA_GROUP_NAME}' not found, creating it...");
                 attributeGroup = settings.CreateGroup(ATTRIBUTE_DATA_GROUP_NAME, false, false, true, null);
             }
 

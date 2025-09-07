@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using System.Linq;
+using YuankunHuang.Unity.Core;
 
 namespace YuankunHuang.Unity.AssetCore.Editor
 {
@@ -192,7 +193,7 @@ namespace YuankunHuang.Unity.AssetCore.Editor
                     }
                     else
                     {
-                        Debug.LogWarning($"Asset at path {assetPath} could not be loaded.");
+                        LogHelper.LogWarning($"Asset at path {assetPath} could not be loaded.");
                     }
                 }
             }

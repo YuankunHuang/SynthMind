@@ -88,7 +88,7 @@ namespace YuankunHuang.Unity.AssetCore
         {
             if (IsInitialized)
             {
-                Debug.LogWarning($"AssetManager is already initialized.");
+                LogHelper.LogWarning($"AssetManager is already initialized.");
                 return;
             }
 
