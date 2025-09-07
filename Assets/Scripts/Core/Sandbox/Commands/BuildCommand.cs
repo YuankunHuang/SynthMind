@@ -5,7 +5,7 @@ using UnityEngine;
 using YuankunHuang.Unity.Core;
 using YuankunHuang.Unity.ModuleCore;
 
-namespace YuankunHuang.Unity.CommandCore
+namespace YuankunHuang.Unity.SandboxCore
 {
     public class BuildCommand : IGameCommand
     {

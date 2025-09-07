@@ -33,11 +33,6 @@ namespace YuankunHuang.Unity.HotUpdate
             Avatar = 5,
         }
 
-        private enum ExtraTMP
-        {
-            Title = 0,
-        }
-
         private enum ExtraBtn
         {
             Home = 0,
@@ -49,8 +44,6 @@ namespace YuankunHuang.Unity.HotUpdate
 
         private Dictionary<Page, IMainMenuWidgetController> _widgetControllers;
         private GeneralWidgetConfig _avatarConfig;
-
-        private TMP_Text _titleTxt;
 
         private GeneralButton _homeBtn;
         private GeneralButton _chatBtn;
@@ -80,8 +73,6 @@ namespace YuankunHuang.Unity.HotUpdate
             }
             _avatarConfig = Config.ExtraWidgetConfigList[(int)ExtraConfig.Avatar];
 
-            _titleTxt = Config.ExtraTextMeshProList[(int)ExtraTMP.Title];
-
             _homeBtn = Config.ExtraButtonList[(int)ExtraBtn.Home];
             _chatBtn = Config.ExtraButtonList[(int)ExtraBtn.Chat];
             _sandboxBtn = Config.ExtraButtonList[(int)ExtraBtn.Sandbox];
@@ -100,10 +91,6 @@ namespace YuankunHuang.Unity.HotUpdate
             if (state == WindowShowState.New)
             {
                 ShowWidget(Page.Home, true);
-            }
-            else
-            {
-                ShowWidget(_currentPage, true);
             }
 
             var self = ModuleRegistry.Get<IAccountManager>().Self;

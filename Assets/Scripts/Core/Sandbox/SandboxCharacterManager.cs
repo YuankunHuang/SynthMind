@@ -1,8 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using YuankunHuang.Unity.Core;
 
-namespace YuankunHuang.Unity.Core
+namespace YuankunHuang.Unity.SandboxCore
 {
     public class SandboxCharacterManager : MonoBehaviour
     {

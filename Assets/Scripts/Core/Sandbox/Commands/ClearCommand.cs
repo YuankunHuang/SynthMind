@@ -4,7 +4,7 @@ using UnityEngine;
 using YuankunHuang.Unity.Core;
 using YuankunHuang.Unity.ModuleCore;
 
-namespace YuankunHuang.Unity.CommandCore
+namespace YuankunHuang.Unity.SandboxCore
 {
     public class ClearCommand : IGameCommand
     {
@@ -13,7 +13,8 @@ namespace YuankunHuang.Unity.CommandCore
 
         public bool CanExecute(string[] parameters)
         {
-            return parameters.Length >= 1 && parameters[1].ToLower() == "all" &&
+            return parameters.Length == 0 ||
+                parameters.Length >= 1 && parameters[0].ToLower() == "all" &&
                    SandboxManager.Instance != null;
         }
 

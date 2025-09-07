@@ -46,6 +46,45 @@ MonoBehaviour:
     m_Localized: 'Login failed: {0}'
     m_Metadata:
       m_Items: []
+  - m_Id: 11849990289309696
+    m_Localized: HOME
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11849990293504000
+    m_Localized: CHAT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11849990293504001
+    m_Localized: SANDBOX
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11849990293504002
+    m_Localized: SETTING
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11849990293504003
+    m_Localized: ABOUT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11856416587988992
+    m_Localized: Language Setting
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11887847922024448
+    m_Localized: "Welcome to SynthMind \xB7 AI Creative Sandbox. I\u2019m Yuankun
+      Huang.\n\nThis little project grew out of curiosity and a desire to practice.
+      I\u2019m experimenting with a clean, modular architecture on Unity 2022.3,
+      with basic localization and Firebase integration\u2014trying to put common
+      engineering practices into real use. If you spot a better approach or have
+      ideas for improvement, I\u2019d love to hear them.\n\nSynthMind isn\u2019t
+      a perfect product; it\u2019s more like a training ground that keeps getting
+      refined. I\u2019ll keep strengthening the features and polishing the experience
+      while staying mindful of code clarity.\n\nI also hope we can explore together:
+      how do we take an idea from prototype to something usable? How do we balance
+      complexity and maintainability?\n\nThanks for stopping by\u2014may this place
+      spark a little inspiration for you."
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

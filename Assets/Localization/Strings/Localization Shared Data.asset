@@ -43,6 +43,38 @@ MonoBehaviour:
     m_Key: MainMenu_Login
     m_Metadata:
       m_Items: []
+  - m_Id: 11840375828856832
+    m_Key: Main
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11849990289309696
+    m_Key: MainMenu_Home
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11849990293504000
+    m_Key: MainMenu_Chat
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11849990293504001
+    m_Key: MainMenu_SandBox
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11849990293504002
+    m_Key: MainMenu_Setting
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11849990293504003
+    m_Key: MainMenu_About
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11856416587988992
+    m_Key: MainMenu_Setting_LanguageTitle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11887847922024448
+    m_Key: MainMenu_Home_Intro
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

@@ -1,6 +1,7 @@
 using System.Text.RegularExpressions;
+using YuankunHuang.Unity.Core;
 
-namespace YuankunHuang.Unity.Core
+namespace YuankunHuang.Unity.SandboxCore
 {
     public static class NaturalLanguagePatterns
     {

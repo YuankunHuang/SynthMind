@@ -7,8 +7,9 @@ using YuankunHuang.Unity.UICore;
 using YuankunHuang.Unity.CameraCore;
 using YuankunHuang.Unity.AccountCore;
 using YuankunHuang.Unity.NetworkCore;
-using YuankunHuang.Unity.CommandCore;
+using YuankunHuang.Unity.SandboxCore;
 using YuankunHuang.Unity.LocalizationCore;
+using YuankunHuang.Unity.FirebaseCore;
 
 namespace YuankunHuang.Unity.Core
 {

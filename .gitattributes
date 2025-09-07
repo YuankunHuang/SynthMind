@@ -1,2 +1,6 @@
 *.bundle filter=lfs diff=lfs merge=lfs -text
 *.so filter=lfs diff=lfs merge=lfs -text
+Assets/Art/Fonts/*.ttf filter=lfs diff=lfs merge=lfs -text
+Assets/Art/Fonts/*.otf filter=lfs diff=lfs merge=lfs -text
+Assets/Art/Fonts/*.asset filter=lfs diff=lfs merge=lfs -text
+Assets/Art/Fonts/*.png filter=lfs diff=lfs merge=lfs -text

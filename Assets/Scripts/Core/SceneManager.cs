@@ -72,6 +72,7 @@ namespace YuankunHuang.Unity.Core
                 if (!_sceneHandles.TryGetValue(key, out handle))
                 {
                     LogHelper.LogError($"[ResManager]::UnloadSceneAsync: Trying to unload a scene not loaded: {key}");
+                    onFinished?.Invoke();
                     return;
                 }
             }
@@ -89,6 +90,8 @@ namespace YuankunHuang.Unity.Core
                     }
                 }
             }
+
+            onFinished?.Invoke();
         }
 
         public static bool IsSceneLoaded(string key)

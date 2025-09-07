@@ -11,6 +11,7 @@ using YuankunHuang.Unity.UICore;
 using YuankunHuang.Unity.ModuleCore;
 using YuankunHuang.Unity.AccountCore;
 using YuankunHuang.Unity.NetworkCore;
+using YuankunHuang.Unity.FirebaseCore;
 
 namespace YuankunHuang.Unity.HotUpdate
 {

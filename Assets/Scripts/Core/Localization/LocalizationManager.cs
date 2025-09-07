@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
-using YuankunHuang.Unity.LocalizationCore;
+using YuankunHuang.Unity.Core;
 
-namespace YuankunHuang.Unity.Core
+namespace YuankunHuang.Unity.LocalizationCore
 {
     public class LocalizationManager : ILocalizationManager
     {
@@ -25,6 +25,8 @@ namespace YuankunHuang.Unity.Core
                 
                 await LocalizationSettings.InitializationOperation.Task;
                 LocalizationSettings.SelectedLocaleChanged += OnSelectedLocaleChanged;
+                
+                LoadSavedLanguage();
                 
                 IsInitialized = true;
                 LogHelper.Log($"[SimpleLocalizationManager] Initialized. Current language: {CurrentLanguage}");
@@ -51,15 +53,21 @@ namespace YuankunHuang.Unity.Core
 
             try
             {
-                var localizedString = new LocalizedString(table, key);
-                var handle = localizedString.GetLocalizedStringAsync();
-                
-                if (handle.IsDone && handle.Status == UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationStatus.Succeeded)
+                var stringTableCollection = LocalizationSettings.StringDatabase.GetTable(table);
+                if (stringTableCollection == null)
                 {
-                    return handle.Result ?? key;
+                    LogHelper.LogWarning($"[SimpleLocalizationManager] Table '{table}' not found");
+                    return key;
                 }
-                
-                return key;
+
+                var entry = stringTableCollection.GetEntry(key);
+                if (entry == null)
+                {
+                    LogHelper.LogWarning($"[SimpleLocalizationManager] Key '{key}' not found in table '{table}'");
+                    return key;
+                }
+
+                return entry.GetLocalizedString() ?? key;
             }
             catch (Exception e)
             {
@@ -112,6 +120,8 @@ namespace YuankunHuang.Unity.Core
                 }
 
                 LocalizationSettings.SelectedLocale = targetLocale;
+                LocalizationPreferences.SaveLanguage(langCode);
+                
                 await Task.Yield();
             }
             catch (Exception e)
@@ -172,6 +182,31 @@ namespace YuankunHuang.Unity.Core
         {
             var task = SetLanguageAsync(langCode);
             yield return new WaitUntil(() => task.IsCompleted);
+        }
+
+        private void LoadSavedLanguage()
+        {
+            try
+            {
+                var savedLanguage = LocalizationPreferences.GetSavedLanguage();
+                LogHelper.Log($"[SimpleLocalizationManager] Loading saved language: {savedLanguage}");
+                
+                var targetLocale = LocalizationSettings.AvailableLocales.Locales
+                    .FirstOrDefault(locale => locale.Identifier.Code == savedLanguage);
+                
+                if (targetLocale != null)
+                {
+                    LocalizationSettings.SelectedLocale = targetLocale;
+                }
+                else
+                {
+                    LogHelper.LogWarning($"[SimpleLocalizationManager] Saved language '{savedLanguage}' not found, using default");
+                }
+            }
+            catch (Exception e)
+            {
+                LogHelper.LogError($"[SimpleLocalizationManager] Failed to load saved language: {e.Message}");
+            }
         }
 
         private void OnSelectedLocaleChanged(Locale locale)

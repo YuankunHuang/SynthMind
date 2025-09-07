@@ -5,7 +5,7 @@ using UnityEngine;
 using YuankunHuang.Unity.ModuleCore;
 using YuankunHuang.Unity.Core;
 
-namespace YuankunHuang.Unity.CommandCore
+namespace YuankunHuang.Unity.SandboxCore
 {
     public class CommandManager : ICommandManager
     {

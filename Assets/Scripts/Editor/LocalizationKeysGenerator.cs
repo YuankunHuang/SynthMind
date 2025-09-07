@@ -50,6 +50,9 @@ namespace YuankunHuang.Unity.Editor
             var sb = new StringBuilder();
             
             sb.AppendLine("// Auto-generated LocalizationKeys");
+            sb.AppendLine("using System.Collections.Generic;");
+            sb.AppendLine("using System.Reflection;");
+            sb.AppendLine();
             sb.AppendLine("namespace YuankunHuang.Unity.Core");
             sb.AppendLine("{");
             sb.AppendLine("    public static class LocalizationKeys");
@@ -61,6 +64,27 @@ namespace YuankunHuang.Unity.Editor
                 sb.AppendLine($"        public const string {constantName} = \"{key}\";");
             }
             
+            sb.AppendLine();
+            sb.AppendLine("        private static List<string> _allKeys;");
+            sb.AppendLine();
+            sb.AppendLine("        public static List<string> GetAllKeys()");
+            sb.AppendLine("        {");
+            sb.AppendLine("            if (_allKeys == null)");
+            sb.AppendLine("            {");
+            sb.AppendLine("                _allKeys = new List<string>();");
+            sb.AppendLine("                var fields = typeof(LocalizationKeys).GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy);");
+            sb.AppendLine("                ");
+            sb.AppendLine("                foreach (var field in fields)");
+            sb.AppendLine("                {");
+            sb.AppendLine("                    if (field.IsLiteral && !field.IsInitOnly && field.FieldType == typeof(string))");
+            sb.AppendLine("                    {");
+            sb.AppendLine("                        _allKeys.Add((string)field.GetValue(null));");
+            sb.AppendLine("                    }");
+            sb.AppendLine("                }");
+            sb.AppendLine("            }");
+            sb.AppendLine("            ");
+            sb.AppendLine("            return _allKeys;");
+            sb.AppendLine("        }");
             sb.AppendLine("    }");
             sb.AppendLine("}");
             

@@ -121,8 +121,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
-  pressedScale: 0.9
-  animationDuration: 0.05
+  _enableScaleAnimation: 1
+  _pressedScale: 0.9
+  _animationDuration: 0.05
 --- !u!1 &7045059197281658038
 GameObject:
   m_ObjectHideFlags: 0
@@ -158,7 +159,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 200, y: 50}
+  m_SizeDelta: {x: 280, y: 80}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7557410259187150569
 CanvasRenderer:
@@ -190,8 +191,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: HOME
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8c036272739173b42b9feb5f186ed234, type: 2}
-  m_sharedMaterial: {fileID: 2233128477750579952, guid: 8c036272739173b42b9feb5f186ed234, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 7d1b0780af0202847906164e0552fe70, type: 2}
+  m_sharedMaterial: {fileID: 8873699476137983420, guid: 7d1b0780af0202847906164e0552fe70, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []

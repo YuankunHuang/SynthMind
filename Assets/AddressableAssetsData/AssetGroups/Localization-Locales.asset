@@ -18,13 +18,13 @@ MonoBehaviour:
   m_GUID: e049c156ee698a24f812e570df072364
   m_SerializeEntries:
   - m_GUID: ee6ec177b0b56394a8fd963511604894
-    m_Address: Chinese (Simplified) (zh-Hans)
+    m_Address: "\u7B80\u4F53\u4E2D\u6587"
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: f7f2ba46864791047b125802010819f5
-    m_Address: English (en)
+    m_Address: English
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale

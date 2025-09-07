@@ -6,3 +6,8 @@ MainMenu_Notice_Success,Login successful!,登录成功！
 MainMenu_Notice_Failed,Login failed: {0},登录失败：{0}
 MainMenu_Notice_EmptyUsernameOrPassword,Username and password cannot be empty.,用户名或密码不能为空
 MainMenu_Login,LOGIN,登录
+MainMenu_Home,HOME,首页
+MainMenu_Chat,CHAT,会话
+MainMenu_SandBox,SANDBOX,沙盒
+MainMenu_Setting,SETTING,设置
+MainMenu_About,ABOUT,关于本应用

@@ -68,6 +68,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _canvasGroup: {fileID: 384727579222700735}
+  _root: {fileID: 0}
   _extraWidgetConfigList: []
   _extraRectTransformList: []
   _extraTMPTextList:
@@ -217,8 +218,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: dfasdffafsdafsadfsafdas
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8c036272739173b42b9feb5f186ed234, type: 2}
-  m_sharedMaterial: {fileID: 2233128477750579952, guid: 8c036272739173b42b9feb5f186ed234, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 7d1b0780af0202847906164e0552fe70, type: 2}
+  m_sharedMaterial: {fileID: 8873699476137983420, guid: 7d1b0780af0202847906164e0552fe70, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -371,8 +372,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: ' dfdsa fsadf sdafd saf asf sdafasfsadfdsfsdaf sdaf asfsdaf da'
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8c036272739173b42b9feb5f186ed234, type: 2}
-  m_sharedMaterial: {fileID: 2233128477750579952, guid: 8c036272739173b42b9feb5f186ed234, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 1c56f46de65198a42b8eb910a456b8a6, type: 2}
+  m_sharedMaterial: {fileID: 1402184050425919463, guid: 1c56f46de65198a42b8eb910a456b8a6, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []

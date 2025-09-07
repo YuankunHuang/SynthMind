@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace YuankunHuang.Unity.Core
+namespace YuankunHuang.Unity.UICore
 {
     public enum GridLayoutType
     {

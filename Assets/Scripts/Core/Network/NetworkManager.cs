@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using YuankunHuang.Unity.Core;
 using YuankunHuang.Unity.ModuleCore;
 using YuankunHuang.Unity.AccountCore;
+using YuankunHuang.Unity.FirebaseCore;
 
 namespace YuankunHuang.Unity.NetworkCore
 {

@@ -4,8 +4,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.UI;
+using YuankunHuang.Unity.Core;
 
-namespace YuankunHuang.Unity.Core
+namespace YuankunHuang.Unity.SandboxCore
 {
     public class SandboxManager : MonoBehaviour
     {

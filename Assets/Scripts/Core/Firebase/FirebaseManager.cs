@@ -6,8 +6,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
+using YuankunHuang.Unity.Core;
 
-namespace YuankunHuang.Unity.Core
+namespace YuankunHuang.Unity.FirebaseCore
 {
     public class FirebaseManager
     {
