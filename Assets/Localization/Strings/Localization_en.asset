@@ -71,18 +71,42 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 11887847922024448
-    m_Localized: "Welcome to SynthMind \xB7 AI Creative Sandbox. I\u2019m Yuankun
-      Huang.\n\nThis little project grew out of curiosity and a desire to practice.
-      I\u2019m experimenting with a clean, modular architecture on Unity 2022.3,
-      with basic localization and Firebase integration\u2014trying to put common
-      engineering practices into real use. If you spot a better approach or have
-      ideas for improvement, I\u2019d love to hear them.\n\nSynthMind isn\u2019t
-      a perfect product; it\u2019s more like a training ground that keeps getting
-      refined. I\u2019ll keep strengthening the features and polishing the experience
-      while staying mindful of code clarity.\n\nI also hope we can explore together:
-      how do we take an idea from prototype to something usable? How do we balance
-      complexity and maintainability?\n\nThanks for stopping by\u2014may this place
-      spark a little inspiration for you."
+    m_Localized: "<size=150%><b><color=#4DB8FF>Welcome to SynthMind \xB7 AI Creative
+      Sandbox</color></b></size>\nI'm <b><color=#FF9E40>Yuankun Huang</color></b>.\n\nThis
+      little project grew out of <b><color=#4DB8FF>curiosity</color></b> and a <b><color=#4DB8FF>desire
+      to practice</color></b>.\nI'm experimenting with a <b><color=#4DB8FF>clean,
+      modular architecture</color></b> on <b><color=#4DB8FF>Unity 2022.3</color></b>,\nwith
+      basic <b><color=#4DB8FF>localization</color></b> and <b><color=#4DB8FF>Firebase
+      integration</color></b> \u2014\ntrying to put <b><color=#4DB8FF>common engineering
+      practices</color></b> into real use.\n\nIf you spot a better approach or have
+      ideas for improvement, I'd love to hear them.\n\nSynthMind isn't a perfect
+      product;\nit's more like a <b><color=#FF9E40>training ground</color></b> that
+      keeps evolving.\nI'll keep <b>strengthening features</b> and <b>polishing the
+      experience</b>\nwhile staying mindful of <b><color=#4DB8FF>code clarity</color></b>.\n\nI
+      also hope we can explore together:\n\u2022 How do we take an idea from <b><color=#4DB8FF>prototype</color></b>
+      to <b><color=#4DB8FF>something usable</color></b>?\n\u2022 How do we balance
+      <b><color=#4DB8FF>complexity</color></b> and <b><color=#4DB8FF>maintainability</color></b>?\n\nThanks
+      for stopping by \u2014\nmay this place <b><color=#FF9E40>spark a little inspiration</color></b>
+      for you."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11906114577072128
+    m_Localized: "<size=150%><b>SynthMind \u2013 AI Sandbox Playground</b></size>\n\nA
+      personal showcase project demonstrating\n<b><color=#4DB8FF>scalable Unity development</color></b>\nthrough
+      a <b><color=#4DB8FF>clean, modular architecture</color></b>.\nBuilt with <b><color=#4DB8FF>Unity
+      2022.3</color></b>, SynthMind integrates\n<b><color=#4DB8FF>modern engineering
+      practices</color></b> and\n<b><color=#4DB8FF>AI-powered interactions</color></b>\nto
+      explore next-generation gameplay experiences.\n\n<b><color=#FFCC66>Key Highlights</color></b>\n\u2022
+      <b><color=#4DB8FF>Modular architecture</color></b> with dependency injection\n\u2022
+      <b><color=#4DB8FF>Addressable asset management</color></b> for efficient content
+      delivery\n\u2022 <b><color=#4DB8FF>Multi-language localization</color></b>
+      for a global audience\n\u2022 <b><color=#4DB8FF>Firebase integration</color></b>
+      for backend services and analytics\n\n<b><color=#FFCC66>About the Creator</color></b>\nCreated
+      by <b><color=#FF9E40>Yuankun Huang</color></b>,\na <b><color=#4DB8FF>senior
+      Unity developer</color></b> passionate about\n<b><color=#4DB8FF>AI-integrated
+      interactive experiences</color></b> and\n<b><color=#4DB8FF>scalable game architecture</color></b>.\nSynthMind
+      serves as both a <b><color=#FF9E40>learning playground</color></b>\nand a <b><color=#4DB8FF>showcase
+      of modern Unity engineering practices</color></b>."
     m_Metadata:
       m_Items: []
   references:

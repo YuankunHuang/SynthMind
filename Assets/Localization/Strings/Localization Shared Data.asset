@@ -75,6 +75,10 @@ MonoBehaviour:
     m_Key: MainMenu_Home_Intro
     m_Metadata:
       m_Items: []
+  - m_Id: 11906114577072128
+    m_Key: MainMenu_About_Content
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

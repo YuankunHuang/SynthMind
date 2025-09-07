@@ -42,6 +42,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: eb781d288815c414d9f9f5a41e7d4a0a
+    m_Address: Assets/Art/Material/UIGaussianBlur.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 279d2f99ef577a844b9535e3fcd1443e, type: 2}
   m_SchemaSet:

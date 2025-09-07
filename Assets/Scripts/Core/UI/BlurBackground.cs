@@ -15,15 +15,37 @@ namespace YuankunHuang.Unity.UICore
         {
             if (capturedTexture == null || parent == null) return false;
 
-            _blurTexture = capturedTexture;
+            // 1. Load blur material first
+            try
+            {
+                _blurMaterial = await ResManager.LoadAssetAsync<Material>(AddressablePaths.UIBoxBlurMaterial);
+                if (_blurMaterial == null)
+                {
+                    LogHelper.LogWarning("[BlurBackground] Blur material not found");
+                    return false;
+                }
+            }
+            catch (System.Exception ex)
+            {
+                LogHelper.LogError($"[BlurBackground] Failed to load blur material: {ex.Message}");
+                return false;
+            }
 
-            // Create blur object
+            // 2. Create blur result texture
+            _blurTexture = RenderTexture.GetTemporary(
+                capturedTexture.width, capturedTexture.height, 0,
+                RenderTextureFormat.ARGB32, RenderTextureReadWrite.Default);
+
+            // 3. Apply blur effect (single pass)
+            Graphics.Blit(capturedTexture, _blurTexture, _blurMaterial);
+
+            // 4. Create UI object
             _blurObject = new GameObject("BlurBackground");
             _blurObject.layer = LayerMask.NameToLayer(LayerNames.UI);
             var rectTransform = _blurObject.AddComponent<RectTransform>();
             var rawImage = _blurObject.AddComponent<RawImage>();
 
-            // Setup transform
+            // 5. Setup transform
             rectTransform.SetParent(parent);
             rectTransform.SetAsFirstSibling();
             rectTransform.anchorMin = Vector2.zero;
@@ -33,33 +55,12 @@ namespace YuankunHuang.Unity.UICore
             rectTransform.localPosition = Vector3.zero;
             rectTransform.localScale = Vector3.one;
 
-            // Setup image
+            // 6. Setup image
             rawImage.texture = _blurTexture;
             rawImage.raycastTarget = false;
             rawImage.uvRect = new Rect(0, 1, 1, -1);
 
-            // Load and apply blur material
-            try
-            {
-                _blurMaterial = await ResManager.LoadAssetAsync<Material>(AddressablePaths.UIBoxBlurMaterial);
-                if (_blurMaterial != null)
-                {
-                    rawImage.material = _blurMaterial;
-                    return true;
-                }
-                else
-                {
-                    rawImage.color = new Color(1, 1, 1, 0.8f);
-                    LogHelper.LogWarning("[BlurBackground] Blur material not found, using fallback transparency");
-                    return true;
-                }
-            }
-            catch (System.Exception ex)
-            {
-                LogHelper.LogError($"[BlurBackground] Failed to load blur material: {ex.Message}");
-                Dispose();
-                return false;
-            }
+            return true;
         }
 
         public void Dispose()
@@ -78,8 +79,7 @@ namespace YuankunHuang.Unity.UICore
 
             if (_blurTexture != null)
             {
-                _blurTexture.Release();
-                GameObject.Destroy(_blurTexture);
+                RenderTexture.ReleaseTemporary(_blurTexture);
                 _blurTexture = null;
             }
         }

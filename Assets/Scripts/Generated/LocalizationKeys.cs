@@ -8,6 +8,7 @@ namespace YuankunHuang.Unity.Core
     {
         public const string Main = "Main";
         public const string MainMenuAbout = "MainMenu_About";
+        public const string MainMenuAboutContent = "MainMenu_About_Content";
         public const string MainMenuChat = "MainMenu_Chat";
         public const string MainMenuHome = "MainMenu_Home";
         public const string MainMenuHomeIntro = "MainMenu_Home_Intro";
