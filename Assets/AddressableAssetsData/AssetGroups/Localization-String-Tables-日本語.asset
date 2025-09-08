@@ -10,16 +10,22 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
-  m_Name: Localization-String-Tables-Japanese (ja)
+  m_Name: "Localization-String-Tables-\u65E5\u672C\u8A9E"
   m_EditorClassIdentifier: 
-  m_GroupName: Localization-String-Tables-Japanese (ja)
+  m_GroupName: "Localization-String-Tables-\u65E5\u672C\u8A9E"
   m_Data:
     m_SerializedData: []
-  m_GUID: 82b20095f3b323b4d818fd26f91d36d2
-  m_SerializeEntries: []
+  m_GUID: 8380c807d59e8d345b25e160f5d317c2
+  m_SerializeEntries:
+  - m_GUID: 21ab359e2e677ce46953f26e6c239a39
+    m_Address: Localization_ja
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-ja
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 1
   m_Settings: {fileID: 11400000, guid: 279d2f99ef577a844b9535e3fcd1443e, type: 2}
   m_SchemaSet:
     m_Schemas:
-    - {fileID: 11400000, guid: d474a43bcff3cd6418b98184226ecbef, type: 2}
-    - {fileID: 11400000, guid: 98f63c22f4316a14ab03296906b8f38f, type: 2}
+    - {fileID: 11400000, guid: 8a03c074cf6f0ba4aba87a01bf0a2bfc, type: 2}
+    - {fileID: 11400000, guid: 7b537f94b94842e448fcfd51ad5ee8f9, type: 2}
