@@ -56,7 +56,7 @@ namespace YuankunHuang.Unity.UICore
             img.color = new Color(0, 0, 0, 1);
             img.raycastTarget = true;
 
-            rt.SetParent(Config.Root);
+            rt.SetParent(Config.transform);
             rt.SetAsFirstSibling();
             rt.anchorMin = new Vector2(0, 0);
             rt.anchorMax = new Vector2(1, 1);
