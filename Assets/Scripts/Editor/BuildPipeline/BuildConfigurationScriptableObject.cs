@@ -1,5 +1,6 @@
-using UnityEngine;
+using System.IO;
 using UnityEditor;
+using UnityEngine;
 
 namespace YuankunHuang.Unity.Editor.BuildPipeline
 {
@@ -95,8 +96,9 @@ namespace YuankunHuang.Unity.Editor.BuildPipeline
             {
                 return customBuildPath;
             }
-            
-            return System.IO.Path.Combine(Application.dataPath, "..", "Builds");
+
+            var projectRoot = Directory.GetParent(Application.dataPath).FullName;
+            return System.IO.Path.Combine(projectRoot, "Builds");
         }
     }
 }

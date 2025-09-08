@@ -2,6 +2,7 @@ using UnityEditor;
 using UnityEngine;
 using System;
 using System.Linq;
+using System.IO;
 
 namespace YuankunHuang.Unity.Editor.BuildPipeline
 {
@@ -189,8 +190,9 @@ namespace YuankunHuang.Unity.Editor.BuildPipeline
         
         private static string GetBuildPath(BuildTarget target, BuildConfigurationScriptableObject.BuildProfile profile, string version, string customPath)
         {
+            var projectRoot = Directory.GetParent(Application.dataPath).FullName;
             var basePath = string.IsNullOrEmpty(customPath) ? 
-                System.IO.Path.Combine(Application.dataPath, "..", "Builds") : 
+                System.IO.Path.Combine(projectRoot, "Builds") : 
                 customPath;
                 
             var timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");

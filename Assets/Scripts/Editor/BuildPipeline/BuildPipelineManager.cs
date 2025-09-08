@@ -11,7 +11,7 @@ namespace YuankunHuang.Unity.Editor.BuildPipeline
 {
     public class BuildPipelineManager : EditorWindow
     {
-        [MenuItem("SynthMind/Build Pipeline")]
+        [MenuItem("Tools/Build Pipeline")]
         public static void ShowWindow()
         {
             GetWindow<BuildPipelineManager>("SynthMind Build Pipeline");
@@ -34,9 +34,6 @@ namespace YuankunHuang.Unity.Editor.BuildPipeline
 
         private void OnGUI()
         {
-            GUILayout.Label("SynthMind Build Pipeline", EditorStyles.boldLabel);
-            EditorGUILayout.Space();
-
             // Build Configuration
             EditorGUILayout.LabelField("Build Configuration", EditorStyles.boldLabel);
             EditorGUI.indentLevel++;
@@ -142,8 +139,9 @@ namespace YuankunHuang.Unity.Editor.BuildPipeline
             {
                 return Path.Combine(_customBuildPath, GetBuildFolderName());
             }
-            
-            return Path.Combine(Application.dataPath, "..", "Builds", GetBuildFolderName());
+
+            var projectRoot = Directory.GetParent(Application.dataPath).FullName;
+            return Path.Combine(projectRoot, "Builds", GetBuildFolderName());
         }
 
         private string GetBuildFolderName()
@@ -190,7 +188,7 @@ namespace YuankunHuang.Unity.Editor.BuildPipeline
                 
                 if (buildReport.summary.result == BuildResult.Succeeded)
                 {
-                    UnityEngine.Debug.Log($"✅ Build completed successfully!\nBuild path: {buildReport.summary.outputPath}");
+                    LogHelper.Log($"✅ Build completed successfully!\nBuild path: {buildReport.summary.outputPath}");
                     
                     if (_autoOpenFolder)
                     {
@@ -203,14 +201,14 @@ namespace YuankunHuang.Unity.Editor.BuildPipeline
                 }
                 else
                 {
-                    UnityEngine.Debug.LogError($"❌ Build failed: {buildReport.summary.result}");
+                    LogHelper.LogError($"❌ Build failed: {buildReport.summary.result}");
                     EditorUtility.DisplayDialog("Build Failed", $"Build failed: {buildReport.summary.result}", "OK");
                 }
             }
             catch (Exception ex)
             {
                 EditorUtility.ClearProgressBar();
-                UnityEngine.Debug.LogError($"❌ Build pipeline error: {ex.Message}");
+                LogHelper.LogError($"❌ Build pipeline error: {ex.Message}");
                 EditorUtility.DisplayDialog("Build Error", $"Build pipeline error:\n{ex.Message}", "OK");
             }
         }
@@ -220,7 +218,7 @@ namespace YuankunHuang.Unity.Editor.BuildPipeline
             // Check if scenes are added to build
             if (EditorBuildSettings.scenes.Length == 0)
             {
-                UnityEngine.Debug.LogError("❌ No scenes added to build settings!");
+                LogHelper.LogError("❌ No scenes added to build settings!");
                 return false;
             }
 
@@ -272,9 +270,9 @@ namespace YuankunHuang.Unity.Editor.BuildPipeline
                 return;
             }
 
-            UnityEngine.Debug.Log("🔧 Building Addressables...");
+            LogHelper.Log("🔧 Building Addressables...");
             AddressableAssetSettings.BuildPlayerContent();
-            UnityEngine.Debug.Log("✅ Addressables build completed");
+            LogHelper.Log("✅ Addressables build completed");
         }
 
         private BuildReport BuildPlayer()
@@ -288,7 +286,7 @@ namespace YuankunHuang.Unity.Editor.BuildPipeline
                 options = GetBuildOptions()
             };
 
-            UnityEngine.Debug.Log($"🚀 Starting build to: {buildPlayerOptions.locationPathName}");
+            LogHelper.Log($"🚀 Starting build to: {buildPlayerOptions.locationPathName}");
             return UnityEditor.BuildPipeline.BuildPlayer(buildPlayerOptions);
         }
 
@@ -374,15 +372,15 @@ namespace YuankunHuang.Unity.Editor.BuildPipeline
             try
             {
                 var zipPath = buildPath + ".zip";
-                UnityEngine.Debug.Log($"📦 Creating ZIP archive: {zipPath}");
+                LogHelper.Log($"📦 Creating ZIP archive: {zipPath}");
                 
                 // This would require System.IO.Compression or a third-party library
                 // For now, just log the intention
-                UnityEngine.Debug.Log("💡 ZIP creation not implemented - consider adding System.IO.Compression");
+                LogHelper.Log("💡 ZIP creation not implemented - consider adding System.IO.Compression");
             }
             catch (Exception ex)
             {
-                UnityEngine.Debug.LogError($"❌ Failed to create ZIP: {ex.Message}");
+                LogHelper.LogError($"❌ Failed to create ZIP: {ex.Message}");
             }
         }
 
@@ -398,7 +396,7 @@ namespace YuankunHuang.Unity.Editor.BuildPipeline
             catch (Exception ex)
             {
                 EditorUtility.ClearProgressBar();
-                UnityEngine.Debug.LogError($"❌ Addressables build failed: {ex.Message}");
+                LogHelper.LogError($"❌ Addressables build failed: {ex.Message}");
                 EditorUtility.DisplayDialog("Build Failed", $"Addressables build failed:\n{ex.Message}", "OK");
             }
         }
@@ -409,11 +407,12 @@ namespace YuankunHuang.Unity.Editor.BuildPipeline
             {
                 try
                 {
-                    var buildDir = Path.Combine(Application.dataPath, "..", "Builds");
+                    var projectRoot = Directory.GetParent(Application.dataPath).FullName;
+                    var buildDir = Path.Combine(projectRoot, "Builds");
                     if (Directory.Exists(buildDir))
                     {
                         Directory.Delete(buildDir, true);
-                        UnityEngine.Debug.Log("🗑️ Cleaned build directory");
+                        LogHelper.Log("🗑️ Cleaned build directory");
                     }
 
                     // Clean Addressables cache
@@ -421,24 +420,23 @@ namespace YuankunHuang.Unity.Editor.BuildPipeline
                     if (addressableSettings != null)
                     {
                         AddressableAssetSettings.CleanPlayerContent();
-                        UnityEngine.Debug.Log("🗑️ Cleaned Addressables cache");
+                        LogHelper.Log("🗑️ Cleaned Addressables cache");
                     }
 
                     EditorUtility.DisplayDialog("Clean Complete", "Build cache has been cleaned!", "OK");
                 }
                 catch (Exception ex)
                 {
-                    UnityEngine.Debug.LogError($"❌ Clean failed: {ex.Message}");
+                    LogHelper.LogError($"❌ Clean failed: {ex.Message}");
                 }
             }
         }
 
         private void OpenBuildFolder()
         {
-            var buildDir = string.IsNullOrEmpty(_customBuildPath) 
-                ? Path.Combine(Application.dataPath, "..", "Builds")
-                : _customBuildPath;
-                
+            var projectRoot = Directory.GetParent(Application.dataPath).FullName;
+            var buildDir = Path.Combine(projectRoot, "Builds");
+
             if (Directory.Exists(buildDir))
             {
                 System.Diagnostics.Process.Start("explorer.exe", buildDir.Replace("/", "\\"));
