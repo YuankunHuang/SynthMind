@@ -21,7 +21,7 @@ namespace YuankunHuang.Unity.Core
         /// <param name="msg">The message to log.</param>
         public static void Log(string msg)
         {
-            Debug.Log($"{msg}\nFrame: {Time.frameCount}\nTime: {Time.time}");
+            UnityEngine.Debug.Log($"{msg}\nFrame: {Time.frameCount}\nTime: {Time.time}");
         }
 
         /// <summary>
@@ -31,7 +31,7 @@ namespace YuankunHuang.Unity.Core
         /// <param name="msg">The warning message to log.</param>
         public static void LogWarning(string msg)
         {
-            Debug.LogWarning($"{msg}\nFrame: {Time.frameCount}\nTime: {Time.time}");
+            UnityEngine.Debug.LogWarning($"{msg}\nFrame: {Time.frameCount}\nTime: {Time.time}");
         }
 
         /// <summary>
@@ -41,7 +41,7 @@ namespace YuankunHuang.Unity.Core
         /// <param name="msg">The error message to log.</param>
         public static void LogError(string msg)
         {
-            Debug.LogError($"{msg}\nFrame: {Time.frameCount}\nTime: {Time.time}");
+            UnityEngine.Debug.LogError($"{msg}\nFrame: {Time.frameCount}\nTime: {Time.time}");
         }
 
         /// <summary>
@@ -53,7 +53,7 @@ namespace YuankunHuang.Unity.Core
         {
             if (e != null)
             {
-                Debug.LogError($"Exception::{e.Message}.\nStackTrace: {e.StackTrace}");
+                UnityEngine.Debug.LogError($"Exception::{e.Message}.\nStackTrace: {e.StackTrace}");
             }
         }
     }

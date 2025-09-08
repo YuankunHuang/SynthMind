@@ -25,11 +25,11 @@ namespace YuankunHuang.Unity.Core.Editor
                         serializedObject.FindProperty("_assetManagerConfig").objectReferenceValue = config;
                         serializedObject.ApplyModifiedProperties();
 
-                        Debug.Log("AssetManagerConfig assigned successfully.");
+                        LogHelper.Log("AssetManagerConfig assigned successfully.");
                     }
                     else
                     {
-                        Debug.LogError("AssetManagerConfig not found. Please create one in the project.");
+                        LogHelper.LogError("AssetManagerConfig not found. Please create one in the project.");
                     }
                 }
             }

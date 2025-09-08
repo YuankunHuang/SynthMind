@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
 using YuankunHuang.Unity.Core;
+using YuankunHuang.Unity.Core.Debug;
 
 namespace YuankunHuang.Unity.LocalizationCore
 {
@@ -180,7 +181,7 @@ namespace YuankunHuang.Unity.LocalizationCore
 
         private System.Collections.IEnumerator SetLanguageCoroutine(string langCode)
         {
-            var task = SetLanguageAsync(langCode);
+            var task = SetLanguageAsync(langCode).WithLogging();
             yield return new WaitUntil(() => task.IsCompleted);
         }
 

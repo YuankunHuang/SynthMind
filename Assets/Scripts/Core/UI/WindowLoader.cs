@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using UnityEngine;
 using YuankunHuang.Unity.Core;
+using YuankunHuang.Unity.Core.Debug;
 using YuankunHuang.Unity.Util;
 
 namespace YuankunHuang.Unity.UICore
@@ -18,7 +19,7 @@ namespace YuankunHuang.Unity.UICore
         public async Task<WindowAttributeData> LoadAttributeDataAsync(string windowName)
         {
             var attrKey = string.Format(AddressablePaths.WindowAttributeData, windowName);
-            var tAttributeData = ResManager.LoadAssetAsync<WindowAttributeData>(attrKey);
+            var tAttributeData = ResManager.LoadAssetAsync<WindowAttributeData>(attrKey).WithLogging();
             var result = await tAttributeData;
 
             // Release immediately since we only need to check the data
@@ -33,8 +34,8 @@ namespace YuankunHuang.Unity.UICore
                 var prefabKey = string.Format(AddressablePaths.StackableWindow, windowName, windowName);
                 var attrKey = string.Format(AddressablePaths.WindowAttributeData, windowName);
 
-                var tPrefab = ResManager.LoadAssetAsync<GameObject>(prefabKey);
-                var tAttributeData = ResManager.LoadAssetAsync<WindowAttributeData>(attrKey);
+                var tPrefab = ResManager.LoadAssetAsync<GameObject>(prefabKey).WithLogging();
+                var tAttributeData = ResManager.LoadAssetAsync<WindowAttributeData>(attrKey).WithLogging();
 
                 await Task.WhenAll(tPrefab, tAttributeData);
 

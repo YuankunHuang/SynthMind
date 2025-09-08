@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using UnityEngine;
 using YuankunHuang.Unity.AssetCore;
 using YuankunHuang.Unity.GameDataConfig;
@@ -10,6 +11,7 @@ using YuankunHuang.Unity.NetworkCore;
 using YuankunHuang.Unity.SandboxCore;
 using YuankunHuang.Unity.LocalizationCore;
 using YuankunHuang.Unity.FirebaseCore;
+using YuankunHuang.Unity.Core.Debug;
 
 namespace YuankunHuang.Unity.Core
 {
@@ -27,6 +29,17 @@ namespace YuankunHuang.Unity.Core
         private void OnEnable()
         {
             Init();
+        }
+
+        private void OnUnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs e)
+        {
+            LogHelper.LogError($"[AsyncException] Unobserved task exception:");
+            foreach (var ex in e.Exception.InnerExceptions)
+            {
+                LogHelper.LogError($"Exception: {ex.GetType().Name} - {ex.Message}");
+                LogHelper.LogError($"StackTrace: {ex.StackTrace}");
+            }
+            e.SetObserved();
         }
 
         private void OnDisable()
@@ -58,31 +71,41 @@ namespace YuankunHuang.Unity.Core
         {
             LogHelper.Log($"[GameManager]::Init");
 
+            TaskScheduler.UnobservedTaskException += OnUnobservedTaskException;
+
             SceneManager.LoadSceneAsync(SceneKeys.UIScene, onFinished: OnUISceneReady);
 
             async void OnUISceneReady()
             {
-                GameDataManager.Initialize();
-                MonoManager.Initialize(_monoManager);
-                InputBlocker.Initialize(_inputBlocker);
+                try
+                {
+                    GameDataManager.Initialize();
+                    MonoManager.Initialize(_monoManager);
+                    InputBlocker.Initialize(_inputBlocker);
 
-                var assetManager = new AssetManager();
-                assetManager.Initialize(_assetManagerConfig);
-                ModuleRegistry.Register<IAssetManager>(assetManager);
-                ModuleRegistry.Register<IUIManager>(new UIManager());
-                ModuleRegistry.Register<INetworkManager>(new NetworkManager());
-                ModuleRegistry.Register<ICameraManager>(new CameraManager());
-                ModuleRegistry.Register<IAccountManager>(new AccountManager());
-                ModuleRegistry.Register<ICommandManager>(new CommandManager());
+                    var assetManager = new AssetManager();
+                    assetManager.Initialize(_assetManagerConfig);
+                    ModuleRegistry.Register<IAssetManager>(assetManager);
+                    ModuleRegistry.Register<IUIManager>(new UIManager());
+                    ModuleRegistry.Register<INetworkManager>(new NetworkManager());
+                    ModuleRegistry.Register<ICameraManager>(new CameraManager());
+                    ModuleRegistry.Register<IAccountManager>(new AccountManager());
+                    ModuleRegistry.Register<ICommandManager>(new CommandManager());
 
-                var localizationManager = new LocalizationManager();
-                await localizationManager.InitializeAsync();
-                ModuleRegistry.Register<ILocalizationManager>(localizationManager);
+                    var localizationManager = new LocalizationManager();
+                    await localizationManager.InitializeAsync().WithLogging();
+                    ModuleRegistry.Register<ILocalizationManager>(localizationManager);
 
-                var camManager = ModuleRegistry.Get<ICameraManager>();
-                camManager.AddToMainStack(camManager.UICamera);
+                    var camManager = ModuleRegistry.Get<ICameraManager>();
+                    camManager.AddToMainStack(camManager.UICamera);
 
-                ModuleRegistry.Get<IUIManager>().Show(WindowNames.LoginWindow);
+                    ModuleRegistry.Get<IUIManager>().Show(WindowNames.LoginWindow);
+                }
+                catch (Exception ex)
+                {
+                    LogHelper.LogError($"[GameManager] Initialization failed: {ex.Message}");
+                    LogHelper.LogError($"StackTrace: {ex.StackTrace}");
+                }
             }
         }
 
@@ -112,6 +135,8 @@ namespace YuankunHuang.Unity.Core
             FirebaseManager.Dispose();
 
             SceneManager.UnloadAll(onFinished);
+
+            TaskScheduler.UnobservedTaskException -= OnUnobservedTaskException;
         }
 
         public void Restart()

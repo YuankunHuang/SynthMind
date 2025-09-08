@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Threading.Tasks;
 using YuankunHuang.Unity.Core;
+using YuankunHuang.Unity.Core.Debug;
 
 namespace YuankunHuang.Unity.UICore
 {
@@ -18,7 +19,7 @@ namespace YuankunHuang.Unity.UICore
             // 1. Load blur material first
             try
             {
-                _blurMaterial = await ResManager.LoadAssetAsync<Material>(AddressablePaths.UIBoxBlurMaterial);
+                _blurMaterial = await ResManager.LoadAssetAsync<Material>(AddressablePaths.UIBoxBlurMaterial).WithLogging();
                 if (_blurMaterial == null)
                 {
                     LogHelper.LogWarning("[BlurBackground] Blur material not found");

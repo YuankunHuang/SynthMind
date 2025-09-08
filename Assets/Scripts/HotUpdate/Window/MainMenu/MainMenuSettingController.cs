@@ -8,6 +8,7 @@ using YuankunHuang.Unity.UICore;
 using YuankunHuang.Unity.Util;
 using YuankunHuang.Unity.LocalizationCore;
 using YuankunHuang.Unity.GameDataConfig;
+using YuankunHuang.Unity.Core.Debug;
 
 namespace YuankunHuang.Unity.HotUpdate
 {
@@ -224,7 +225,7 @@ namespace YuankunHuang.Unity.HotUpdate
                 var newLanguage = _availableLanguages[_currentLanguageIndex];
                 
                 LogHelper.Log($"[MainMenuSettingController] Switching language to: {newLanguage}");
-                await _localizationManager.SetLanguageAsync(newLanguage);
+                await _localizationManager.SetLanguageAsync(newLanguage).WithLogging();
             }
             catch (System.Exception ex)
             {

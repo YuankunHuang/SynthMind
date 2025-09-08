@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 using YuankunHuang.Unity.Core;
+using YuankunHuang.Unity.Core.Debug;
 using YuankunHuang.Unity.ModuleCore;
 
 namespace YuankunHuang.Unity.UICore
@@ -67,7 +68,7 @@ namespace YuankunHuang.Unity.UICore
         private async Task CreateBlurBackgroundAsync(RenderTexture blurTexture)
         {
             _blurBackground = new BlurBackground();
-            var success = await _blurBackground.CreateAsync(Config.transform, blurTexture);
+            var success = await _blurBackground.CreateAsync(Config.transform, blurTexture).WithLogging();
             
             if (!success)
             {

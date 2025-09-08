@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
 using YuankunHuang.Unity.Core;
+using YuankunHuang.Unity.Core.Debug;
 
 namespace YuankunHuang.Unity.UICore
 {
@@ -48,7 +49,7 @@ namespace YuankunHuang.Unity.UICore
 
         public void Show(string windowName, IWindowData data = null)
         {
-            _ = ShowAsync(windowName, data);
+            _ = ShowAsync(windowName, data).WithLogging();
         }
 
         private async Task ShowAsync(string windowName, IWindowData data)
@@ -56,13 +57,13 @@ namespace YuankunHuang.Unity.UICore
             using (new InputBlock())
             {
                 // Load attributes first to check if blur is needed
-                var attributes = await _loader.LoadAttributeDataAsync(windowName);
+                var attributes = await _loader.LoadAttributeDataAsync(windowName).WithLogging();
 
                 // Capture screen using Coroutine for proper frame timing
-                var blurTexture = await CaptureBlurIfNeededAsync(attributes);
+                var blurTexture = await CaptureBlurIfNeededAsync(attributes).WithLogging();
 
                 // Load window using async
-                var window = await _loader.LoadAsync(windowName);
+                var window = await _loader.LoadAsync(windowName).WithLogging();
                 
                 HandleCurrentWindow(window.Attributes);
                 window.Init(blurTexture);
@@ -126,7 +127,7 @@ namespace YuankunHuang.Unity.UICore
             using (new InputBlock())
             {
                 var window = _stack.Pop();
-                await HideWithAnimationAsync(window);
+                await HideWithAnimationAsync(window).WithLogging();
                 window.Dispose();
                 
                 if (_stack.Count > 0)
@@ -140,7 +141,7 @@ namespace YuankunHuang.Unity.UICore
         public void GoBackTo(string windowName)
         {
             if (!Contains(windowName)) return;
-            _ = GoBackToAsync(windowName);
+            _ = GoBackToAsync(windowName).WithLogging();
         }
         
         private async Task GoBackToAsync(string windowName)
@@ -157,7 +158,7 @@ namespace YuankunHuang.Unity.UICore
                     }
                     
                     window = _stack.Pop();
-                    await HideWithAnimationAsync(window);
+                    await HideWithAnimationAsync(window).WithLogging();
                     window.Dispose();
                 }
             }
