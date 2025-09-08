@@ -215,6 +215,7 @@ MonoBehaviour:
   _sandboxRenderTex: {fileID: 0}
   _environmentRoot: {fileID: 1041611561}
   _groundPlane: {fileID: 0}
+  _defaultMaterial: {fileID: 2100000, guid: 4a6f8e92d3c1e4d4a9b2c8e7f1a5d9c3, type: 2}
 --- !u!1 &1041611560
 GameObject:
   m_ObjectHideFlags: 0

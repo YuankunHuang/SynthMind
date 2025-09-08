@@ -15,6 +15,7 @@ namespace YuankunHuang.Unity.SandboxCore
         [SerializeField] private RenderTexture _sandboxRenderTex;
         [SerializeField] private Transform _environmentRoot;
         [SerializeField] private Transform _groundPlane;
+        [SerializeField] private Material _defaultMaterial;
 
         public static SandboxManager Instance { get; private set; }
         public Camera SandboxCam => _sandboxCam;
@@ -137,7 +138,11 @@ namespace YuankunHuang.Unity.SandboxCore
                 _groundPlane.localScale = new Vector3(1000, 1, 1000);
 
                 var renderer = _groundPlane.GetComponent<Renderer>();
-                renderer.material.color = new Color(0.3f, 0.7f, 0.3f);
+                
+                if (_defaultMaterial != null)
+                {
+                    renderer.material = _defaultMaterial;
+                }
             }
 
             // add basic lighting
@@ -150,21 +155,6 @@ namespace YuankunHuang.Unity.SandboxCore
             light.cullingMask = 1 << _sandboxLayerIndex;
 
             LogHelper.Log("Sandbox environment initialized");
-        }
-
-        public void SpawnObject(GameObject prefab, Vector3 position)
-        {
-            if (prefab == null || _environmentRoot == null) return;
-
-            var spawnedObj = Instantiate(prefab, _environmentRoot);
-            spawnedObj.transform.position = position;
-            spawnedObj.layer = _sandboxLayerIndex >= 0 ? _sandboxLayerIndex : 0;
-            spawnedObj.tag = TagNames.AISpawned;
-
-            // Also set layer for all children
-            SetLayerRecursively(spawnedObj, _sandboxLayerIndex >= 0 ? _sandboxLayerIndex : 0);
-
-            LogHelper.Log($"Spawned {prefab.name} at {position}");
         }
 
         public GameObject CreateSimpleObject(PrimitiveType type, string name, Vector3 position, Vector3 scale, Color color)
@@ -180,6 +170,10 @@ namespace YuankunHuang.Unity.SandboxCore
             var renderer = obj.GetComponent<Renderer>();
             if (renderer != null)
             {
+                if (_defaultMaterial != null)
+                {
+                    renderer.material = _defaultMaterial;
+                }
                 renderer.material.color = color;
             }
 

@@ -6,14 +6,12 @@ using UnityEngine;
 using UnityEngine.U2D;
 using YuankunHuang.Unity.Core;
 
-
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
 
 namespace YuankunHuang.Unity.AssetCore
 {
-#if UNITY_EDITOR
     [System.Serializable]
     public class AssetEntry
     {
@@ -21,6 +19,7 @@ namespace YuankunHuang.Unity.AssetCore
         public UnityEngine.Object asset;
         public AssetType type;
 
+#if UNITY_EDITOR
         private AssetType DetectType()
         {
             if (asset == null) return AssetType.None;
@@ -69,8 +68,8 @@ namespace YuankunHuang.Unity.AssetCore
         {
             return type == DetectType();
         }
-    }
 #endif
+    }
 
     public class AssetManager : IAssetManager
     {

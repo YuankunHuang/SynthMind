@@ -25,6 +25,33 @@ namespace YuankunHuang.Unity.AssetCore
         }
 
 #if UNITY_EDITOR
+        private Sprite TryGetSpriteFromTexture2D(Texture2D texture2D)
+        {
+            var assetPath = AssetDatabase.GetAssetPath(texture2D);
+            if (string.IsNullOrEmpty(assetPath)) return null;
+
+            var textureImporter = AssetImporter.GetAtPath(assetPath) as TextureImporter;
+            if (textureImporter != null && textureImporter.textureType == TextureImporterType.Sprite)
+            {
+                var sprite = AssetDatabase.LoadAssetAtPath<Sprite>(assetPath);
+                if (sprite != null)
+                {
+                    return sprite;
+                }
+
+                var allAssets = AssetDatabase.LoadAllAssetRepresentationsAtPath(assetPath);
+                foreach (var subAsset in allAssets)
+                {
+                    if (subAsset is Sprite spriteAsset)
+                    {
+                        return spriteAsset;
+                    }
+                }
+            }
+
+            return null;
+        }
+
         public void AddAsset(UnityEngine.Object asset)
         {
             if (asset == null)
@@ -52,33 +79,6 @@ namespace YuankunHuang.Unity.AssetCore
             entry.AutoDetectType();
             _assetEntries.Add(entry);
             UnityEditor.EditorUtility.SetDirty(this);
-        }
-
-        private Sprite TryGetSpriteFromTexture2D(Texture2D texture2D)
-        {
-            var assetPath = AssetDatabase.GetAssetPath(texture2D);
-            if (string.IsNullOrEmpty(assetPath)) return null;
-
-            var textureImporter = AssetImporter.GetAtPath(assetPath) as TextureImporter;
-            if (textureImporter != null && textureImporter.textureType == TextureImporterType.Sprite)
-            {
-                var sprite = AssetDatabase.LoadAssetAtPath<Sprite>(assetPath);
-                if (sprite != null)
-                {
-                    return sprite;
-                }
-
-                var allAssets = AssetDatabase.LoadAllAssetRepresentationsAtPath(assetPath);
-                foreach (var subAsset in allAssets)
-                {
-                    if (subAsset is Sprite spriteAsset)
-                    {
-                        return spriteAsset;
-                    }
-                }
-            }
-
-            return null;
         }
 
         public bool HasKey(string key)
