@@ -4,12 +4,22 @@ using UnityEngine;
 using YuankunHuang.Unity.Core;
 using YuankunHuang.Unity.Util;
 using YuankunHuang.Unity.UICore;
+using UnityEngine.UI;
 
 namespace YuankunHuang.Unity.HotUpdate
 {
     public class MainMenuAboutController : IMainMenuWidgetController
     {
         private GeneralWidgetConfig _config;
+
+        #region UI Ref
+        private enum ExtraObj
+        {
+            ScrollRect = 0,
+        }
+
+        private ScrollRect _scrollRect;
+        #endregion
 
         public MainMenuAboutController(GeneralWidgetConfig config)
         {
@@ -18,11 +28,13 @@ namespace YuankunHuang.Unity.HotUpdate
 
         public void Init()
         {
-
+            _scrollRect = _config.ExtraObjectList[(int)ExtraObj.ScrollRect].GetComponent<ScrollRect>();
         }
 
         public void Show()
         {
+            _scrollRect.verticalNormalizedPosition = 1;
+
             _config.CanvasGroup.CanvasGroupOn();
         }
 
