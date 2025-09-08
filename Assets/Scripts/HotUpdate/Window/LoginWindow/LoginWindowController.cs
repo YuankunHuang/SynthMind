@@ -1,10 +1,15 @@
 using TMPro;
-using UnityEngine.Localization.Settings;
 using YuankunHuang.Unity.Core;
 using YuankunHuang.Unity.UICore;
 using YuankunHuang.Unity.ModuleCore;
 using YuankunHuang.Unity.AccountCore;
 using YuankunHuang.Unity.LocalizationCore;
+using YuankunHuang.Unity.Util;
+
+
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace YuankunHuang.Unity.HotUpdate
 {
@@ -19,6 +24,7 @@ namespace YuankunHuang.Unity.HotUpdate
         private enum ExtraBtn
         {
             Login = 0,
+            Quit = 0,
         }
 
         private enum ExtraObj
@@ -30,6 +36,7 @@ namespace YuankunHuang.Unity.HotUpdate
         private TMP_Text _noticeTxt;
         
         private GeneralButton _loginBtn;
+        private GeneralButton _quitBtn;
 
         private TMP_InputField _usernameInputField;
         private TMP_InputField _passwordInputField;
@@ -41,11 +48,13 @@ namespace YuankunHuang.Unity.HotUpdate
             _noticeTxt = Config.ExtraTextMeshProList[(int)ExtraTMP.Notice];
 
             _loginBtn = Config.ExtraButtonList[(int)ExtraBtn.Login];
+            _quitBtn = Config.ExtraButtonList[(int)ExtraBtn.Quit];
 
             _usernameInputField = Config.ExtraObjectList[(int)ExtraObj.UsernameInputField].GetComponent<TMP_InputField>();
             _passwordInputField = Config.ExtraObjectList[(int)ExtraObj.PasswordInputField].GetComponent<TMP_InputField>();
 
             _loginBtn.onClick.AddListener(OnLoginBtnClicked);
+            _quitBtn.onClick.AddListener(OnQuitBtnClicked);
         }
 
         protected override void OnShow(IWindowData data, WindowShowState state)
@@ -58,10 +67,25 @@ namespace YuankunHuang.Unity.HotUpdate
         protected override void OnDispose()
         {
             _loginBtn.onClick.RemoveAllListeners();
+            _quitBtn.onClick.RemoveAllListeners();
         }
         #endregion
 
         #region Event Handlers
+        private void OnQuitBtnClicked()
+        {
+            QuitApp();
+        }
+
+        private void QuitApp()
+        {
+#if UNITY_EDITOR
+            EditorApplication.isPlaying = false;
+#else
+            Application.Quit();
+#endif
+        }
+
         private void OnLoginBtnClicked()
         {
             string username = _usernameInputField.text.Trim();

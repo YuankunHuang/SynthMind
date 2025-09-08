@@ -245,15 +245,23 @@ namespace YuankunHuang.Unity.Editor
 
         private void CreateFolderStructure()
         {
-            var windowFolderPath = Path.Combine(STACKABLE_PATH, windowName);
-            if (!Directory.Exists(windowFolderPath))
-            {
-                Directory.CreateDirectory(windowFolderPath);
-            }
+            EnsureFolder($"{STACKABLE_PATH}/{windowName}");
+            EnsureFolder(ATTRIBUTE_DATA_PATH);
+            EnsureFolder($"{WINDOW_CONTROLLER_PATH}/{windowName}");
+        }
 
-            if (!Directory.Exists(ATTRIBUTE_DATA_PATH))
+        private void EnsureFolder(string assetFolderPath)
+        {
+            var parts = assetFolderPath.Split('/');
+            var current = parts[0]; // "Assets"
+            for (int i = 1; i < parts.Length; i++)
             {
-                Directory.CreateDirectory(ATTRIBUTE_DATA_PATH);
+                var next = $"{current}/{parts[i]}";
+                if (!AssetDatabase.IsValidFolder(next))
+                {
+                    AssetDatabase.CreateFolder(current, parts[i]);
+                }
+                current = next;
             }
         }
 
@@ -422,7 +430,15 @@ namespace YuankunHuang.Unity.Editor
         {
             try
             {
+                if (!File.Exists(WINDOW_NAMES_PATH))
+                {
+                    Debug.LogError($"WindowNames.cs not found at path: {WINDOW_NAMES_PATH}");
+                    Debug.Log($"Please manually add 'public static readonly string {windowName} = \"{windowName}\";' to WindowNames.cs");
+                    return;
+                }
+
                 var fileContent = File.ReadAllText(WINDOW_NAMES_PATH);
+                Debug.Log($"Original WindowNames.cs content length: {fileContent.Length} characters");
 
                 if (IsWindowNameAlreadyExists(fileContent, windowName))
                 {
@@ -431,16 +447,46 @@ namespace YuankunHuang.Unity.Editor
                 }
 
                 var newContent = InsertWindowNameToFile(fileContent, windowName);
+                Debug.Log($"Generated new WindowNames.cs content length: {newContent.Length} characters");
 
+                // Backup original file
+                var backupPath = WINDOW_NAMES_PATH + ".backup";
+                File.WriteAllText(backupPath, fileContent);
+                Debug.Log($"Created backup at: {backupPath}");
+
+                // Write new content
                 File.WriteAllText(WINDOW_NAMES_PATH, newContent);
                 AssetDatabase.Refresh();
 
                 Debug.Log($"Successfully added '{windowName}' to WindowNames.cs");
+                
+                // Clean up backup after successful write
+                if (File.Exists(backupPath))
+                {
+                    File.Delete(backupPath);
+                }
             }
             catch (System.Exception e)
             {
                 Debug.LogError($"Failed to add window name to WindowNames.cs: {e.Message}");
+                Debug.LogError($"Stack trace: {e.StackTrace}");
                 Debug.Log($"Please manually add 'public static readonly string {windowName} = \"{windowName}\";' to WindowNames.cs");
+                
+                // Try to restore from backup if it exists
+                var backupPath = WINDOW_NAMES_PATH + ".backup";
+                if (File.Exists(backupPath))
+                {
+                    try
+                    {
+                        File.Copy(backupPath, WINDOW_NAMES_PATH, true);
+                        File.Delete(backupPath);
+                        Debug.Log("Restored WindowNames.cs from backup due to error");
+                    }
+                    catch
+                    {
+                        Debug.LogError("Failed to restore from backup!");
+                    }
+                }
             }
         }
 
@@ -463,37 +509,32 @@ namespace YuankunHuang.Unity.Editor
 
         private string InsertWindowNameToFile(string fileContent, string windowName)
         {
+            // First check if the window name already exists
+            if (IsWindowNameAlreadyExists(fileContent, windowName))
+            {
+                Debug.Log($"Window name '{windowName}' already exists in WindowNames.cs, skipping insertion");
+                return fileContent; // Return original content unchanged
+            }
+
             var lines = fileContent.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
-            var insertIndex = -1;
-            var indentation = "        ";
+            var newLines = new List<string>();
+            bool fieldAdded = false;
 
-            for (int i = lines.Length - 1; i >= 0; i--)
+            for (int i = 0; i < lines.Length; i++)
             {
-                var line = lines[i].Trim();
-
-                if (line == "}" && insertIndex == -1)
+                var line = lines[i];
+                
+                // If we hit the class closing bracket and haven't added the field yet, add it before the bracket
+                if (line.Trim() == "}" && !fieldAdded)
                 {
-                    insertIndex = i;
-                    continue;
+                    // Use standard indentation (8 spaces)
+                    var newField = $"        public static readonly string {windowName} = \"{windowName}\";";
+                    newLines.Add(newField);
+                    fieldAdded = true;
                 }
-
-                if (line.StartsWith("public static readonly string") && insertIndex > 0)
-                {
-                    var originalLine = lines[i];
-                    var leadingWhitespace = originalLine.Substring(0, originalLine.Length - originalLine.TrimStart().Length);
-                    indentation = leadingWhitespace;
-                    break;
-                }
+                
+                newLines.Add(line);
             }
-
-            if (insertIndex == -1)
-            {
-                throw new System.InvalidOperationException("Could not find class closing bracket in WindowNames.cs");
-            }
-
-            var newField = $"{indentation}public static readonly string {windowName} = \"{windowName}\";";
-            var newLines = new List<string>(lines);
-            newLines.Insert(insertIndex, newField);
 
             return string.Join(System.Environment.NewLine, newLines);
         }
