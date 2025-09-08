@@ -4,8 +4,6 @@ using YuankunHuang.Unity.UICore;
 using YuankunHuang.Unity.ModuleCore;
 using YuankunHuang.Unity.AccountCore;
 using YuankunHuang.Unity.LocalizationCore;
-using YuankunHuang.Unity.Util;
-
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -24,7 +22,7 @@ namespace YuankunHuang.Unity.HotUpdate
         private enum ExtraBtn
         {
             Login = 0,
-            Quit = 0,
+            Quit = 1,
         }
 
         private enum ExtraObj
@@ -74,7 +72,9 @@ namespace YuankunHuang.Unity.HotUpdate
         #region Event Handlers
         private void OnQuitBtnClicked()
         {
-            QuitApp();
+            var locManager = ModuleRegistry.Get<ILocalizationManager>();
+            var uiManager = ModuleRegistry.Get<IUIManager>();
+            uiManager.Show(WindowNames.ConfirmWindow, new ConfirmWindowData(locManager.GetLocalizedText(LocalizationKeys.QuitGameTitle), locManager.GetLocalizedText(LocalizationKeys.QuitGameContent), QuitApp));
         }
 
         private void QuitApp()

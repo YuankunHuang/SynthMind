@@ -55,12 +55,13 @@ namespace YuankunHuang.Unity.UICore
             img.color = new Color(0, 0, 0, 1);
             img.raycastTarget = true;
 
-            rt.SetParent(Config.transform);
+            rt.SetParent(Config.Root);
             rt.SetAsFirstSibling();
             rt.anchorMin = new Vector2(0, 0);
             rt.anchorMax = new Vector2(1, 1);
             rt.offsetMin = rt.offsetMax = Vector2.zero;
             rt.localPosition = Vector3.zero;
+            rt.localScale = Vector3.one;
         }
 
         private async Task CreateBlurBackgroundAsync(RenderTexture blurTexture)

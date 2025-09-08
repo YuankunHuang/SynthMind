@@ -286,12 +286,12 @@ namespace YuankunHuang.Unity.Editor
                        "\n" +
                        "        protected override void OnShow(IWindowData data, WindowShowState state)\n" +
                        "        {\n" +
-                       "            Config.CanvasGroup.CanvasGroupOn();" +
+                       "            Config.CanvasGroup.CanvasGroupOn();\n" +
                        "        }\n" +
                        "\n" +
                        "        protected override void OnHide(WindowHideState state)\n" +
                        "        {\n" +
-                       "            Config.CanvasGroup.CanvasGroupOff();" +
+                       "            Config.CanvasGroup.CanvasGroupOff();\n" +
                        "        }\n" +
                        "\n" +
                        "        protected override void OnDispose()\n" +
@@ -320,6 +320,14 @@ namespace YuankunHuang.Unity.Editor
 
             var cg = windowGO.AddComponent<CanvasGroup>();
             var config = windowGO.AddComponent<GeneralWindowConfig>();
+
+            var rootGO = new GameObject("Root");
+            var rootRT = rootGO.AddComponent<RectTransform>();
+            rootRT.SetParent(rectTransform);
+            rootRT.anchorMin = Vector2.zero;
+            rootRT.anchorMax = Vector2.one;
+            rootRT.offsetMin = Vector2.zero;
+            rootRT.offsetMax = Vector2.zero;
 
             var prefab = PrefabUtility.SaveAsPrefabAsset(windowGO, prefabPath);
 

@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
+using YuankunHuang.Unity.Core;
 
 namespace YuankunHuang.Unity.UICore
 {
@@ -13,19 +14,18 @@ namespace YuankunHuang.Unity.UICore
         public GameObject GameObject { get; }
         public IWindowData Data { get; private set; }
         
-        private readonly AsyncOperationHandle<GameObject> _prefabHandle;
-        private readonly AsyncOperationHandle<WindowAttributeData> _attrHandle;
+        private readonly string _prefabKey;
+        private readonly string _attributeDataKey;
 
         public Window(string name, WindowControllerBase controller, WindowAttributeData attributes, 
-            GameObject gameObject, AsyncOperationHandle<GameObject> prefabHandle, 
-            AsyncOperationHandle<WindowAttributeData> attrHandle)
+            GameObject gameObject, string prefabKey, string attributeDataKey)
         {
             Name = name;
             Controller = controller;
             Attributes = attributes;
             GameObject = gameObject;
-            _prefabHandle = prefabHandle;
-            _attrHandle = attrHandle;
+            _prefabKey = prefabKey;
+            _attributeDataKey = attributeDataKey;
         }
 
         public void Init(RenderTexture blurTexture = null) 
@@ -47,10 +47,21 @@ namespace YuankunHuang.Unity.UICore
         public void Dispose()
         {
             Controller?.Dispose();
-            if (GameObject != null) UnityEngine.Object.Destroy(GameObject);
+
+            if (GameObject != null)
+            {
+                UnityEngine.Object.Destroy(GameObject);
+            }
             
-            if (_prefabHandle.IsValid()) Addressables.Release(_prefabHandle);
-            if (_attrHandle.IsValid()) Addressables.Release(_attrHandle);
+            if (!string.IsNullOrEmpty(_prefabKey))
+            {
+                ResManager.Release(_prefabKey);
+            }
+
+            if (!string.IsNullOrEmpty(_attributeDataKey))
+            {
+                ResManager.Release(_attributeDataKey);
+            }
         }
     }
 }

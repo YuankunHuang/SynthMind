@@ -6,5 +6,6 @@ namespace YuankunHuang.Unity.Core
         public static readonly string MainMenu = "MainMenu";
         public static readonly string ProfileWindow = "ProfileWindow";
         public static readonly string InfoWindow = "InfoWindow";
+        public static readonly string ConfirmWindow = "ConfirmWindow";
     }
 }

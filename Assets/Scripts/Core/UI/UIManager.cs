@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.ResourceManagement.AsyncOperations;
 using YuankunHuang.Unity.Core;
 
 namespace YuankunHuang.Unity.UICore
@@ -51,7 +50,7 @@ namespace YuankunHuang.Unity.UICore
         {
             _ = ShowAsync(windowName, data);
         }
-        
+
         private async Task ShowAsync(string windowName, IWindowData data)
         {
             using (new InputBlock())
@@ -97,7 +96,9 @@ namespace YuankunHuang.Unity.UICore
             var current = _stack.Peek();
             if (current.Attributes.selfDestructOnCovered)
             {
-                _stack.Pop().Dispose();
+                current = _stack.Pop();
+                current.Hide(WindowHideState.Removed);
+                current.Dispose();
             }
             else if (newAttrs.hasMask)
             {
@@ -130,7 +131,8 @@ namespace YuankunHuang.Unity.UICore
                 
                 if (_stack.Count > 0)
                 {
-                    _stack.Peek().Show(null, WindowShowState.Uncovered);
+                    var top = _stack.Peek();
+                    top.Show(top.Data, WindowShowState.Uncovered);
                 }
             }
         }

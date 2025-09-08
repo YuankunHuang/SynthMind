@@ -1,7 +1,6 @@
 using System;
 using System.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.AddressableAssets;
 using YuankunHuang.Unity.Core;
 using YuankunHuang.Unity.Util;
 
@@ -19,11 +18,11 @@ namespace YuankunHuang.Unity.UICore
         public async Task<WindowAttributeData> LoadAttributeDataAsync(string windowName)
         {
             var attrKey = string.Format(AddressablePaths.WindowAttributeData, windowName);
-            var attrHandle = Addressables.LoadAssetAsync<WindowAttributeData>(attrKey);
-            var result = await attrHandle.Task;
-            
+            var tAttributeData = ResManager.LoadAssetAsync<WindowAttributeData>(attrKey);
+            var result = await tAttributeData;
+
             // Release immediately since we only need to check the data
-            Addressables.Release(attrHandle);
+            ResManager.Release(attrKey);
             return result;
         }
 
@@ -34,17 +33,17 @@ namespace YuankunHuang.Unity.UICore
                 var prefabKey = string.Format(AddressablePaths.StackableWindow, windowName, windowName);
                 var attrKey = string.Format(AddressablePaths.WindowAttributeData, windowName);
 
-                var prefabHandle = Addressables.LoadAssetAsync<GameObject>(prefabKey);
-                var attrHandle = Addressables.LoadAssetAsync<WindowAttributeData>(attrKey);
+                var tPrefab = ResManager.LoadAssetAsync<GameObject>(prefabKey);
+                var tAttributeData = ResManager.LoadAssetAsync<WindowAttributeData>(attrKey);
 
-                await Task.WhenAll(prefabHandle.Task, attrHandle.Task);
+                await Task.WhenAll(tPrefab, tAttributeData);
 
-                var gameObject = UnityEngine.Object.Instantiate(prefabHandle.Result, _root);
+                var gameObject = UnityEngine.Object.Instantiate(tPrefab.Result, _root);
                 gameObject.transform.SetAsLastSibling();
                 
                 var controller = CreateController(windowName);
                 
-                return new Window(windowName, controller, attrHandle.Result, gameObject, prefabHandle, attrHandle);
+                return new Window(windowName, controller, tAttributeData.Result, gameObject, prefabKey, attrKey);
             }
             catch (Exception ex)
             {

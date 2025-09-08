@@ -20,8 +20,8 @@ MonoBehaviour:
     enterAnimation: 0
     exitAnimation: 0
     slideDirection: 0
-    enterDuration: 0.25
-    exitDuration: 0.25
+    enterDuration: 0.3
+    exitDuration: 0.2
     curve:
       serializedVersion: 2
       m_Curve:

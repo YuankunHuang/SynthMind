@@ -6,6 +6,8 @@ namespace YuankunHuang.Unity.Core
 {
     public static class LocalizationKeys
     {
+        public const string CommonCancel = "Common_Cancel";
+        public const string CommonConfirm = "Common_Confirm";
         public const string MainMenuAbout = "MainMenu_About";
         public const string MainMenuAboutContent = "MainMenu_About_Content";
         public const string MainMenuChat = "MainMenu_Chat";
@@ -25,6 +27,8 @@ namespace YuankunHuang.Unity.Core
         public const string MainMenuUsername = "MainMenu_Username";
         public const string ProfileContent = "Profile_Content";
         public const string ProfileTitle = "Profile_Title";
+        public const string QuitGameContent = "QuitGame_Content";
+        public const string QuitGameTitle = "QuitGame_Title";
 
         private static List<string> _allKeys;
 

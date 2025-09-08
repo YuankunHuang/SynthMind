@@ -126,6 +126,22 @@ MonoBehaviour:
       your avatar, add a personal signature, showcase badges, and more here.
     m_Metadata:
       m_Items: []
+  - m_Id: 12534247689109504
+    m_Localized: Cancel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 12534345550610432
+    m_Localized: Confirm
+    m_Metadata:
+      m_Items: []
+  - m_Id: 12538656053608448
+    m_Localized: Quit Game
+    m_Metadata:
+      m_Items: []
+  - m_Id: 12538700131549184
+    m_Localized: Are you sure you want to exit the game?
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

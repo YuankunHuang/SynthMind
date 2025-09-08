@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 22bc7a1a8a48d564495440e3c4c87c91, type: 3}
-  m_Name: WindowAttributeData_LoginWindow
+  m_Name: WindowAttributeData_ConfirmWindow
   m_EditorClassIdentifier: 
-  hasMask: 1
-  useBlurredBackground: 0
+  hasMask: 0
+  useBlurredBackground: 1
   selfDestructOnCovered: 0
-  usePopupAnimation: 0
+  usePopupAnimation: 1
   animationSettings:
     enterAnimation: 0
     exitAnimation: 0

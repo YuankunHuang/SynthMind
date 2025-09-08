@@ -91,6 +91,22 @@ MonoBehaviour:
     m_Key: Profile_Content
     m_Metadata:
       m_Items: []
+  - m_Id: 12534247689109504
+    m_Key: Common_Cancel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 12534345550610432
+    m_Key: Common_Confirm
+    m_Metadata:
+      m_Items: []
+  - m_Id: 12538656053608448
+    m_Key: QuitGame_Title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 12538700131549184
+    m_Key: QuitGame_Content
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
