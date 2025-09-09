@@ -22,7 +22,7 @@ namespace YuankunHuang.Unity.LocalizationCore
         {
             try
             {
-                LogHelper.Log("[SimpleLocalizationManager] Initializing...");
+                LogHelper.Log("[LocalizationManager] Initializing...");
                 
                 await LocalizationSettings.InitializationOperation.Task;
                 LocalizationSettings.SelectedLocaleChanged += OnSelectedLocaleChanged;
@@ -30,11 +30,11 @@ namespace YuankunHuang.Unity.LocalizationCore
                 LoadSavedLanguage();
                 
                 IsInitialized = true;
-                LogHelper.Log($"[SimpleLocalizationManager] Initialized. Current language: {CurrentLanguage}");
+                LogHelper.Log($"[LocalizationManager] Initialized. Current language: {CurrentLanguage}");
             }
             catch (Exception e)
             {
-                LogHelper.LogError($"[SimpleLocalizationManager] Failed to initialize: {e.Message}");
+                LogHelper.LogError($"[LocalizationManager] Failed to initialize: {e.Message}");
                 LogHelper.LogException(e);
             }
         }
@@ -48,7 +48,7 @@ namespace YuankunHuang.Unity.LocalizationCore
         {
             if (!IsInitialized)
             {
-                LogHelper.LogWarning($"[SimpleLocalizationManager] Not initialized. Returning key: {key}");
+                LogHelper.LogWarning($"[LocalizationManager] Not initialized. Returning key: {key}");
                 return key;
             }
 
@@ -57,14 +57,14 @@ namespace YuankunHuang.Unity.LocalizationCore
                 var stringTableCollection = LocalizationSettings.StringDatabase.GetTable(table);
                 if (stringTableCollection == null)
                 {
-                    LogHelper.LogWarning($"[SimpleLocalizationManager] Table '{table}' not found");
+                    LogHelper.LogWarning($"[LocalizationManager] Table '{table}' not found");
                     return key;
                 }
 
                 var entry = stringTableCollection.GetEntry(key);
                 if (entry == null)
                 {
-                    LogHelper.LogWarning($"[SimpleLocalizationManager] Key '{key}' not found in table '{table}'");
+                    LogHelper.LogWarning($"[LocalizationManager] Key '{key}' not found in table '{table}'");
                     return key;
                 }
 
@@ -72,7 +72,7 @@ namespace YuankunHuang.Unity.LocalizationCore
             }
             catch (Exception e)
             {
-                LogHelper.LogWarning($"[SimpleLocalizationManager] Failed to get text for key '{key}': {e.Message}");
+                LogHelper.LogWarning($"[LocalizationManager] Failed to get text for key '{key}': {e.Message}");
                 return key;
             }
         }
@@ -95,7 +95,7 @@ namespace YuankunHuang.Unity.LocalizationCore
             }
             catch (Exception e)
             {
-                LogHelper.LogWarning($"[SimpleLocalizationManager] String format error for key '{key}': {e.Message}");
+                LogHelper.LogWarning($"[LocalizationManager] String format error for key '{key}': {e.Message}");
                 return template;
             }
         }
@@ -109,14 +109,14 @@ namespace YuankunHuang.Unity.LocalizationCore
         {
             try
             {
-                LogHelper.Log($"[SimpleLocalizationManager] Changing language to {langCode}");
+                LogHelper.Log($"[LocalizationManager] Changing language to {langCode}");
                 
                 var targetLocale = LocalizationSettings.AvailableLocales.Locales
                     .FirstOrDefault(locale => locale.Identifier.Code == langCode);
                     
                 if (targetLocale == null)
                 {
-                    LogHelper.LogError($"[SimpleLocalizationManager] Language not found: {langCode}");
+                    LogHelper.LogError($"[LocalizationManager] Language not found: {langCode}");
                     return;
                 }
 
@@ -127,7 +127,7 @@ namespace YuankunHuang.Unity.LocalizationCore
             }
             catch (Exception e)
             {
-                LogHelper.LogError($"[SimpleLocalizationManager] Failed to change language to {langCode}: {e.Message}");
+                LogHelper.LogError($"[LocalizationManager] Failed to change language to {langCode}: {e.Message}");
                 LogHelper.LogException(e);
             }
         }
@@ -147,7 +147,7 @@ namespace YuankunHuang.Unity.LocalizationCore
         {
             if (!IsInitialized)
             {
-                LogHelper.LogWarning("[SimpleLocalizationManager] System not initialized.");
+                LogHelper.LogWarning("[LocalizationManager] System not initialized.");
                 return new List<string>();
             }
 
@@ -168,11 +168,11 @@ namespace YuankunHuang.Unity.LocalizationCore
                 OnLanguageChanged = null;
                 IsInitialized = false;
                 
-                LogHelper.Log("[SimpleLocalizationManager] Disposed");
+                LogHelper.Log("[LocalizationManager] Disposed");
             }
             catch (Exception e)
             {
-                LogHelper.LogError($"[SimpleLocalizationManager] Error during disposal: {e.Message}");
+                LogHelper.LogError($"[LocalizationManager] Error during disposal: {e.Message}");
                 LogHelper.LogException(e);
             }
         }
@@ -190,7 +190,7 @@ namespace YuankunHuang.Unity.LocalizationCore
             try
             {
                 var savedLanguage = LocalizationPreferences.GetSavedLanguage();
-                LogHelper.Log($"[SimpleLocalizationManager] Loading saved language: {savedLanguage}");
+                LogHelper.Log($"[LocalizationManager] Loading language: {savedLanguage}");
                 
                 var targetLocale = LocalizationSettings.AvailableLocales.Locales
                     .FirstOrDefault(locale => locale.Identifier.Code == savedLanguage);
@@ -198,15 +198,34 @@ namespace YuankunHuang.Unity.LocalizationCore
                 if (targetLocale != null)
                 {
                     LocalizationSettings.SelectedLocale = targetLocale;
+                    LogHelper.Log($"[LocalizationManager] Language set to: {savedLanguage}");
                 }
                 else
                 {
-                    LogHelper.LogWarning($"[SimpleLocalizationManager] Saved language '{savedLanguage}' not found, using default");
+                    LogHelper.Log($"[LocalizationManager] Language '{savedLanguage}' not available, falling back to English");
+                    
+                    // Try to find English locale
+                    var englishLocale = LocalizationSettings.AvailableLocales.Locales
+                        .FirstOrDefault(locale => locale.Identifier.Code == "en");
+                    
+                    if (englishLocale != null)
+                    {
+                        LocalizationSettings.SelectedLocale = englishLocale;
+                        LogHelper.Log($"[LocalizationManager] Fallback to English successful");
+                    }
+                    else
+                    {
+                        LogHelper.LogWarning($"[LocalizationManager] English locale not found, using first available locale");
+                        if (LocalizationSettings.AvailableLocales.Locales.Count > 0)
+                        {
+                            LocalizationSettings.SelectedLocale = LocalizationSettings.AvailableLocales.Locales[0];
+                        }
+                    }
                 }
             }
             catch (Exception e)
             {
-                LogHelper.LogError($"[SimpleLocalizationManager] Failed to load saved language: {e.Message}");
+                LogHelper.LogError($"[LocalizationManager] Failed to load language: {e.Message}");
             }
         }
 
@@ -216,7 +235,7 @@ namespace YuankunHuang.Unity.LocalizationCore
             {
                 var newLanguage = locale.Identifier.Code;
                 OnLanguageChanged?.Invoke(newLanguage);
-                LogHelper.Log($"[SimpleLocalizationManager] Language changed to {newLanguage}");
+                LogHelper.Log($"[LocalizationManager] Language changed to {newLanguage}");
             }
         }
 
