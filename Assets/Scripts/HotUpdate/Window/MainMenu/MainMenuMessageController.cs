@@ -79,7 +79,7 @@ namespace YuankunHuang.Unity.HotUpdate
                 ? data.Sender.Nickname
                 : "Unknown User";
             config.ExtraImageList[(int)ExtraImg.Avatar].sprite = ModuleRegistry.Get<IAssetManager>()
-                .GetAsset<Sprite>(AvatarConfig.GetById(data.Sender?.Avatar ?? 0).asset);
+                .GetAsset<Sprite>(AvatarConfig.GetById(data.Sender?.Avatar ?? 0).Asset);
 
             config.CanvasGroup.CanvasGroupOn();
         }

@@ -6,21 +6,21 @@ namespace YuankunHuang.Unity.GameDataConfig
 {
     public class AccountTestData
     {
-        public int id { get; set; }
+        public int Id { get; set; }
 
-        public string uuid { get; set; }
+        public string Uuid { get; set; }
 
-        public bool isai { get; set; }
+        public bool IsAI { get; set; }
 
-        public string username { get; set; }
+        public string Username { get; set; }
 
-        public string password { get; set; }
+        public string Password { get; set; }
 
-        public string nickname { get; set; }
+        public string Nickname { get; set; }
 
-        public string email { get; set; }
+        public string Email { get; set; }
 
-        public int avatar { get; set; }
+        public int Avatar { get; set; }
 
     }
 

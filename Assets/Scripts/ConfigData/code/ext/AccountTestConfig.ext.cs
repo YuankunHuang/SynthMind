@@ -23,14 +23,14 @@ namespace YuankunHuang.Unity.GameDataConfig
             {
                 if (data != null)
                 {
-                    if (!string.IsNullOrEmpty(data.username))
+                    if (!string.IsNullOrEmpty(data.Username))
                     {
-                        _usernameMap[data.username] = data;
+                        _usernameMap[data.Username] = data;
                     }
 
-                    if (data.isai)
+                    if (data.IsAI)
                     {
-                        AI_ID_SET.Add(data.id);
+                        AI_ID_SET.Add(data.Id);
                     }
                 }
             }

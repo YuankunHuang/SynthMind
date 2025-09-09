@@ -6,11 +6,11 @@ namespace YuankunHuang.Unity.GameDataConfig
 {
     public class LanguageData
     {
-        public int id { get; set; }
+        public int Id { get; set; }
 
-        public string langcode { get; set; }
+        public string LangCode { get; set; }
 
-        public string icon { get; set; }
+        public string Icon { get; set; }
 
     }
 

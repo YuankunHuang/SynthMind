@@ -19,7 +19,7 @@ namespace YuankunHuang.Unity.UICore
             // 1. Load blur material first
             try
             {
-                _blurMaterial = await ResManager.LoadAssetAsync<Material>(AddressablePaths.UIBoxBlurMaterial).WithLogging();
+                _blurMaterial = await ResManager.LoadAssetAsync<Material>(AddressablePaths.UIGaussianBlurMaterial).WithLogging();
                 if (_blurMaterial == null)
                 {
                     LogHelper.LogWarning("[BlurBackground] Blur material not found");
@@ -74,7 +74,7 @@ namespace YuankunHuang.Unity.UICore
 
             if (_blurMaterial != null)
             {
-                ResManager.Release(AddressablePaths.UIBoxBlurMaterial);
+                ResManager.Release(AddressablePaths.UIGaussianBlurMaterial);
                 _blurMaterial = null;
             }
 

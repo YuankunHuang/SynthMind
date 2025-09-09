@@ -15,12 +15,40 @@ MonoBehaviour:
   m_TableCollectionName: Localization
   m_TableCollectionNameGuidString: 38f2989028b243842a55eca132e84e1b
   m_Entries:
+  - m_Id: 12538656053608448
+    m_Key: QuitGame_Title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 12538700131549184
+    m_Key: QuitGame_Content
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11950929176002560
+    m_Key: Profile_Title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11951980386025472
+    m_Key: Profile_Content
+    m_Metadata:
+      m_Items: []
   - m_Id: 1416685256704
     m_Key: MainMenu_Username
     m_Metadata:
       m_Items: []
   - m_Id: 309938454528
     m_Key: MainMenu_Title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11856416587988992
+    m_Key: MainMenu_Setting_LanguageTitle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11849990293504002
+    m_Key: MainMenu_Setting
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11849990293504001
+    m_Key: MainMenu_SandBox
     m_Metadata:
       m_Items: []
   - m_Id: 1617621778432
@@ -39,8 +67,20 @@ MonoBehaviour:
     m_Key: MainMenu_Notice_EmptyUsernameOrPassword
     m_Metadata:
       m_Items: []
+  - m_Id: 11946368000425984
+    m_Key: MainMenu_Login_EnterUsername
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11946505238052864
+    m_Key: MainMenu_Login_EnterPassword
+    m_Metadata:
+      m_Items: []
   - m_Id: 2273388625920
     m_Key: MainMenu_Login
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11887847922024448
+    m_Key: MainMenu_Home_Intro
     m_Metadata:
       m_Items: []
   - m_Id: 11849990289309696
@@ -51,60 +91,28 @@ MonoBehaviour:
     m_Key: MainMenu_Chat
     m_Metadata:
       m_Items: []
-  - m_Id: 11849990293504001
-    m_Key: MainMenu_SandBox
-    m_Metadata:
-      m_Items: []
-  - m_Id: 11849990293504002
-    m_Key: MainMenu_Setting
+  - m_Id: 11906114577072128
+    m_Key: MainMenu_About_Content
     m_Metadata:
       m_Items: []
   - m_Id: 11849990293504003
     m_Key: MainMenu_About
     m_Metadata:
       m_Items: []
-  - m_Id: 11856416587988992
-    m_Key: MainMenu_Setting_LanguageTitle
-    m_Metadata:
-      m_Items: []
-  - m_Id: 11887847922024448
-    m_Key: MainMenu_Home_Intro
-    m_Metadata:
-      m_Items: []
-  - m_Id: 11906114577072128
-    m_Key: MainMenu_About_Content
-    m_Metadata:
-      m_Items: []
-  - m_Id: 11946368000425984
-    m_Key: MainMenu_Login_EnterUsername
-    m_Metadata:
-      m_Items: []
-  - m_Id: 11946505238052864
-    m_Key: MainMenu_Login_EnterPassword
-    m_Metadata:
-      m_Items: []
-  - m_Id: 11950929176002560
-    m_Key: Profile_Title
-    m_Metadata:
-      m_Items: []
-  - m_Id: 11951980386025472
-    m_Key: Profile_Content
+  - m_Id: 12534345550610432
+    m_Key: Common_Confirm
     m_Metadata:
       m_Items: []
   - m_Id: 12534247689109504
     m_Key: Common_Cancel
     m_Metadata:
       m_Items: []
-  - m_Id: 12534345550610432
-    m_Key: Common_Confirm
+  - m_Id: 12634429445210112
+    m_Key: MainMenu_Setting_SoundTitle
     m_Metadata:
       m_Items: []
-  - m_Id: 12538656053608448
-    m_Key: QuitGame_Title
-    m_Metadata:
-      m_Items: []
-  - m_Id: 12538700131549184
-    m_Key: QuitGame_Content
+  - m_Id: 12634862448377856
+    m_Key: MainMenu_Setting_GraphicsTitle
     m_Metadata:
       m_Items: []
   m_Metadata:

@@ -22,7 +22,9 @@ namespace YuankunHuang.Unity.Core
         public const string MainMenuPassword = "MainMenu_Password";
         public const string MainMenuSandBox = "MainMenu_SandBox";
         public const string MainMenuSetting = "MainMenu_Setting";
+        public const string MainMenuSettingGraphicsTitle = "MainMenu_Setting_GraphicsTitle";
         public const string MainMenuSettingLanguageTitle = "MainMenu_Setting_LanguageTitle";
+        public const string MainMenuSettingSoundTitle = "MainMenu_Setting_SoundTitle";
         public const string MainMenuTitle = "MainMenu_Title";
         public const string MainMenuUsername = "MainMenu_Username";
         public const string ProfileContent = "Profile_Content";

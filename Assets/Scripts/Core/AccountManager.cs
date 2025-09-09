@@ -91,15 +91,15 @@ namespace YuankunHuang.Unity.AccountCore
                 return;
             }
 
-            if (accountData.password != password)
+            if (accountData.Password != password)
             {
-                onError?.Invoke($"Invalid password -> Correct: {accountData.password} | wrong: {password}");
+                onError?.Invoke($"Invalid password -> Correct: {accountData.Password} | wrong: {password}");
                 return;
             }
 
             if (Self == null)
             {
-                Self = new Account(accountData.uuid, accountData.username, accountData.nickname, accountData.email, accountData.avatar);
+                Self = new Account(accountData.Uuid, accountData.Username, accountData.Nickname, accountData.Email, accountData.Avatar);
             }
 
             if (AI == null)
@@ -107,7 +107,7 @@ namespace YuankunHuang.Unity.AccountCore
                 foreach (var id in AccountTestConfig.AI_ID_SET)
                 {
                     var aiAccountCfgData = AccountTestConfig.GetById(id);
-                    AI = new Account(aiAccountCfgData.uuid, aiAccountCfgData.username, aiAccountCfgData.nickname, aiAccountCfgData.email, aiAccountCfgData.avatar);
+                    AI = new Account(aiAccountCfgData.Uuid, aiAccountCfgData.Username, aiAccountCfgData.Nickname, aiAccountCfgData.Email, aiAccountCfgData.Avatar);
                     break;
                 }
             }

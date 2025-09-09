@@ -12,6 +12,7 @@ using YuankunHuang.Unity.SandboxCore;
 using YuankunHuang.Unity.LocalizationCore;
 using YuankunHuang.Unity.FirebaseCore;
 using YuankunHuang.Unity.Core.Debug;
+using YuankunHuang.Unity.AudioCore;
 
 namespace YuankunHuang.Unity.Core
 {
@@ -91,6 +92,7 @@ namespace YuankunHuang.Unity.Core
                     ModuleRegistry.Register<ICameraManager>(new CameraManager());
                     ModuleRegistry.Register<IAccountManager>(new AccountManager());
                     ModuleRegistry.Register<ICommandManager>(new CommandManager());
+                    ModuleRegistry.Register<IAudioManager>(new AudioManager());
 
                     var localizationManager = new LocalizationManager();
                     await localizationManager.InitializeAsync().WithLogging();
@@ -120,6 +122,7 @@ namespace YuankunHuang.Unity.Core
             ModuleRegistry.Get<ILocalizationManager>().Dispose();
             ModuleRegistry.Get<INetworkManager>().Dispose();
             ModuleRegistry.Get<IAccountManager>().Dispose();
+            ModuleRegistry.Get<IAudioManager>().Dispose();
 
             ModuleRegistry.Unregister<IAssetManager>();
             ModuleRegistry.Unregister<IUIManager>();
@@ -128,6 +131,7 @@ namespace YuankunHuang.Unity.Core
             ModuleRegistry.Unregister<ILocalizationManager>();
             ModuleRegistry.Unregister<INetworkManager>();
             ModuleRegistry.Unregister<IAccountManager>();
+            ModuleRegistry.Unregister<IAudioManager>();
 
             MonoManager.Dispose();
             InputBlocker.Dispose();

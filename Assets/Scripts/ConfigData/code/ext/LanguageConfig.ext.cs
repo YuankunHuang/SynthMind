@@ -22,7 +22,7 @@ namespace YuankunHuang.Unity.GameDataConfig
             {
                 if (data != null)
                 {
-                    _langCodeDict[data.langcode] = data;
+                    _langCodeDict[data.LangCode] = data;
                 }
             }
         }

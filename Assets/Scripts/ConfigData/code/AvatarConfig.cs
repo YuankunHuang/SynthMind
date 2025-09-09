@@ -6,9 +6,9 @@ namespace YuankunHuang.Unity.GameDataConfig
 {
     public class AvatarData
     {
-        public int id { get; set; }
+        public int Id { get; set; }
 
-        public string asset { get; set; }
+        public string Asset { get; set; }
 
     }
 

@@ -14,4 +14,22 @@ namespace YuankunHuang.Unity.GameDataConfig
         Enum
     }
 
+    public enum AudioIdType
+    {
+        ButtonClick = 1,
+    }
+
+    public enum AudioType
+    {
+        BGM = 1,
+        SFX = 2,
+        UI = 3,
+    }
+
+    public enum SampleType
+    {
+        Warrior = 1,
+        Mage = 2,
+    }
+
 }

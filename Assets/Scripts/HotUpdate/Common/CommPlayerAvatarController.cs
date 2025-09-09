@@ -67,7 +67,7 @@ namespace YuankunHuang.Unity.HotUpdate
         {
             var avatarData = AvatarConfig.GetById(avatarId);
             var assetManager = ModuleRegistry.Get<IAssetManager>();
-            var sprite = assetManager.GetAsset<Sprite>(avatarData.asset);
+            var sprite = assetManager.GetAsset<Sprite>(avatarData.Asset);
 
             var avatarImg = config.ExtraImageList[(int)ExtraImg.Avatar];
             avatarImg.sprite = sprite;

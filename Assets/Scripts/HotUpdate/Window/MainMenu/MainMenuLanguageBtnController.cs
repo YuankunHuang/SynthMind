@@ -78,56 +78,42 @@ namespace YuankunHuang.Unity.HotUpdate
                 // Show flag
                 var flagImg = config.ExtraImageList[(int)ExtraImg.Flag];
                 var flagAtlas = config.ExtraSpriteAtlasList[(int)ExtraAtlas.Flag];
-                var flagSprite = flagAtlas.GetSprite(data.LangData.icon);
+                var flagSprite = flagAtlas.GetSprite(data.LangData.Icon);
                 if (flagSprite != null)
                 {
                     flagImg.sprite = flagSprite;
                 }
                 else
                 {
-                    LogHelper.LogWarning($"[MainMenuLanguageBtnController] Flag sprite not found: {data.LangData.icon}");
+                    LogHelper.LogWarning($"[MainMenuLanguageBtnController] Flag sprite not found: {data.LangData.Icon}");
                 }
 
                 // Show locale name
-                if (config.ExtraTextMeshProList?.Count > (int)ExtraTMP.Locale)
+                var localeTxt = config.ExtraTextMeshProList[(int)ExtraTMP.Locale];
+                if (localeTxt != null)
                 {
-                    var localeTxt = config.ExtraTextMeshProList[(int)ExtraTMP.Locale];
-                    if (localeTxt != null)
-                    {
-                        localeTxt.text = data.DisplayName ?? data.LangData.langcode ?? "Unknown";
-                    }
-                }
-                else
-                {
-                    LogHelper.LogWarning("[MainMenuLanguageBtnController] Locale text component not found in config");
+                    localeTxt.text = data.DisplayName ?? data.LangData.LangCode ?? "Unknown";
                 }
 
                 // Set on click
-                if (config.ExtraButtonList?.Count > (int)ExtraBtn.Clickable)
+                var clickable = config.ExtraButtonList[(int)ExtraBtn.Clickable];
+                if (clickable != null)
                 {
-                    var clickable = config.ExtraButtonList[(int)ExtraBtn.Clickable];
-                    if (clickable != null)
+                    clickable.onClick.RemoveAllListeners();
+                    if (data.OnClick != null)
                     {
-                        clickable.onClick.RemoveAllListeners();
-                        if (data.OnClick != null)
+                        clickable.onClick.AddListener(() =>
                         {
-                            clickable.onClick.AddListener(() =>
+                            try
                             {
-                                try
-                                {
-                                    data.OnClick.Invoke();
-                                }
-                                catch (System.Exception ex)
-                                {
-                                    LogHelper.LogError($"[MainMenuLanguageBtnController] Error in button click handler: {ex.Message}");
-                                }
-                            });
-                        }
+                                data.OnClick.Invoke();
+                            }
+                            catch (System.Exception ex)
+                            {
+                                LogHelper.LogError($"[MainMenuLanguageBtnController] Error in button click handler: {ex.Message}");
+                            }
+                        });
                     }
-                }
-                else
-                {
-                    LogHelper.LogWarning("[MainMenuLanguageBtnController] Clickable button not found in config");
                 }
             }
             catch (System.Exception ex)
