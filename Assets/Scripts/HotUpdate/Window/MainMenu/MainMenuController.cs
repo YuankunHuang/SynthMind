@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using YuankunHuang.Unity.AccountCore;
+using YuankunHuang.Unity.AudioCore;
 using YuankunHuang.Unity.Core;
 using YuankunHuang.Unity.GameDataConfig;
 using YuankunHuang.Unity.ModuleCore;
@@ -126,26 +127,31 @@ namespace YuankunHuang.Unity.HotUpdate
         #region Events
         private void OnHomeBtnClicked()
         {
+            ModuleRegistry.Get<IAudioManager>().PlayUI(GameDataConfig.AudioIdType.TestButtonClick);
             ShowWidget(Page.Home, false);
         }
 
         private void OnChatBtnClicked()
         {
+            ModuleRegistry.Get<IAudioManager>().PlayUI(GameDataConfig.AudioIdType.TestButtonClick);
             ShowWidget(Page.Chat, false);
         }
 
         private void OnSandboxBtnClicked()
         {
+            ModuleRegistry.Get<IAudioManager>().PlayUI(GameDataConfig.AudioIdType.TestButtonClick);
             ShowWidget(Page.Sandbox, false);
         }
 
         private void OnSettingBtnClicked()
         {
+            ModuleRegistry.Get<IAudioManager>().PlayUI(GameDataConfig.AudioIdType.TestButtonClick);
             ShowWidget(Page.Setting, false);
         }
 
         private void OnAboutBtnClicked()
         {
+            ModuleRegistry.Get<IAudioManager>().PlayUI(GameDataConfig.AudioIdType.TestButtonClick);
             ShowWidget(Page.About, false);
         }
         #endregion

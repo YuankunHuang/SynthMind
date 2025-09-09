@@ -43,15 +43,14 @@ namespace YuankunHuang.Unity.Util
         /// </summary>
         /// <param name="key">The PlayerPrefs key to retrieve.</param>
         /// <returns>The integer value associated with the specified key.</returns>
-        public static int GetInt(string key)
+        public static int GetInt(string key, int defaultVal = 0)
         {
             if (HasKey(key))
             {
                 return PlayerPrefs.GetInt(key);
             }
 
-            LogHelper.LogError($"GetInt::Invalid key: {key}");
-            return 0;
+            return defaultVal;
         }
 
         /// <summary>
@@ -60,15 +59,24 @@ namespace YuankunHuang.Unity.Util
         /// </summary>
         /// <param name="key">The PlayerPrefs key to retrieve.</param>
         /// <returns>The string value associated with the specified key.</returns>
-        public static string GetString(string key)
+        public static string GetString(string key, string defaultVal = null)
         {
             if (HasKey(key))
             {
                 return PlayerPrefs.GetString(key);
             }
 
-            LogHelper.LogError($"GetString::Invalid key: {key}");
-            return null;
+            return defaultVal;
+        }
+
+        public static bool GetBool(string key, bool defaultVal = false)
+        {
+            if (HasKey(key))
+            {
+                return PlayerPrefs.GetInt(key) > 0;
+            }
+
+            return defaultVal;
         }
 
         /// <summary>
@@ -99,6 +107,17 @@ namespace YuankunHuang.Unity.Util
             if (IsValidKey(key))
             {
                 PlayerPrefs.SetString(key, value);
+                return true;
+            }
+
+            return false;
+        }
+
+        public static bool TrySetBool(string key, bool value)
+        {
+            if (IsValidKey(key))
+            {
+                PlayerPrefs.SetInt(key, value ? 1 : 0);
                 return true;
             }
 

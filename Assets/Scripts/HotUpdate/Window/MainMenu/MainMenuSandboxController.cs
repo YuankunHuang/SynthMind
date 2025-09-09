@@ -4,14 +4,15 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using YuankunHuang.Unity.Core;
-using YuankunHuang.Unity.Util;
-using YuankunHuang.Unity.ModuleCore;
-using YuankunHuang.Unity.UICore;
 using YuankunHuang.Unity.AccountCore;
+using YuankunHuang.Unity.AudioCore;
+using YuankunHuang.Unity.Core;
+using YuankunHuang.Unity.FirebaseCore;
+using YuankunHuang.Unity.ModuleCore;
 using YuankunHuang.Unity.NetworkCore;
 using YuankunHuang.Unity.SandboxCore;
-using YuankunHuang.Unity.FirebaseCore;
+using YuankunHuang.Unity.UICore;
+using YuankunHuang.Unity.Util;
 
 namespace YuankunHuang.Unity.HotUpdate
 {
@@ -145,6 +146,8 @@ namespace YuankunHuang.Unity.HotUpdate
 
         private void OnSendBtnClicked()
         {
+            ModuleRegistry.Get<IAudioManager>().PlayUI(GameDataConfig.AudioIdType.TestButtonClick);
+
             var input = _inputField.text.Trim();
             _inputField.text = "";
 

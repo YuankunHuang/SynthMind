@@ -39,7 +39,7 @@
   },
   "Audio": {
     "FieldCount": 7,
-    "RowCount": 1,
+    "RowCount": 2,
     "Fields": [
       {
         "Name": "id",
@@ -50,7 +50,7 @@
         "Type": "Enum"
       },
       {
-        "Name": "playType",
+        "Name": "group",
         "Type": "Enum"
       },
       {

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using YuankunHuang.Unity.AudioCore;
 using YuankunHuang.Unity.ModuleCore;
 using YuankunHuang.Unity.UICore;
 using YuankunHuang.Unity.Util;
@@ -72,6 +73,7 @@ namespace YuankunHuang.Unity.HotUpdate
         #region Events
         private void OnMaskBtnClick()
         {
+            ModuleRegistry.Get<IAudioManager>().PlayUI(GameDataConfig.AudioIdType.TestButtonClick);
             ModuleRegistry.Get<IUIManager>().GoBack();
         }
         #endregion

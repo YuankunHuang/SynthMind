@@ -5,6 +5,8 @@ using YuankunHuang.Unity.UICore;
 using YuankunHuang.Unity.ModuleCore;
 using YuankunHuang.Unity.AccountCore;
 using YuankunHuang.Unity.LocalizationCore;
+using YuankunHuang.Unity.AudioCore;
+
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -58,9 +60,14 @@ namespace YuankunHuang.Unity.HotUpdate
 
         protected override void OnShow(IWindowData data, WindowShowState state)
         {
-            _usernameInputField.text = string.Empty;
-            _passwordInputField.text = string.Empty;
-            _noticeTxt.text = string.Empty;
+            if (state == WindowShowState.New)
+            {
+                _usernameInputField.text = string.Empty;
+                _passwordInputField.text = string.Empty;
+                _noticeTxt.text = string.Empty;
+
+                ModuleRegistry.Get<IAudioManager>().PlayBGMAsync(GameDataConfig.AudioIdType.TestBGM);
+            }
         }
 
         protected override void OnDispose()
@@ -73,6 +80,8 @@ namespace YuankunHuang.Unity.HotUpdate
         #region Event Handlers
         private void OnQuitBtnClicked()
         {
+            ModuleRegistry.Get<IAudioManager>().PlayUI(GameDataConfig.AudioIdType.TestButtonClick);
+
             var locManager = ModuleRegistry.Get<ILocalizationManager>();
             var uiManager = ModuleRegistry.Get<IUIManager>();
             uiManager.Show(WindowNames.ConfirmWindow, new ConfirmWindowData(locManager.GetLocalizedText(LocalizationKeys.QuitGameTitle), locManager.GetLocalizedText(LocalizationKeys.QuitGameContent), QuitApp));
@@ -89,6 +98,8 @@ namespace YuankunHuang.Unity.HotUpdate
 
         private void OnLoginBtnClicked()
         {
+            ModuleRegistry.Get<IAudioManager>().PlayUI(GameDataConfig.AudioIdType.TestButtonClick);
+
             string username = _usernameInputField.text.Trim();
             string password = _passwordInputField.text.Trim();
             if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))

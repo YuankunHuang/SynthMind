@@ -1,5 +1,6 @@
 using System;
 using TMPro;
+using YuankunHuang.Unity.AudioCore;
 using YuankunHuang.Unity.Core;
 using YuankunHuang.Unity.ModuleCore;
 using YuankunHuang.Unity.UICore;
@@ -90,16 +91,19 @@ namespace YuankunHuang.Unity.HotUpdate
         #region UI Binding
         private void OnMaskBtnClicked()
         {
+            ModuleRegistry.Get<IAudioManager>().PlayUI(GameDataConfig.AudioIdType.TestButtonClick);
             ModuleRegistry.Get<IUIManager>().GoBack();
         }
 
         private void OnCancelBtnClicked()
         {
+            ModuleRegistry.Get<IAudioManager>().PlayUI(GameDataConfig.AudioIdType.TestButtonClick);
             ModuleRegistry.Get<IUIManager>().GoBack();
         }
 
         private void OnConfirmBtnClicked()
         {
+            ModuleRegistry.Get<IAudioManager>().PlayUI(GameDataConfig.AudioIdType.TestButtonClick);
             _onConfirm?.Invoke();
             ModuleRegistry.Get<IUIManager>().GoBack();
         }

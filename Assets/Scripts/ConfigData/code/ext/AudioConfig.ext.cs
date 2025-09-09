@@ -4,15 +4,9 @@ using YuankunHuang.Unity.Core;
 
 namespace YuankunHuang.Unity.GameDataConfig
 {
-    /// <summary>
-    /// AudioConfig extension class
-    /// Add your custom logic and methods here
-    /// This file is NOT overwritten during build
-    /// </summary>
     public partial class AudioConfig : BaseConfigData<AudioData>
     {
-        // Add your custom methods here
-        private static Dictionary<AudioIdType, AudioData> _idDict;
+        private static Dictionary<AudioIdType, AudioData> _idDict = new();
 
         static partial void PostInitialize()
         {
