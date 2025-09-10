@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.IO.Compression;
 using UnityEditor;
 using UnityEditor.AddressableAssets;
 using UnityEditor.AddressableAssets.Settings;
@@ -14,7 +15,8 @@ namespace YuankunHuang.Unity.Editor.BuildPipeline
         [MenuItem("Tools/Build Pipeline")]
         public static void ShowWindow()
         {
-            GetWindow<BuildPipelineManager>("SynthMind Build Pipeline");
+            var window = GetWindow<BuildPipelineManager>("SynthMind Build Pipeline");
+            window.LoadSettings();
         }
 
         private BuildTarget _selectedTarget = BuildTarget.StandaloneWindows64;
@@ -24,6 +26,16 @@ namespace YuankunHuang.Unity.Editor.BuildPipeline
         private bool _buildAddressables = true;
         private bool _autoOpenFolder = true;
         private bool _createZip = false;
+        private bool _showBuildHistory = false;
+        private UnityEngine.Vector2 _historyScrollPosition;
+        
+        private const string PREF_TARGET = "SynthMind.BuildPipeline.Target";
+        private const string PREF_PROFILE = "SynthMind.BuildPipeline.Profile";
+        private const string PREF_VERSION = "SynthMind.BuildPipeline.Version";
+        private const string PREF_CUSTOM_PATH = "SynthMind.BuildPipeline.CustomPath";
+        private const string PREF_BUILD_ADDRESSABLES = "SynthMind.BuildPipeline.BuildAddressables";
+        private const string PREF_AUTO_OPEN = "SynthMind.BuildPipeline.AutoOpen";
+        private const string PREF_CREATE_ZIP = "SynthMind.BuildPipeline.CreateZip";
         
         private enum BuildProfile
         {
@@ -38,9 +50,27 @@ namespace YuankunHuang.Unity.Editor.BuildPipeline
             EditorGUILayout.LabelField("Build Configuration", EditorStyles.boldLabel);
             EditorGUI.indentLevel++;
             
+            EditorGUI.BeginChangeCheck();
             _selectedTarget = (BuildTarget)EditorGUILayout.EnumPopup("Target Platform", _selectedTarget);
             _selectedProfile = (BuildProfile)EditorGUILayout.EnumPopup("Build Profile", _selectedProfile);
+            
+            // Version with auto-increment
+            EditorGUILayout.BeginHorizontal();
             _buildVersion = EditorGUILayout.TextField("Version", _buildVersion);
+            if (GUILayout.Button("++", GUILayout.Width(30)))
+            {
+                _buildVersion = IncrementVersion(_buildVersion);
+            }
+            if (GUILayout.Button("Reset", GUILayout.Width(50)))
+            {
+                _buildVersion = "1.0.0";
+            }
+            EditorGUILayout.EndHorizontal();
+            
+            if (EditorGUI.EndChangeCheck())
+            {
+                SaveSettings();
+            }
             
             EditorGUI.indentLevel--;
             EditorGUILayout.Space();
@@ -49,9 +79,14 @@ namespace YuankunHuang.Unity.Editor.BuildPipeline
             EditorGUILayout.LabelField("Build Options", EditorStyles.boldLabel);
             EditorGUI.indentLevel++;
             
+            EditorGUI.BeginChangeCheck();
             _buildAddressables = EditorGUILayout.Toggle("Build Addressables", _buildAddressables);
             _autoOpenFolder = EditorGUILayout.Toggle("Open Build Folder", _autoOpenFolder);
             _createZip = EditorGUILayout.Toggle("Create ZIP Archive", _createZip);
+            if (EditorGUI.EndChangeCheck())
+            {
+                SaveSettings();
+            }
             
             EditorGUI.indentLevel--;
             EditorGUILayout.Space();
@@ -60,6 +95,7 @@ namespace YuankunHuang.Unity.Editor.BuildPipeline
             EditorGUILayout.LabelField("Build Path", EditorStyles.boldLabel);
             EditorGUI.indentLevel++;
             
+            EditorGUI.BeginChangeCheck();
             EditorGUILayout.BeginHorizontal();
             _customBuildPath = EditorGUILayout.TextField("Custom Path", _customBuildPath);
             if (GUILayout.Button("Browse", GUILayout.Width(60)))
@@ -77,6 +113,11 @@ namespace YuankunHuang.Unity.Editor.BuildPipeline
                 _customBuildPath = "";
             }
             
+            if (EditorGUI.EndChangeCheck())
+            {
+                SaveSettings();
+            }
+            
             EditorGUI.indentLevel--;
             EditorGUILayout.Space();
 
@@ -89,19 +130,19 @@ namespace YuankunHuang.Unity.Editor.BuildPipeline
             EditorGUILayout.BeginHorizontal();
             
             GUI.backgroundColor = Color.green;
-            if (GUILayout.Button("🚀 Build Now", GUILayout.Height(30)))
+            if (GUILayout.Button("Build Now", GUILayout.Height(30)))
             {
                 BuildGame();
             }
             
             GUI.backgroundColor = Color.yellow;
-            if (GUILayout.Button("🔧 Build Addressables Only", GUILayout.Height(30)))
+            if (GUILayout.Button("Build Addressables Only", GUILayout.Height(30)))
             {
                 BuildAddressablesOnly();
             }
             
             GUI.backgroundColor = Color.red;
-            if (GUILayout.Button("🗑️ Clean Build", GUILayout.Height(30)))
+            if (GUILayout.Button("Clean Build", GUILayout.Height(30)))
             {
                 CleanBuild();
             }
@@ -115,22 +156,51 @@ namespace YuankunHuang.Unity.Editor.BuildPipeline
             EditorGUILayout.LabelField("Quick Actions", EditorStyles.boldLabel);
             EditorGUILayout.BeginHorizontal();
             
-            if (GUILayout.Button("📁 Open Build Folder"))
+            if (GUILayout.Button("Open Build Folder"))
             {
                 OpenBuildFolder();
             }
             
-            if (GUILayout.Button("📊 Player Settings"))
+            if (GUILayout.Button("Player Settings"))
             {
                 SettingsService.OpenProjectSettings("Project/Player");
             }
             
-            if (GUILayout.Button("🎯 Build Settings"))
+            if (GUILayout.Button("Build Settings"))
             {
                 EditorWindow.GetWindow(System.Type.GetType("UnityEditor.BuildPlayerWindow,UnityEditor"));
             }
             
+            if (GUILayout.Button("View Last Report"))
+            {
+                var history = BuildHistoryManager.LoadHistory();
+                if (history.entries.Count > 0)
+                {
+                    var lastBuild = history.entries[0];
+                    EditorUtility.DisplayDialog("Last Build Info", 
+                        $"Version: {lastBuild.buildVersion}\n" +
+                        $"Target: {lastBuild.buildTarget}\n" +
+                        $"Result: {lastBuild.buildResult}\n" +
+                        $"Duration: {lastBuild.buildDuration:mm\\:ss}\n" +
+                        $"Size: {FormatBytes((ulong)lastBuild.buildSize)}\n" +
+                        $"Path: {lastBuild.buildPath}", "OK");
+                }
+                else
+                {
+                    EditorUtility.DisplayDialog("No Build History", "No previous builds found.", "OK");
+                }
+            }
+            
             EditorGUILayout.EndHorizontal();
+            
+            EditorGUILayout.Space();
+            
+            // Build History
+            _showBuildHistory = EditorGUILayout.Foldout(_showBuildHistory, "Build History", true);
+            if (_showBuildHistory)
+            {
+                DrawBuildHistory();
+            }
         }
 
         private string GetBuildPath()
@@ -155,6 +225,7 @@ namespace YuankunHuang.Unity.Editor.BuildPipeline
 
         private void BuildGame()
         {
+            var startTime = DateTime.Now;
             try
             {
                 EditorUtility.DisplayProgressBar("SynthMind Build Pipeline", "Preparing build...", 0.0f);
@@ -186,30 +257,53 @@ namespace YuankunHuang.Unity.Editor.BuildPipeline
                 
                 EditorUtility.ClearProgressBar();
                 
+                // Step 6: Record build history
+                var endTime = DateTime.Now;
+                var duration = endTime - startTime;
+                RecordBuildHistory(buildReport, startTime, duration);
+                
                 if (buildReport.summary.result == BuildResult.Succeeded)
                 {
-                    LogHelper.Log($"✅ Build completed successfully!\nBuild path: {buildReport.summary.outputPath}");
+                    LogHelper.Log($"Build completed successfully!\nBuild path: {buildReport.summary.outputPath}");
                     
                     if (_autoOpenFolder)
                     {
                         OpenBuildFolder();
                     }
                     
-                    EditorUtility.DisplayDialog("Build Complete", 
+                    var dialogResult = EditorUtility.DisplayDialogComplex("Build Complete", 
                         $"Build completed successfully!\n\nBuild time: {buildReport.summary.totalTime}\nSize: {FormatBytes(buildReport.summary.totalSize)}", 
-                        "OK");
+                        "OK", "View Report", "");
+                    
+                    if (dialogResult == 1) // View Report button
+                    {
+                        BuildReportWindow.ShowReport(buildReport);
+                    }
                 }
                 else
                 {
-                    LogHelper.LogError($"❌ Build failed: {buildReport.summary.result}");
-                    EditorUtility.DisplayDialog("Build Failed", $"Build failed: {buildReport.summary.result}", "OK");
+                    LogHelper.LogError($"Build failed: {buildReport.summary.result}");
+                    
+                    var dialogResult = EditorUtility.DisplayDialogComplex("Build Failed", 
+                        $"Build failed: {buildReport.summary.result}\n\nErrors: {buildReport.summary.totalErrors}\nWarnings: {buildReport.summary.totalWarnings}", 
+                        "OK", "View Report", "");
+                    
+                    if (dialogResult == 1) // View Report button
+                    {
+                        BuildReportWindow.ShowReport(buildReport);
+                    }
                 }
             }
             catch (Exception ex)
             {
                 EditorUtility.ClearProgressBar();
-                LogHelper.LogError($"❌ Build pipeline error: {ex.Message}");
+                LogHelper.LogError($"Build pipeline error: {ex.Message}");
                 EditorUtility.DisplayDialog("Build Error", $"Build pipeline error:\n{ex.Message}", "OK");
+                
+                // Record failed build
+                var endTime = DateTime.Now;
+                var duration = endTime - startTime;
+                RecordFailedBuild(startTime, duration, ex.Message);
             }
         }
 
@@ -218,7 +312,7 @@ namespace YuankunHuang.Unity.Editor.BuildPipeline
             // Check if scenes are added to build
             if (EditorBuildSettings.scenes.Length == 0)
             {
-                LogHelper.LogError("❌ No scenes added to build settings!");
+                LogHelper.LogError("No scenes added to build settings!");
                 return false;
             }
 
@@ -226,7 +320,7 @@ namespace YuankunHuang.Unity.Editor.BuildPipeline
             var settings = AddressableAssetSettingsDefaultObject.Settings;
             if (settings == null)
             {
-                LogHelper.LogWarning("⚠️ Addressables not configured, but continuing build...");
+                LogHelper.LogWarning("Addressables not configured, but continuing build...");
             }
 
             return true;
@@ -266,13 +360,13 @@ namespace YuankunHuang.Unity.Editor.BuildPipeline
             var settings = AddressableAssetSettingsDefaultObject.Settings;
             if (settings == null)
             {
-                LogHelper.LogWarning("⚠️ Addressables settings not found, skipping...");
+                LogHelper.LogWarning("Addressables settings not found, skipping...");
                 return;
             }
 
-            LogHelper.Log("🔧 Building Addressables...");
+            LogHelper.Log("Building Addressables...");
             AddressableAssetSettings.BuildPlayerContent();
-            LogHelper.Log("✅ Addressables build completed");
+            LogHelper.Log("Addressables build completed");
         }
 
         private BuildReport BuildPlayer()
@@ -286,7 +380,7 @@ namespace YuankunHuang.Unity.Editor.BuildPipeline
                 options = GetBuildOptions()
             };
 
-            LogHelper.Log($"🚀 Starting build to: {buildPlayerOptions.locationPathName}");
+            LogHelper.Log($"Starting build to: {buildPlayerOptions.locationPathName}");
             return UnityEditor.BuildPipeline.BuildPlayer(buildPlayerOptions);
         }
 
@@ -372,15 +466,26 @@ namespace YuankunHuang.Unity.Editor.BuildPipeline
             try
             {
                 var zipPath = buildPath + ".zip";
-                LogHelper.Log($"📦 Creating ZIP archive: {zipPath}");
+                LogHelper.Log($"Creating ZIP archive: {zipPath}");
                 
-                // This would require System.IO.Compression or a third-party library
-                // For now, just log the intention
-                LogHelper.Log("💡 ZIP creation not implemented - consider adding System.IO.Compression");
+                if (File.Exists(zipPath))
+                {
+                    File.Delete(zipPath);
+                }
+                
+                ZipFile.CreateFromDirectory(buildPath, zipPath, System.IO.Compression.CompressionLevel.Optimal, false);
+                
+                var zipInfo = new FileInfo(zipPath);
+                LogHelper.Log($"ZIP archive created successfully: {zipPath} ({FormatBytes((ulong)zipInfo.Length)})");
+                
+                EditorUtility.DisplayDialog("ZIP Created", 
+                    $"ZIP archive created successfully!\n\nLocation: {zipPath}\nSize: {FormatBytes((ulong)zipInfo.Length)}", 
+                    "OK");
             }
             catch (Exception ex)
             {
-                LogHelper.LogError($"❌ Failed to create ZIP: {ex.Message}");
+                LogHelper.LogError($"Failed to create ZIP: {ex.Message}");
+                EditorUtility.DisplayDialog("ZIP Creation Failed", $"Failed to create ZIP archive:\n{ex.Message}", "OK");
             }
         }
 
@@ -396,7 +501,7 @@ namespace YuankunHuang.Unity.Editor.BuildPipeline
             catch (Exception ex)
             {
                 EditorUtility.ClearProgressBar();
-                LogHelper.LogError($"❌ Addressables build failed: {ex.Message}");
+                LogHelper.LogError($"Addressables build failed: {ex.Message}");
                 EditorUtility.DisplayDialog("Build Failed", $"Addressables build failed:\n{ex.Message}", "OK");
             }
         }
@@ -412,7 +517,7 @@ namespace YuankunHuang.Unity.Editor.BuildPipeline
                     if (Directory.Exists(buildDir))
                     {
                         Directory.Delete(buildDir, true);
-                        LogHelper.Log("🗑️ Cleaned build directory");
+                        LogHelper.Log("Cleaned build directory");
                     }
 
                     // Clean Addressables cache
@@ -420,14 +525,14 @@ namespace YuankunHuang.Unity.Editor.BuildPipeline
                     if (addressableSettings != null)
                     {
                         AddressableAssetSettings.CleanPlayerContent();
-                        LogHelper.Log("🗑️ Cleaned Addressables cache");
+                        LogHelper.Log("Cleaned Addressables cache");
                     }
 
                     EditorUtility.DisplayDialog("Clean Complete", "Build cache has been cleaned!", "OK");
                 }
                 catch (Exception ex)
                 {
-                    LogHelper.LogError($"❌ Clean failed: {ex.Message}");
+                    LogHelper.LogError($"Clean failed: {ex.Message}");
                 }
             }
         }
@@ -458,6 +563,189 @@ namespace YuankunHuang.Unity.Editor.BuildPipeline
                 size = size / 1024;
             }
             return $"{size:0.##} {sizes[order]}";
+        }
+
+        private void LoadSettings()
+        {
+            _selectedTarget = (BuildTarget)EditorPrefs.GetInt(PREF_TARGET, (int)BuildTarget.StandaloneWindows64);
+            _selectedProfile = (BuildProfile)EditorPrefs.GetInt(PREF_PROFILE, (int)BuildProfile.Development);
+            _buildVersion = EditorPrefs.GetString(PREF_VERSION, "1.0.0");
+            _customBuildPath = EditorPrefs.GetString(PREF_CUSTOM_PATH, "");
+            _buildAddressables = EditorPrefs.GetBool(PREF_BUILD_ADDRESSABLES, true);
+            _autoOpenFolder = EditorPrefs.GetBool(PREF_AUTO_OPEN, true);
+            _createZip = EditorPrefs.GetBool(PREF_CREATE_ZIP, false);
+        }
+
+        private void SaveSettings()
+        {
+            EditorPrefs.SetInt(PREF_TARGET, (int)_selectedTarget);
+            EditorPrefs.SetInt(PREF_PROFILE, (int)_selectedProfile);
+            EditorPrefs.SetString(PREF_VERSION, _buildVersion);
+            EditorPrefs.SetString(PREF_CUSTOM_PATH, _customBuildPath);
+            EditorPrefs.SetBool(PREF_BUILD_ADDRESSABLES, _buildAddressables);
+            EditorPrefs.SetBool(PREF_AUTO_OPEN, _autoOpenFolder);
+            EditorPrefs.SetBool(PREF_CREATE_ZIP, _createZip);
+        }
+
+        private void DrawBuildHistory()
+        {
+            var history = BuildHistoryManager.LoadHistory();
+            if (history.entries.Count == 0)
+            {
+                EditorGUILayout.HelpBox("No build history available.", MessageType.Info);
+                return;
+            }
+
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField($"Showing {history.entries.Count} recent builds", EditorStyles.miniLabel);
+            GUILayout.FlexibleSpace();
+            if (GUILayout.Button("Clear History", EditorStyles.miniButton))
+            {
+                if (EditorUtility.DisplayDialog("Clear Build History", "Are you sure you want to clear all build history?", "Yes", "No"))
+                {
+                    BuildHistoryManager.ClearHistory();
+                    return;
+                }
+            }
+            EditorGUILayout.EndHorizontal();
+
+            _historyScrollPosition = EditorGUILayout.BeginScrollView(_historyScrollPosition, GUILayout.Height(200));
+            
+            foreach (var entry in history.entries)
+            {
+                DrawBuildHistoryEntry(entry);
+            }
+            
+            EditorGUILayout.EndScrollView();
+        }
+
+        private void DrawBuildHistoryEntry(BuildHistoryEntry entry)
+        {
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+            
+            // Header line
+            EditorGUILayout.BeginHorizontal();
+            var statusColor = entry.buildResult == BuildResult.Succeeded ? Color.green : Color.red;
+            var statusIcon = entry.buildResult == BuildResult.Succeeded ? "✓" : "✗";
+            
+            GUI.color = statusColor;
+            GUILayout.Label(statusIcon, GUILayout.Width(20));
+            GUI.color = Color.white;
+            
+            EditorGUILayout.LabelField($"{entry.buildVersion} - {entry.buildTarget} ({entry.buildProfile})", EditorStyles.boldLabel);
+            GUILayout.FlexibleSpace();
+            EditorGUILayout.LabelField(entry.buildTime.ToString("MM/dd HH:mm"), EditorStyles.miniLabel);
+            EditorGUILayout.EndHorizontal();
+            
+            // Details
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField($"Duration: {entry.buildDuration:mm\\:ss}", EditorStyles.miniLabel);
+            if (entry.buildSize > 0)
+            {
+                EditorGUILayout.LabelField($"Size: {FormatBytes((ulong)entry.buildSize)}", EditorStyles.miniLabel);
+            }
+            if (entry.addressablesBuilt)
+            {
+                EditorGUILayout.LabelField("Addressables", EditorStyles.miniLabel);
+            }
+            if (entry.wasZipped)
+            {
+                EditorGUILayout.LabelField("Zipped", EditorStyles.miniLabel);
+            }
+            EditorGUILayout.EndHorizontal();
+            
+            // Path and actions
+            if (!string.IsNullOrEmpty(entry.buildPath))
+            {
+                EditorGUILayout.BeginHorizontal();
+                EditorGUILayout.LabelField("Path:", GUILayout.Width(40));
+                EditorGUILayout.SelectableLabel(entry.buildPath, EditorStyles.miniTextField, GUILayout.Height(16));
+                if (GUILayout.Button("Open", EditorStyles.miniButton, GUILayout.Width(50)))
+                {
+                    if (Directory.Exists(entry.buildPath))
+                    {
+                        System.Diagnostics.Process.Start("explorer.exe", entry.buildPath.Replace("/", "\\"));
+                    }
+                    else
+                    {
+                        EditorUtility.DisplayDialog("Folder Not Found", "Build folder no longer exists.", "OK");
+                    }
+                }
+                EditorGUILayout.EndHorizontal();
+            }
+            
+            EditorGUILayout.EndVertical();
+        }
+
+        private void RecordBuildHistory(BuildReport buildReport, DateTime startTime, TimeSpan duration)
+        {
+            var entry = new BuildHistoryEntry(
+                _buildVersion,
+                _selectedTarget.ToString(),
+                _selectedProfile.ToString(),
+                Path.GetDirectoryName(buildReport.summary.outputPath),
+                startTime,
+                duration,
+                (long)buildReport.summary.totalSize,
+                buildReport.summary.result,
+                "", // Build log could be added here
+                _createZip,
+                _buildAddressables
+            );
+
+            BuildHistoryManager.AddBuildEntry(entry);
+        }
+
+        private void RecordFailedBuild(DateTime startTime, TimeSpan duration, string errorMessage)
+        {
+            var entry = new BuildHistoryEntry(
+                _buildVersion,
+                _selectedTarget.ToString(),
+                _selectedProfile.ToString(),
+                "", // No path for failed build
+                startTime,
+                duration,
+                0,
+                BuildResult.Failed,
+                errorMessage,
+                false,
+                _buildAddressables
+            );
+
+            BuildHistoryManager.AddBuildEntry(entry);
+        }
+
+        private string IncrementVersion(string version)
+        {
+            try
+            {
+                var parts = version.Split('.');
+                if (parts.Length >= 3)
+                {
+                    // Increment patch version (third number)
+                    if (int.TryParse(parts[2], out int patchVersion))
+                    {
+                        parts[2] = (patchVersion + 1).ToString();
+                        return string.Join(".", parts);
+                    }
+                }
+                else if (parts.Length == 2)
+                {
+                    // Add patch version
+                    return version + ".1";
+                }
+                else if (parts.Length == 1)
+                {
+                    // Add minor and patch version
+                    return version + ".0.1";
+                }
+            }
+            catch
+            {
+                // If parsing fails, just append .1
+            }
+            
+            return version + ".1";
         }
     }
 }
