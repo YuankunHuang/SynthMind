@@ -26,6 +26,7 @@ namespace YuankunHuang.Unity.HotUpdate
         {
             Login = 0,
             Quit = 1,
+            Admin = 2,
         }
 
         private enum ExtraObj
@@ -38,6 +39,7 @@ namespace YuankunHuang.Unity.HotUpdate
         
         private GeneralButton _loginBtn;
         private GeneralButton _quitBtn;
+        private GeneralButton _adminBtn;
 
         private TMP_InputField _usernameInputField;
         private TMP_InputField _passwordInputField;
@@ -50,12 +52,14 @@ namespace YuankunHuang.Unity.HotUpdate
 
             _loginBtn = Config.ExtraButtonList[(int)ExtraBtn.Login];
             _quitBtn = Config.ExtraButtonList[(int)ExtraBtn.Quit];
+            _adminBtn = Config.ExtraButtonList[(int)ExtraBtn.Admin];
 
             _usernameInputField = Config.ExtraObjectList[(int)ExtraObj.UsernameInputField].GetComponent<TMP_InputField>();
             _passwordInputField = Config.ExtraObjectList[(int)ExtraObj.PasswordInputField].GetComponent<TMP_InputField>();
 
             _loginBtn.onClick.AddListener(OnLoginBtnClicked);
             _quitBtn.onClick.AddListener(OnQuitBtnClicked);
+            _adminBtn.onClick.AddListener(OnAdminBtnClicked);
         }
 
         protected override void OnShow(IWindowData data, WindowShowState state)
@@ -74,6 +78,7 @@ namespace YuankunHuang.Unity.HotUpdate
         {
             _loginBtn.onClick.RemoveAllListeners();
             _quitBtn.onClick.RemoveAllListeners();
+            _adminBtn.onClick.RemoveAllListeners();
         }
         #endregion
 
@@ -110,6 +115,14 @@ namespace YuankunHuang.Unity.HotUpdate
 
             var accountManager = ModuleRegistry.Get<IAccountManager>();
             accountManager.Login(username, password, OnLoginSuccess, OnLoginError);
+        }
+
+        private void OnAdminBtnClicked()
+        {
+            _usernameInputField.text = "admin";
+            _passwordInputField.text = "admin";
+
+            OnLoginBtnClicked();
         }
 
         private void OnLoginSuccess()

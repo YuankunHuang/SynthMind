@@ -10,6 +10,7 @@ namespace YuankunHuang.Unity.Core
         public const string CommonConfirm = "Common_Confirm";
         public const string MainMenuAbout = "MainMenu_About";
         public const string MainMenuAboutContent = "MainMenu_About_Content";
+        public const string MainMenuAdmin = "MainMenu_Admin";
         public const string MainMenuChat = "MainMenu_Chat";
         public const string MainMenuHome = "MainMenu_Home";
         public const string MainMenuHomeIntro = "MainMenu_Home_Intro";
