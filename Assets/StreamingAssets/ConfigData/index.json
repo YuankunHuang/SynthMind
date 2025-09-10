@@ -59,7 +59,7 @@
       },
       {
         "Name": "defaultVolume",
-        "Type": "String"
+        "Type": "Int"
       },
       {
         "Name": "loop",

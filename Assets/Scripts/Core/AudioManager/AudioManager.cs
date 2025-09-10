@@ -15,13 +15,15 @@ namespace YuankunHuang.Unity.AudioCore
     {
         private AudioSource _audioSource;
         private Coroutine _fadeCoroutine;
+        private AudioManager _manager;
         
         public bool IsPlaying => _audioSource != null && _audioSource.isPlaying;
         public bool IsValid => _audioSource != null;
 
-        internal AudioHandle(AudioSource audioSource)
+        internal AudioHandle(AudioSource audioSource, AudioManager manager)
         {
             _audioSource = audioSource;
+            _manager = manager;
         }
 
         public void Stop(float fadeTime)
@@ -39,6 +41,8 @@ namespace YuankunHuang.Unity.AudioCore
             else
             {
                 _audioSource.Stop();
+                _manager?.ReturnAudioSourceToPool(_audioSource);
+                Release();
             }
         }
 
@@ -65,7 +69,11 @@ namespace YuankunHuang.Unity.AudioCore
             {
                 _audioSource.Stop();
                 _audioSource.volume = startVolume;
+                _manager?.ReturnAudioSourceToPool(_audioSource);
+                Release();
             }
+            
+            _fadeCoroutine = null;
         }
 
         internal void Release()
@@ -76,6 +84,7 @@ namespace YuankunHuang.Unity.AudioCore
                 _fadeCoroutine = null;
             }
             _audioSource = null;
+            _manager = null;
         }
     }
 
@@ -83,8 +92,9 @@ namespace YuankunHuang.Unity.AudioCore
     {
         #region Private Fields
         private readonly Dictionary<AudioIdType, AudioClip> _audioCache = new();
-        private readonly List<AudioSource> _audioSourcePool = new();
+        private readonly Queue<AudioSource> _audioSourcePool = new();
         private readonly List<AudioSource> _activeAudioSources = new();
+        private readonly List<AudioHandle> _activeHandles = new();
         
         private GameObject _audioRoot;
         private AudioSource _bgmAudioSource;
@@ -122,7 +132,7 @@ namespace YuankunHuang.Unity.AudioCore
                 // Initialize audio source pool
                 for (int i = 0; i < INITIAL_POOL_SIZE; i++)
                 {
-                    CreatePooledAudioSource();
+                    _audioSourcePool.Enqueue(CreatePooledAudioSource());
                 }
 
                 IsInitialized = true;
@@ -139,17 +149,32 @@ namespace YuankunHuang.Unity.AudioCore
         {
             try
             {
-                // Stop all audio
+                // Stop all audio handles
+                for (int i = _activeHandles.Count - 1; i >= 0; i--)
+                {
+                    _activeHandles[i]?.Release();
+                }
+                _activeHandles.Clear();
+
+                // Stop BGM and coroutines
+                if (_bgmFadeCoroutine != null)
+                {
+                    MonoManager.Instance.StopCoroutine(_bgmFadeCoroutine);
+                    _bgmFadeCoroutine = null;
+                }
                 StopBGM(0f);
                 StopAllSFX();
 
-                // Clear cache
+                // Clear cache and release assets
                 foreach (var kv in _audioCache)
                 {
                     if (kv.Value != null)
                     {
                         var config = AudioConfig.GetByAudioId(kv.Key);
-                        ResManager.Release(config.GetAssetPath());
+                        if (config != null)
+                        {
+                            ResManager.Release(config.GetAssetPath());
+                        }
                     }
                 }
                 _audioCache.Clear();
@@ -163,6 +188,7 @@ namespace YuankunHuang.Unity.AudioCore
 
                 _audioSourcePool.Clear();
                 _activeAudioSources.Clear();
+                _bgmAudioSource = null;
 
                 IsInitialized = false;
                 LogHelper.Log("[AudioManager] Disposed");
@@ -295,7 +321,8 @@ namespace YuankunHuang.Unity.AudioCore
                     return null;
                 }
 
-                var handle = new AudioHandle(audioSource);
+                var handle = new AudioHandle(audioSource, this);
+                _activeHandles.Add(handle);
                 
                 MonoManager.Instance.StartCoroutine(PlayAudioCoroutine(audioId, audioSource, audioType, position, handle));
                 
@@ -318,6 +345,7 @@ namespace YuankunHuang.Unity.AudioCore
             {
                 LogHelper.LogError($"[AudioManager] Failed to load audio: {audioId}");
                 ReturnAudioSourceToPool(audioSource);
+                _activeHandles.Remove(handle);
                 handle.Release();
                 yield break;
             }
@@ -328,6 +356,7 @@ namespace YuankunHuang.Unity.AudioCore
             {
                 LogHelper.LogWarning($"[AudioManager] No configuration found for audio: {audioId}");
                 ReturnAudioSourceToPool(audioSource);
+                _activeHandles.Remove(handle);
                 handle.Release();
                 yield break;
             }
@@ -346,10 +375,7 @@ namespace YuankunHuang.Unity.AudioCore
             };
 
             // Apply default volume from config
-            if (float.TryParse(config.DefaultVolume, out var defaultVol))
-            {
-                volume *= (defaultVol / 100f);
-            }
+            volume *= config.DefaultVolume / 100f;
 
             audioSource.volume = volume;
 
@@ -373,6 +399,7 @@ namespace YuankunHuang.Unity.AudioCore
             {
                 yield return new WaitWhile(() => audioSource.isPlaying);
                 ReturnAudioSourceToPool(audioSource);
+                _activeHandles.Remove(handle);
                 handle.Release();
             }
         }
@@ -399,8 +426,7 @@ namespace YuankunHuang.Unity.AudioCore
 
             if (_audioSourcePool.Count > 0)
             {
-                audioSource = _audioSourcePool[_audioSourcePool.Count - 1];
-                _audioSourcePool.RemoveAt(_audioSourcePool.Count - 1);
+                audioSource = _audioSourcePool.Dequeue();
             }
             else if (_activeAudioSources.Count + _audioSourcePool.Count < MAX_POOL_SIZE)
             {
@@ -410,7 +436,7 @@ namespace YuankunHuang.Unity.AudioCore
             return audioSource;
         }
 
-        private void ReturnAudioSourceToPool(AudioSource audioSource)
+        internal void ReturnAudioSourceToPool(AudioSource audioSource)
         {
             if (audioSource == null) return;
 
@@ -424,7 +450,7 @@ namespace YuankunHuang.Unity.AudioCore
             audioSource.spatialBlend = 0f;
             audioSource.transform.position = Vector3.zero;
 
-            _audioSourcePool.Add(audioSource);
+            _audioSourcePool.Enqueue(audioSource);
         }
 
         private AudioSource CreatePooledAudioSource()
@@ -458,14 +484,7 @@ namespace YuankunHuang.Unity.AudioCore
         public void SetSFXVolume(int volume)
         {
             AudioPreferences.SFXVolume = volume;
-            // Update active SFX volumes
-            foreach (var source in _activeAudioSources)
-            {
-                if (source != null && source.clip != null)
-                {
-                    source.volume = AudioPreferences.GetNormalizedVolume(AudioPreferences.SFXVolume);
-                }
-            }
+            UpdateActiveSFXVolumes();
         }
 
         public void SetMasterMuted(bool mute)
@@ -483,13 +502,33 @@ namespace YuankunHuang.Unity.AudioCore
             }
 
             // Update SFX volumes
+            UpdateActiveSFXVolumes();
+        }
+
+        private void UpdateActiveSFXVolumes()
+        {
+            var normalizedVolume = AudioPreferences.GetNormalizedVolume(AudioPreferences.SFXVolume);
             foreach (var source in _activeAudioSources)
             {
                 if (source != null && source.clip != null)
                 {
-                    source.volume = AudioPreferences.GetNormalizedVolume(AudioPreferences.SFXVolume);
+                    // Apply config volume multiplier if available
+                    var config = AudioConfig.GetByAudioId(GetAudioIdFromClip(source.clip));
+                    var volume = normalizedVolume;
+                    volume *= config.DefaultVolume / 100f;
+                    source.volume = volume;
                 }
             }
+        }
+
+        private AudioIdType GetAudioIdFromClip(AudioClip clip)
+        {
+            foreach (var kv in _audioCache)
+            {
+                if (kv.Value == clip)
+                    return kv.Key;
+            }
+            return default;
         }
         #endregion
 
