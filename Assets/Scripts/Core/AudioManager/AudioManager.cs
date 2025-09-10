@@ -83,7 +83,6 @@ namespace YuankunHuang.Unity.AudioCore
     {
         #region Private Fields
         private readonly Dictionary<AudioIdType, AudioClip> _audioCache = new();
-        private readonly Dictionary<AudioIdType, AudioData> _audioConfigs = new();
         private readonly List<AudioSource> _audioSourcePool = new();
         private readonly List<AudioSource> _activeAudioSources = new();
         
@@ -108,8 +107,12 @@ namespace YuankunHuang.Unity.AudioCore
             try
             {
                 // Create audio root object
+                if (_audioRoot != null)
+                {
+                    GameObject.Destroy(_audioRoot);
+                }
+
                 _audioRoot = new GameObject("AudioManager");
-                UnityEngine.Object.DontDestroyOnLoad(_audioRoot);
 
                 // Create BGM audio source
                 _bgmAudioSource = _audioRoot.AddComponent<AudioSource>();
@@ -122,9 +125,6 @@ namespace YuankunHuang.Unity.AudioCore
                     CreatePooledAudioSource();
                 }
 
-                // Load audio configurations
-                LoadAudioConfigurations();
-
                 IsInitialized = true;
                 LogHelper.Log("[AudioManager] Initialized successfully");
             }
@@ -132,29 +132,6 @@ namespace YuankunHuang.Unity.AudioCore
             {
                 LogHelper.LogError($"[AudioManager] Failed to initialize: {e.Message}");
                 LogHelper.LogException(e);
-            }
-        }
-
-        private void LoadAudioConfigurations()
-        {
-            try
-            {
-                var audioConfigs = AudioConfig.GetAll();
-                _audioConfigs.Clear();
-                
-                foreach (var config in audioConfigs)
-                {
-                    if (config != null)
-                    {
-                        _audioConfigs[config.AudioId] = config;
-                    }
-                }
-
-                LogHelper.Log($"[AudioManager] Loaded {_audioConfigs.Count} audio configurations");
-            }
-            catch (Exception e)
-            {
-                LogHelper.LogError($"[AudioManager] Failed to load audio configurations: {e.Message}");
             }
         }
 
@@ -167,11 +144,12 @@ namespace YuankunHuang.Unity.AudioCore
                 StopAllSFX();
 
                 // Clear cache
-                foreach (var clip in _audioCache.Values)
+                foreach (var kv in _audioCache)
                 {
-                    if (clip != null)
+                    if (kv.Value != null)
                     {
-                        Resources.UnloadAsset(clip);
+                        var config = AudioConfig.GetByAudioId(kv.Key);
+                        ResManager.Release(config.GetAssetPath());
                     }
                 }
                 _audioCache.Clear();
@@ -185,7 +163,6 @@ namespace YuankunHuang.Unity.AudioCore
 
                 _audioSourcePool.Clear();
                 _activeAudioSources.Clear();
-                _audioConfigs.Clear();
 
                 IsInitialized = false;
                 LogHelper.Log("[AudioManager] Disposed");
@@ -346,7 +323,8 @@ namespace YuankunHuang.Unity.AudioCore
             }
 
             // Get audio configuration
-            if (!_audioConfigs.TryGetValue(audioId, out var config))
+            var config = AudioConfig.GetByAudioId(audioId);
+            if (config == null)
             {
                 LogHelper.LogWarning($"[AudioManager] No configuration found for audio: {audioId}");
                 ReturnAudioSourceToPool(audioSource);
@@ -548,9 +526,10 @@ namespace YuankunHuang.Unity.AudioCore
             if (_audioCache.TryGetValue(audioId, out var clip))
             {
                 _audioCache.Remove(audioId);
-                if (clip != null)
+                var audioData = AudioConfig.GetByAudioId(audioId);
+                if (audioData != null)
                 {
-                    Resources.UnloadAsset(clip);
+                    ResManager.Release(audioData.GetAssetPath());
                 }
                 LogHelper.Log($"[AudioManager] Unloaded audio: {audioId}");
             }
@@ -565,7 +544,8 @@ namespace YuankunHuang.Unity.AudioCore
             }
 
             // Get audio configuration
-            if (!_audioConfigs.TryGetValue(audioId, out var config))
+            var config = AudioConfig.GetByAudioId(audioId);
+            if (config == null)
             {
                 LogHelper.LogError($"[AudioManager] No configuration found for audio: {audioId}");
                 return null;
@@ -574,7 +554,6 @@ namespace YuankunHuang.Unity.AudioCore
             try
             {
                 var audioClip = await ResManager.LoadAssetAsync<AudioClip>(config.GetAssetPath());
-                
                 if (audioClip != null)
                 {
                     _audioCache[audioId] = audioClip;

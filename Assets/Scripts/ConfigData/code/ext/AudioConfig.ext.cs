@@ -32,7 +32,7 @@ namespace YuankunHuang.Unity.GameDataConfig
     {
         public static string GetAssetPath(this AudioData audioData)
         {
-            var audioPath = System.IO.Path.Combine(AddressablePaths.Audio, audioData.AssetPath);
+            var audioPath = $"{AddressablePaths.Audio}/{audioData.AssetPath}";
             return audioPath;
         }
     }
