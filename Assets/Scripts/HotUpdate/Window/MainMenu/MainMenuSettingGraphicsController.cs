@@ -14,6 +14,18 @@ namespace YuankunHuang.Unity.HotUpdate
 {
     public class MainMenuSettingGraphicsController
     {
+        public struct DropdownOptionData
+        {
+            public string OriginalText;
+            public TMP_Dropdown.OptionData OptionData;
+
+            public DropdownOptionData(string originalText, TMP_Dropdown.OptionData optionData)
+            {
+                OriginalText = originalText;
+                OptionData = optionData;
+            }
+        }
+
         #region UI References
         private enum ExtraConfig
         {
@@ -33,11 +45,11 @@ namespace YuankunHuang.Unity.HotUpdate
 
         #region Fields
         private GeneralWidgetConfig _config;
-        private List<TMP_Dropdown.OptionData> _resolutionDataList;
-        private List<TMP_Dropdown.OptionData> _fullscreenModeDataList;
-        private List<TMP_Dropdown.OptionData> _qualityPresetDataList;
-        private List<TMP_Dropdown.OptionData> _vsyncDataList;
-        private List<TMP_Dropdown.OptionData> _fpsLimitDataList;
+        private List<DropdownOptionData> _resolutionDataList;
+        private List<DropdownOptionData> _fullscreenModeDataList;
+        private List<DropdownOptionData> _qualityPresetDataList;
+        private List<DropdownOptionData> _vsyncDataList;
+        private List<DropdownOptionData> _fpsLimitDataList;
         #endregion
 
         #region Lifecycle
@@ -54,145 +66,19 @@ namespace YuankunHuang.Unity.HotUpdate
             _fpsLimitController = new CommDropdownController(_config.ExtraWidgetConfigList[(int)ExtraConfig.FPSLimit]);
             _vsyncController = new CommDropdownController(_config.ExtraWidgetConfigList[(int)ExtraConfig.VSync]);
 
-            _resolutionDataList = new List<TMP_Dropdown.OptionData>();
-            _fullscreenModeDataList = new List<TMP_Dropdown.OptionData>();
-            _qualityPresetDataList = new List<TMP_Dropdown.OptionData>();
-            _fpsLimitDataList = new List<TMP_Dropdown.OptionData>();
-            _vsyncDataList = new List<TMP_Dropdown.OptionData>();
+            _resolutionDataList = new List<DropdownOptionData>();
+            _fullscreenModeDataList = new List<DropdownOptionData>();
+            _qualityPresetDataList = new List<DropdownOptionData>();
+            _fpsLimitDataList = new List<DropdownOptionData>();
+            _vsyncDataList = new List<DropdownOptionData>();
 
             _resolutionController.OnValueChanged += OnResolutionValueChanged;
             _fullscreenModeController.OnValueChanged += OnFullscreenValueChanged;
             _qualityPresetController.OnValueChanged += OnQualityPresetValueChanged;
             _fpsLimitController.OnValueChanged += OnFpsLimitValueChanged;
             _vsyncController.OnValueChanged += OnVsyncValueChanged;
-        }
 
-        public void Refresh()
-        {
-            // resolution
-            _resolutionDataList.Clear();
-            var currentRes = GraphicPreferences.Resolution;
-            var currentResIdx = -1;
-            var seenRes = new HashSet<Vector2Int>();
-            for (var i = 0; i < Screen.resolutions.Length; ++i)
-            {
-                var res = Screen.resolutions[i];
-
-                // avoid duplicate
-                if (!seenRes.Add(new Vector2Int(res.width, res.height)))
-                {
-                    continue;
-                }
-
-                _resolutionDataList.Add(new TMP_Dropdown.OptionData($"{res.width} x {res.height}"));
-
-                if (currentRes.x == res.width && currentRes.y == res.height)
-                {
-                    currentResIdx = i;
-                }
-            }
-            if (currentResIdx < 0)
-            {
-                LogHelper.LogError($"No valid Resolution item matched! currentRes: {currentRes}");
-            }
-            _resolutionController.Refresh(_resolutionDataList, currentResIdx);
-
-            // fullscreen mode
-            _fullscreenModeDataList.Clear();
-            var currentFullscreenMode = GraphicPreferences.FullScreenMode;
-            var currentFullscreenIdx = -1;
-            var fullscreenModes = (FullScreenMode[])Enum.GetValues(typeof(FullScreenMode));
-            for (var i = 0; i < fullscreenModes.Length; ++i)
-            {
-                var mode = fullscreenModes[i];
-                var locName = mode.GetLocalizedName();
-                
-                LogHelper.LogError($"locName: {locName}");
-
-                _fullscreenModeDataList.Add(new TMP_Dropdown.OptionData(locName));
-
-                if (mode == currentFullscreenMode)
-                {
-                    currentFullscreenIdx = i;
-                }
-            }
-            if (currentFullscreenIdx < 0)
-            {
-                LogHelper.LogError($"No valid FullScreenMode item matched! currentFullscreenMode: {currentFullscreenMode}");
-            }
-            _fullscreenModeController.Refresh(_fullscreenModeDataList, currentFullscreenIdx);
-
-            // quality preset
-            _qualityPresetDataList.Clear();
-            var currentQuality = GraphicPreferences.Quality;
-            var currentQualityIdx = -1;
-            var qualities = (GraphicQuality[])Enum.GetValues(typeof(GraphicQuality));
-            for (var i = 0; i < qualities.Length; ++i)
-            {
-                var quality = qualities[i];
-                var locName = quality.GetLocalizedName();
-                
-                LogHelper.LogError($"locName: {locName}");
-
-                _qualityPresetDataList.Add(new TMP_Dropdown.OptionData(locName));
-                if (quality == currentQuality)
-                {
-                    currentQualityIdx = i;
-                }
-            }
-            if (currentQualityIdx < 0)
-            {
-                LogHelper.LogError($"No valid QualityPreset item matched! currentQuality: {currentQuality}");
-            }
-            _qualityPresetController.Refresh(_qualityPresetDataList, currentQualityIdx);
-
-            // fps limit
-            _fpsLimitDataList.Clear();
-            var currentFpsLimit = GraphicPreferences.FPSLimit;
-            var currentFpsLimitIdx = -1;
-            var fpsLimits = (GraphicFPSLimit[])Enum.GetValues(typeof(GraphicFPSLimit));
-            for (var i = 0; i < fpsLimits.Length; ++i)
-            {
-                var fpsLimit = fpsLimits[i];
-                var locName = fpsLimit.GetLocalizedName();
-
-                LogHelper.LogError($"locName: {locName}");
-
-                _fpsLimitDataList.Add(new TMP_Dropdown.OptionData(locName));
-                if (fpsLimit == currentFpsLimit)
-                {
-                    currentFpsLimitIdx = i;
-                }
-            }
-            if (currentFpsLimitIdx < 0)
-            {
-                LogHelper.LogError($"No valid FPSLimit item matched! currentFpsLimit: {currentFpsLimit}");
-            }
-            _fpsLimitController.Refresh(_fpsLimitDataList, currentFpsLimitIdx);
-
-            // vsync
-            _vsyncDataList.Clear();
-            var currentVSync = GraphicPreferences.VSync;
-            var currentVsyncIdx = -1;
-            var vsyncs = (GraphicVSync[])Enum.GetValues(typeof(GraphicVSync));
-            for (var i = 0; i < vsyncs.Length; ++i)
-            {
-                var vsync = vsyncs[i];
-                var locName = vsync.GetLocalizedName();
-
-                LogHelper.LogError($"locName: {locName}");
-
-                _vsyncDataList.Add(new TMP_Dropdown.OptionData(locName));
-                if (vsync == currentVSync)
-                {
-                    currentVsyncIdx = i;
-                }
-            }
-            if (currentVsyncIdx < 0)
-            {
-                LogHelper.LogError($"No valid VSync item matched! currentVSync: {currentVSync}");
-            }
-            _vsyncController.Refresh(_vsyncDataList, currentVsyncIdx);
+            ModuleRegistry.Get<ILocalizationManager>().OnLanguageChanged += OnLanguageChanged;
         }
 
         public void Dispose()
@@ -214,12 +100,142 @@ namespace YuankunHuang.Unity.HotUpdate
             _qualityPresetController.OnValueChanged -= OnQualityPresetValueChanged;
             _fpsLimitController.OnValueChanged -= OnFpsLimitValueChanged;
             _vsyncController.OnValueChanged -= OnVsyncValueChanged;
+
+            ModuleRegistry.Get<ILocalizationManager>().OnLanguageChanged -= OnLanguageChanged;
+        }
+
+        public void Refresh()
+        {
+            // resolution
+            _resolutionDataList.Clear();
+            var resOptions = new List<TMP_Dropdown.OptionData>();
+            var currentRes = GraphicPreferences.Resolution;
+            var currentResIdx = -1;
+            var seenRes = new HashSet<Vector2Int>();
+            for (var i = 0; i < Screen.resolutions.Length; ++i)
+            {
+                var res = Screen.resolutions[i];
+
+                // avoid duplicate
+                if (!seenRes.Add(new Vector2Int(res.width, res.height)))
+                {
+                    continue;
+                }
+
+                var optionData = new TMP_Dropdown.OptionData($"{res.width} x {res.height}");
+                resOptions.Add(optionData);
+                _resolutionDataList.Add(new DropdownOptionData($"{res.width} x {res.height}", optionData));
+
+                if (currentRes.x == res.width && currentRes.y == res.height)
+                {
+                    currentResIdx = i;
+                }
+            }
+            if (currentResIdx < 0)
+            {
+                LogHelper.LogError($"No valid Resolution item matched! currentRes: {currentRes}");
+            }
+
+            _resolutionController.Refresh(resOptions, currentResIdx);
+
+            // fullscreen mode
+            _fullscreenModeDataList.Clear();
+            var fullscreenOptions = new List<TMP_Dropdown.OptionData>();
+            var currentFullscreenMode = GraphicPreferences.FullScreenMode;
+            var currentFullscreenIdx = -1;
+            var fullscreenModes = (FullScreenMode[])Enum.GetValues(typeof(FullScreenMode));
+            for (var i = 0; i < fullscreenModes.Length; ++i)
+            {
+                var mode = fullscreenModes[i];
+                var optionData = new TMP_Dropdown.OptionData(mode.GetLocalizedName());
+                fullscreenOptions.Add(optionData);
+                _fullscreenModeDataList.Add(new DropdownOptionData(mode.ToString(), optionData));
+
+                if (mode == currentFullscreenMode)
+                {
+                    currentFullscreenIdx = i;
+                }
+            }
+            if (currentFullscreenIdx < 0)
+            {
+                LogHelper.LogError($"No valid FullScreenMode item matched! currentFullscreenMode: {currentFullscreenMode}");
+            }
+            _fullscreenModeController.Refresh(fullscreenOptions, currentFullscreenIdx);
+
+            // quality preset
+            _qualityPresetDataList.Clear();
+            var qualityOptions = new List<TMP_Dropdown.OptionData>();
+            var currentQuality = GraphicPreferences.Quality;
+            var currentQualityIdx = -1;
+            var qualities = (GraphicQuality[])Enum.GetValues(typeof(GraphicQuality));
+            for (var i = 0; i < qualities.Length; ++i)
+            {
+                var quality = qualities[i];
+                var optionData = new TMP_Dropdown.OptionData(quality.GetLocalizedName());
+                qualityOptions.Add(optionData);
+                _qualityPresetDataList.Add(new DropdownOptionData(quality.ToString(), optionData));
+                if (quality == currentQuality)
+                {
+                    currentQualityIdx = i;
+                }
+            }
+            if (currentQualityIdx < 0)
+            {
+                LogHelper.LogError($"No valid QualityPreset item matched! currentQuality: {currentQuality}");
+            }
+            _qualityPresetController.Refresh(qualityOptions, currentQualityIdx);
+
+            // fps limit
+            _fpsLimitDataList.Clear();
+            var fpsLimitOptions = new List<TMP_Dropdown.OptionData>();
+            var currentFpsLimit = GraphicPreferences.FPSLimit;
+            var currentFpsLimitIdx = -1;
+            var fpsLimits = (GraphicFPSLimit[])Enum.GetValues(typeof(GraphicFPSLimit));
+            for (var i = 0; i < fpsLimits.Length; ++i)
+            {
+                var fpsLimit = fpsLimits[i];
+                var optionData = new TMP_Dropdown.OptionData(fpsLimit.GetLocalizedName());
+                fpsLimitOptions.Add(optionData);
+                _fpsLimitDataList.Add(new DropdownOptionData(fpsLimit.ToString(), optionData));
+                if (fpsLimit == currentFpsLimit)
+                {
+                    currentFpsLimitIdx = i;
+                }
+            }
+            if (currentFpsLimitIdx < 0)
+            {
+                LogHelper.LogError($"No valid FPSLimit item matched! currentFpsLimit: {currentFpsLimit}");
+            }
+            _fpsLimitController.Refresh(fpsLimitOptions, currentFpsLimitIdx);
+
+            // vsync
+            _vsyncDataList.Clear();
+            var vsyncOptions = new List<TMP_Dropdown.OptionData>();
+            var currentVSync = GraphicPreferences.VSync;
+            var currentVsyncIdx = -1;
+            var vsyncs = (GraphicVSync[])Enum.GetValues(typeof(GraphicVSync));
+            for (var i = 0; i < vsyncs.Length; ++i)
+            {
+                var vsync = vsyncs[i];
+                var optionData = new TMP_Dropdown.OptionData(vsync.GetLocalizedName());
+                vsyncOptions.Add(optionData);
+                _vsyncDataList.Add(new DropdownOptionData(vsync.ToString(), optionData));
+                if (vsync == currentVSync)
+                {
+                    currentVsyncIdx = i;
+                }
+            }
+            if (currentVsyncIdx < 0)
+            {
+                LogHelper.LogError($"No valid VSync item matched! currentVSync: {currentVSync}");
+            }
+            _vsyncController.Refresh(vsyncOptions, currentVsyncIdx);
         }
         #endregion
 
         private void OnResolutionValueChanged(int index)
         {
-            var parts = _resolutionDataList[index].text.Trim().Split('x');
+            var parts = _resolutionDataList[index].OriginalText.Trim().Split('x');
             var width = int.Parse(parts[0]);
             var height = int.Parse(parts[1]);
             ModuleRegistry.Get<IGraphicManager>().SetResolution(new Vector2Int(width, height));
@@ -227,26 +243,39 @@ namespace YuankunHuang.Unity.HotUpdate
 
         private void OnFullscreenValueChanged(int index)
         {
-            var fullscreenMode = Enum.Parse<FullScreenMode>(_fullscreenModeDataList[index].text);
+            var fullscreenMode = Enum.Parse<FullScreenMode>(_fullscreenModeDataList[index].OriginalText);
             ModuleRegistry.Get<IGraphicManager>().SetFullScreenMode(fullscreenMode);
         }
 
         private void OnQualityPresetValueChanged(int index)
         {
-            var quality = Enum.Parse<GraphicQuality>(_qualityPresetDataList[index].text);
+            var quality = Enum.Parse<GraphicQuality>(_qualityPresetDataList[index].OriginalText);
             ModuleRegistry.Get<IGraphicManager>().SetQuality(quality);
         }
 
         private void OnFpsLimitValueChanged(int index)
         {
-            var fpsLimit = Enum.Parse<GraphicFPSLimit>(_fpsLimitDataList[index].text);
+            var fpsLimit = Enum.Parse<GraphicFPSLimit>(_fpsLimitDataList[index].OriginalText);
             ModuleRegistry.Get<IGraphicManager>().SetFPSLimit(fpsLimit);
         }
 
         private void OnVsyncValueChanged(int index)
         {
-            var vsync = Enum.Parse<GraphicVSync>(_vsyncDataList[index].text);
+            var vsync = Enum.Parse<GraphicVSync>(_vsyncDataList[index].OriginalText);
             ModuleRegistry.Get<IGraphicManager>().SetVSync(vsync);
+        }
+
+        private void OnLanguageChanged(string newLanguage)
+        {
+            try
+            {
+                LogHelper.Log($"[MainMenuSettingGraphicsController] Language changed event received: {newLanguage}");
+                Refresh();
+            }
+            catch (System.Exception ex)
+            {
+                LogHelper.LogError($"[MainMenuSettingGraphicsController] Error handling language change: {ex.Message}");
+            }
         }
     }
 

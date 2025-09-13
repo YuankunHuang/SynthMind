@@ -237,9 +237,6 @@ namespace YuankunHuang.Unity.HotUpdate
 
                 UpdateLanguageList();
                 UpdateSelectedLanguageDisplay();
-
-                // Refresh all localized texts more efficiently
-                RefreshLocalizedTexts();
             }
             catch (System.Exception ex)
             {
@@ -247,41 +244,6 @@ namespace YuankunHuang.Unity.HotUpdate
             }
         }
 
-        private void RefreshLocalizedTexts()
-        {
-            try
-            {
-                // only refresh texts in active UI -> more efficient
-                var localizedTexts = _config.transform.GetComponentsInChildren<LocalizedText>(true);
-                foreach (var localizedText in localizedTexts)
-                {
-                    if (localizedText != null)
-                    {
-                        localizedText.UpdateText();
-                    }
-                }
-
-                // Also refresh language button texts
-                foreach (var buttonInstance in _languageButtonInstances)
-                {
-                    if (buttonInstance != null)
-                    {
-                        var buttonTexts = buttonInstance.GetComponentsInChildren<LocalizedText>(true);
-                        foreach (var text in buttonTexts)
-                        {
-                            if (text != null)
-                            {
-                                text.UpdateText();
-                            }
-                        }
-                    }
-                }
-            }
-            catch (System.Exception ex)
-            {
-                LogHelper.LogError($"[MainMenuSettingController] Error refreshing localized texts: {ex.Message}");
-            }
-        }
         #endregion
     }
 }

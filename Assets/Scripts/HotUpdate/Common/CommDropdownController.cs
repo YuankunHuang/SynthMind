@@ -33,20 +33,12 @@ namespace YuankunHuang.Unity.HotUpdate
 
         public void Refresh(List<TMP_Dropdown.OptionData> options, int current)
         {
-            LogHelper.LogError($"Refresh 1");
-
             _dropdown.ClearOptions();
-
-            LogHelper.LogError($"Refresh 2");
 
             _dropdown.AddOptions(options);
 
-            LogHelper.LogError($"Refresh 3");
-
             _dropdown.SetValueWithoutNotify(current);
             _dropdown.RefreshShownValue();
-
-            LogHelper.LogError($"Refresh 4");
         }
 
         private void OnDropdownValueChanged(int index)

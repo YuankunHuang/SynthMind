@@ -101,6 +101,5 @@ namespace YuankunHuang.Unity.HotUpdate
             // graphics
             _graphicsController.Dispose();
         }
-
     }
 }
