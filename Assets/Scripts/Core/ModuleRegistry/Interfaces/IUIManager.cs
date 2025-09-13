@@ -10,7 +10,7 @@ namespace YuankunHuang.Unity.UICore
     {
         void Show(string windowName, IWindowData data = null);
         void GoBack();
-        void GoBackTo(string windowName);
+        void GoBackTo(string windowName, IWindowData data = null);
         bool Contains(string windowName);
         string Current { get; }
     }

@@ -41,6 +41,7 @@ namespace YuankunHuang.Unity.HotUpdate
             Sandbox = 2,
             Setting = 3,
             About = 4,
+            Back = 5,
         }
 
         private Dictionary<Page, IMainMenuWidgetController> _widgetControllers;
@@ -51,6 +52,7 @@ namespace YuankunHuang.Unity.HotUpdate
         private GeneralButton _sandboxBtn;
         private GeneralButton _settingBtn;
         private GeneralButton _aboutBtn;
+        private GeneralButton _backBtn;
         #endregion
 
         #region Field
@@ -79,12 +81,14 @@ namespace YuankunHuang.Unity.HotUpdate
             _sandboxBtn = Config.ExtraButtonList[(int)ExtraBtn.Sandbox];
             _settingBtn = Config.ExtraButtonList[(int)ExtraBtn.Setting];
             _aboutBtn = Config.ExtraButtonList[(int)ExtraBtn.About];
+            _backBtn = Config.ExtraButtonList[(int)ExtraBtn.Back];
 
             _homeBtn.onClick.AddListener(OnHomeBtnClicked);
             _chatBtn.onClick.AddListener(OnChatBtnClicked);
             _sandboxBtn.onClick.AddListener(OnSandboxBtnClicked);
             _settingBtn.onClick.AddListener(OnSettingBtnClicked);
             _aboutBtn.onClick.AddListener(OnAboutBtnClicked);
+            _backBtn.onClick.AddListener(OnBackBtnClicked);
         }
 
         protected override void OnShow(IWindowData data, WindowShowState state)
@@ -121,6 +125,7 @@ namespace YuankunHuang.Unity.HotUpdate
             _sandboxBtn.onClick.RemoveAllListeners();
             _settingBtn.onClick.RemoveAllListeners();
             _aboutBtn.onClick.RemoveAllListeners();
+            _backBtn.onClick.RemoveAllListeners();
         }
         #endregion
 
@@ -153,6 +158,12 @@ namespace YuankunHuang.Unity.HotUpdate
         {
             ModuleRegistry.Get<IAudioManager>().PlayUI(GameDataConfig.AudioIdType.TestButtonClick);
             ShowWidget(Page.About, false);
+        }
+
+        private void OnBackBtnClicked()
+        {
+            ModuleRegistry.Get<IAudioManager>().PlayUI(GameDataConfig.AudioIdType.TestButtonClick);
+            ModuleRegistry.Get<IUIManager>().GoBackTo(WindowNames.LoginWindow, new LoginWindowData(true));
         }
         #endregion
 

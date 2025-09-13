@@ -138,13 +138,13 @@ namespace YuankunHuang.Unity.UICore
             }
         }
 
-        public void GoBackTo(string windowName)
+        public void GoBackTo(string windowName, IWindowData data = null)
         {
             if (!Contains(windowName)) return;
-            _ = GoBackToAsync(windowName).WithLogging();
+            _ = GoBackToAsync(windowName, data).WithLogging();
         }
         
-        private async Task GoBackToAsync(string windowName)
+        private async Task GoBackToAsync(string windowName, IWindowData data)
         {
             using (new InputBlock())
             {
@@ -153,7 +153,14 @@ namespace YuankunHuang.Unity.UICore
                     var window = _stack.Peek();
                     if (window.Name == windowName)
                     {
-                        window.Show(window.Data, WindowShowState.Uncovered);
+                        if (data != null)
+                        {
+                            window.Show(data, WindowShowState.Uncovered);
+                        }
+                        else
+                        {
+                            window.Show(window.Data, WindowShowState.Uncovered);
+                        }
                         break;
                     }
                     

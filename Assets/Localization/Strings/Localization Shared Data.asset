@@ -155,6 +155,62 @@ MonoBehaviour:
     m_Key: MainMenu_Setting_VSync
     m_Metadata:
       m_Items: []
+  - m_Id: 14138457907888128
+    m_Key: MainMenu_InputPlaceholder
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14141554814189568
+    m_Key: FullScreenMode_ExclusiveFullScreen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14141861740773376
+    m_Key: FullScreenMode_FullScreenWindow
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14142012366618624
+    m_Key: FullScreenMode_MaximizedWindow
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14143328421773312
+    m_Key: FullScreenMode_Windowed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14144340901593088
+    m_Key: Common_Low
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14144520182923264
+    m_Key: Common_Mid
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14144540227502080
+    m_Key: Common_High
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14148677048565760
+    m_Key: GraphicFPSLimit_FPS_Default
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14148902924419072
+    m_Key: GraphicFPSLimit_FPS_30
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14148918179102720
+    m_Key: GraphicFPSLimit_FPS_60
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14151508203765760
+    m_Key: GraphicVSync_Off
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14151618971140096
+    m_Key: GraphicVSync_EveryFrame
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14151659857215488
+    m_Key: GraphicVSync_EveryTwoFrames
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

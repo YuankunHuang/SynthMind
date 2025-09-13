@@ -14,6 +14,16 @@ using UnityEditor;
 
 namespace YuankunHuang.Unity.HotUpdate
 {
+    public class LoginWindowData : IWindowData
+    {
+        public bool Reset;
+
+        public LoginWindowData(bool reset)
+        {
+            Reset = reset;
+        }
+    }
+
     public class LoginWindowController : WindowControllerBase
     {
         #region UI Ref
@@ -71,6 +81,14 @@ namespace YuankunHuang.Unity.HotUpdate
                 _noticeTxt.text = string.Empty;
 
                 ModuleRegistry.Get<IAudioManager>().PlayBGMAsync(GameDataConfig.AudioIdType.TestBGM);
+            }
+
+            var windowData = (LoginWindowData)data;
+            if (windowData != null && windowData.Reset)
+            {
+                _usernameInputField.text = string.Empty;
+                _passwordInputField.text = string.Empty;
+                _noticeTxt.text = string.Empty;
             }
         }
 

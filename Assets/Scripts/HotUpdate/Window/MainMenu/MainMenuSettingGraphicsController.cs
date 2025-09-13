@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
-using Unity.VisualScripting.FullSerializer;
 using UnityEngine;
 using UnityEngine.UI;
 using YuankunHuang.Unity.Core;
@@ -106,7 +105,12 @@ namespace YuankunHuang.Unity.HotUpdate
             for (var i = 0; i < fullscreenModes.Length; ++i)
             {
                 var mode = fullscreenModes[i];
-                _fullscreenModeDataList.Add(new TMP_Dropdown.OptionData(mode.ToString()));
+                var locName = mode.GetLocalizedName();
+                
+                LogHelper.LogError($"locName: {locName}");
+
+                _fullscreenModeDataList.Add(new TMP_Dropdown.OptionData(locName));
+
                 if (mode == currentFullscreenMode)
                 {
                     currentFullscreenIdx = i;
@@ -126,7 +130,11 @@ namespace YuankunHuang.Unity.HotUpdate
             for (var i = 0; i < qualities.Length; ++i)
             {
                 var quality = qualities[i];
-                _qualityPresetDataList.Add(new TMP_Dropdown.OptionData(quality.ToString()));
+                var locName = quality.GetLocalizedName();
+                
+                LogHelper.LogError($"locName: {locName}");
+
+                _qualityPresetDataList.Add(new TMP_Dropdown.OptionData(locName));
                 if (quality == currentQuality)
                 {
                     currentQualityIdx = i;
@@ -146,7 +154,11 @@ namespace YuankunHuang.Unity.HotUpdate
             for (var i = 0; i < fpsLimits.Length; ++i)
             {
                 var fpsLimit = fpsLimits[i];
-                _fpsLimitDataList.Add(new TMP_Dropdown.OptionData(fpsLimit.ToString()));
+                var locName = fpsLimit.GetLocalizedName();
+
+                LogHelper.LogError($"locName: {locName}");
+
+                _fpsLimitDataList.Add(new TMP_Dropdown.OptionData(locName));
                 if (fpsLimit == currentFpsLimit)
                 {
                     currentFpsLimitIdx = i;
@@ -166,7 +178,11 @@ namespace YuankunHuang.Unity.HotUpdate
             for (var i = 0; i < vsyncs.Length; ++i)
             {
                 var vsync = vsyncs[i];
-                _vsyncDataList.Add(new TMP_Dropdown.OptionData(vsync.ToString()));
+                var locName = vsync.GetLocalizedName();
+
+                LogHelper.LogError($"locName: {locName}");
+
+                _vsyncDataList.Add(new TMP_Dropdown.OptionData(locName));
                 if (vsync == currentVSync)
                 {
                     currentVsyncIdx = i;
@@ -231,6 +247,84 @@ namespace YuankunHuang.Unity.HotUpdate
         {
             var vsync = Enum.Parse<GraphicVSync>(_vsyncDataList[index].text);
             ModuleRegistry.Get<IGraphicManager>().SetVSync(vsync);
+        }
+    }
+
+    public static class FullScreenModeExtensions
+    {
+        public static string GetLocalizedName(this FullScreenMode mode)
+        {
+            var locManager = ModuleRegistry.Get<ILocalizationManager>();
+            switch (mode)
+            {
+                case FullScreenMode.ExclusiveFullScreen:
+                    return locManager.GetLocalizedText(LocalizationKeys.FullScreenModeExclusiveFullScreen);
+                case FullScreenMode.FullScreenWindow:
+                    return locManager.GetLocalizedText(LocalizationKeys.FullScreenModeFullScreenWindow);
+                case FullScreenMode.MaximizedWindow:
+                    return locManager.GetLocalizedText(LocalizationKeys.FullScreenModeMaximizedWindow);
+                case FullScreenMode.Windowed:
+                    return locManager.GetLocalizedText(LocalizationKeys.FullScreenModeWindowed);
+                default:
+                    return "#UNDEFINED#";
+            }
+        }
+    }
+
+    public static class GraphicQualityExtensions
+    {
+        public static string GetLocalizedName(this GraphicQuality quality)
+        {
+            var locManager = ModuleRegistry.Get<ILocalizationManager>();
+            switch (quality)
+            {
+                case GraphicQuality.Low:
+                    return locManager.GetLocalizedText(LocalizationKeys.CommonLow);
+                case GraphicQuality.Mid:
+                    return locManager.GetLocalizedText(LocalizationKeys.CommonMid);
+                case GraphicQuality.High:
+                    return locManager.GetLocalizedText(LocalizationKeys.CommonHigh);
+                default:
+                    return "#UNDEFINED#";
+            }
+        }
+    }
+
+    public static class GraphicFPSLimitExtensions
+    {
+        public static string GetLocalizedName(this GraphicFPSLimit fpsLimit)
+        {
+            var locManager = ModuleRegistry.Get<ILocalizationManager>();
+            switch (fpsLimit)
+            {
+                case GraphicFPSLimit.FPS_Default:
+                    return locManager.GetLocalizedText(LocalizationKeys.GraphicFPSLimitFPSDefault);
+                case GraphicFPSLimit.FPS_30:
+                    return locManager.GetLocalizedText(LocalizationKeys.GraphicFPSLimitFPS30);
+                case GraphicFPSLimit.FPS_60:
+                    return locManager.GetLocalizedText(LocalizationKeys.GraphicFPSLimitFPS60);
+                default:
+                    return "#UNDEFINED#";
+            }
+        }
+    }
+
+    public static class GraphicVSyncExtensions
+    {
+        public static string GetLocalizedName(this GraphicVSync vsync)
+        {
+            var locManager = ModuleRegistry.Get<ILocalizationManager>();
+            switch (vsync)
+            {
+                case GraphicVSync.Off:
+                    return locManager.GetLocalizedText(LocalizationKeys.GraphicVSyncOff);
+                case GraphicVSync.EveryFrame:
+                    return locManager.GetLocalizedText(LocalizationKeys.GraphicVSyncEveryFrame);
+                case GraphicVSync.EveryTwoFrames:
+                    return locManager.GetLocalizedText(LocalizationKeys.GraphicVSyncEveryTwoFrames);
+                default:
+                    return "#UNDEFINED#";
+            }
         }
     }
 }

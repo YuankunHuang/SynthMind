@@ -190,6 +190,62 @@ MonoBehaviour:
     m_Localized: V Sync
     m_Metadata:
       m_Items: []
+  - m_Id: 14138457907888128
+    m_Localized: "Say something\u2026"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14141554814189568
+    m_Localized: ExclusiveFullScreen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14141861740773376
+    m_Localized: FullScreenWindow
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14142012366618624
+    m_Localized: MaximizedWindow
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14143328421773312
+    m_Localized: Windowed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14144340901593088
+    m_Localized: Low
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14144520182923264
+    m_Localized: Mid
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14144540227502080
+    m_Localized: High
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14148677048565760
+    m_Localized: Default
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14148902924419072
+    m_Localized: 30 FPS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14148918179102720
+    m_Localized: 60 FPS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14151508203765760
+    m_Localized: Off
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14151618971140096
+    m_Localized: EveryFrame
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14151659857215488
+    m_Localized: EveryTwoFrames
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

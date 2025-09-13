@@ -8,12 +8,26 @@ namespace YuankunHuang.Unity.Core
     {
         public const string CommonCancel = "Common_Cancel";
         public const string CommonConfirm = "Common_Confirm";
+        public const string CommonHigh = "Common_High";
+        public const string CommonLow = "Common_Low";
+        public const string CommonMid = "Common_Mid";
+        public const string FullScreenModeExclusiveFullScreen = "FullScreenMode_ExclusiveFullScreen";
+        public const string FullScreenModeFullScreenWindow = "FullScreenMode_FullScreenWindow";
+        public const string FullScreenModeMaximizedWindow = "FullScreenMode_MaximizedWindow";
+        public const string FullScreenModeWindowed = "FullScreenMode_Windowed";
+        public const string GraphicFPSLimitFPS30 = "GraphicFPSLimit_FPS_30";
+        public const string GraphicFPSLimitFPS60 = "GraphicFPSLimit_FPS_60";
+        public const string GraphicFPSLimitFPSDefault = "GraphicFPSLimit_FPS_Default";
+        public const string GraphicVSyncEveryFrame = "GraphicVSync_EveryFrame";
+        public const string GraphicVSyncEveryTwoFrames = "GraphicVSync_EveryTwoFrames";
+        public const string GraphicVSyncOff = "GraphicVSync_Off";
         public const string MainMenuAbout = "MainMenu_About";
         public const string MainMenuAboutContent = "MainMenu_About_Content";
         public const string MainMenuAdmin = "MainMenu_Admin";
         public const string MainMenuChat = "MainMenu_Chat";
         public const string MainMenuHome = "MainMenu_Home";
         public const string MainMenuHomeIntro = "MainMenu_Home_Intro";
+        public const string MainMenuInputPlaceholder = "MainMenu_InputPlaceholder";
         public const string MainMenuLogin = "MainMenu_Login";
         public const string MainMenuLoginEnterPassword = "MainMenu_Login_EnterPassword";
         public const string MainMenuLoginEnterUsername = "MainMenu_Login_EnterUsername";

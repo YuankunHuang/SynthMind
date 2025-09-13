@@ -37,6 +37,11 @@ namespace YuankunHuang.Unity.HotUpdate
             _toggle.onValueChanged.RemoveAllListeners();
         }
 
+        public void SetValueWithoutNotify(bool isOn)
+        {
+            _toggle.SetIsOnWithoutNotify(isOn);
+        }
+
         public void SetValue(bool isOn)
         {
             _toggle.isOn = isOn;

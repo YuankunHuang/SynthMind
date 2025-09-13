@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using YuankunHuang.Unity.Core;
 using YuankunHuang.Unity.UICore;
 
 namespace YuankunHuang.Unity.HotUpdate
@@ -32,9 +33,20 @@ namespace YuankunHuang.Unity.HotUpdate
 
         public void Refresh(List<TMP_Dropdown.OptionData> options, int current)
         {
+            LogHelper.LogError($"Refresh 1");
+
             _dropdown.ClearOptions();
+
+            LogHelper.LogError($"Refresh 2");
+
             _dropdown.AddOptions(options);
-            _dropdown.value = current;
+
+            LogHelper.LogError($"Refresh 3");
+
+            _dropdown.SetValueWithoutNotify(current);
+            _dropdown.RefreshShownValue();
+
+            LogHelper.LogError($"Refresh 4");
         }
 
         private void OnDropdownValueChanged(int index)

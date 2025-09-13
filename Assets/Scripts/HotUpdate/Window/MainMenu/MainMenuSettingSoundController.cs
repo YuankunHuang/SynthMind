@@ -50,10 +50,10 @@ namespace YuankunHuang.Unity.HotUpdate
 
         public void Refresh()
         {
-            _masterVolumeController.SetValue(AudioPreferences.MasterVolume);
-            _bgmVolumeController.SetValue(AudioPreferences.BGMVolume);
-            _sfxVolumeController.SetValue(AudioPreferences.SFXVolume);
-            _masterMuteController.SetValue(AudioPreferences.MasterMuted);
+            _masterVolumeController.SetValueWithoutNotify(AudioPreferences.MasterVolume);
+            _bgmVolumeController.SetValueWithoutNotify(AudioPreferences.BGMVolume);
+            _sfxVolumeController.SetValueWithoutNotify(AudioPreferences.SFXVolume);
+            _masterMuteController.SetValueWithoutNotify(AudioPreferences.MasterMuted);
         }
 
         public void Dispose()

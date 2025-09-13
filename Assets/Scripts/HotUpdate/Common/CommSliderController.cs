@@ -50,6 +50,11 @@ namespace YuankunHuang.Unity.HotUpdate
             _slider.maxValue = maxValue;
         }
 
+        public void SetValueWithoutNotify(int value)
+        {
+            _slider.SetValueWithoutNotify(value);
+        }
+
         public void SetValue(int value)
         {
             _slider.value = value;
