@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using YuankunHuang.Unity.AudioCore;
 using YuankunHuang.Unity.Core;
 using YuankunHuang.Unity.Core.Debug;
 using YuankunHuang.Unity.GameDataConfig;
@@ -199,6 +200,8 @@ namespace YuankunHuang.Unity.HotUpdate
 
         private async void OnLanguageButtonClicked(int index)
         {
+            ModuleRegistry.Get<IAudioManager>().PlayUI(AudioIdType.TestButtonClick);
+
             if (_currentLanguageIndex == index || index < 0 || index >= _availableLanguages.Count || _isLanguageSwitching)
             {
                 return;

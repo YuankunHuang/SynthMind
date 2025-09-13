@@ -18,7 +18,7 @@ MonoBehaviour:
   m_GUID: f7f72f6e49c78bf42aa88ec13187a370
   m_SerializeEntries:
   - m_GUID: 2282e25fef1b8574a96e31fff424f358
-    m_Address: Assets/Addressables/Audio/UI/ButtonClick.mp3
+    m_Address: Assets/Addressables/Audio/UI/select-button-ui-395763.mp3
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

@@ -49,7 +49,7 @@ namespace YuankunHuang.Unity.SandboxCore
     {
         public static CommandParseResult ParseNaturalInput(string input)
         {
-            LogHelper.LogError($"ParseNaturalInput - input: {input}");
+            LogHelper.Log($"ParseNaturalInput - input: {input}");
 
             if (string.IsNullOrEmpty(input))
             {
@@ -60,28 +60,28 @@ namespace YuankunHuang.Unity.SandboxCore
 
             if (MatchesAnyPattern(normalizedInput, NaturalLanguagePatterns.TreePatterns))
             {
-                LogHelper.LogError($"Matched TreePatterns");
+                LogHelper.Log($"Matched TreePatterns");
 
                 return ParseTreeCommand(normalizedInput);
             }
 
             if (MatchesAnyPattern(normalizedInput, NaturalLanguagePatterns.MovePatterns))
             {
-                LogHelper.LogError($"Matched MovePatterns");
+                LogHelper.Log($"Matched MovePatterns");
 
                 return ParseMoveCommand(normalizedInput);
             }
 
             if (MatchesAnyPattern(normalizedInput, NaturalLanguagePatterns.BuildingPatterns))
             {
-                LogHelper.LogError($"Matched BuildingPatterns");
+                LogHelper.Log($"Matched BuildingPatterns");
 
                 return ParseBuildingCommand(normalizedInput);
             }
 
             if (MatchesAnyPattern(normalizedInput, NaturalLanguagePatterns.ClearPatterns))
             {
-                LogHelper.LogError($"Matched ClearPatterns");
+                LogHelper.Log($"Matched ClearPatterns");
 
                 return ParseClearCommand(normalizedInput);
             }
@@ -110,7 +110,7 @@ namespace YuankunHuang.Unity.SandboxCore
                 ? $"spawn tree {pos.Value.x} {pos.Value.z}"
                 : "spawn tree";
 
-            LogHelper.LogError($"ParseTreeCommand - pos: {pos} | command: {command}");
+            LogHelper.Log($"ParseTreeCommand - pos: {pos} | command: {command}");
 
             return new CommandParseResult
             {
@@ -127,7 +127,7 @@ namespace YuankunHuang.Unity.SandboxCore
                 ? $"move {pos.Value.x} {pos.Value.z}"
                 : "move random";
 
-            LogHelper.LogError($"ParseMoveCommand - pos: {pos} | command: {command}");
+            LogHelper.Log($"ParseMoveCommand - pos: {pos} | command: {command}");
 
             return new CommandParseResult
             {
@@ -144,7 +144,7 @@ namespace YuankunHuang.Unity.SandboxCore
                 ? $"build house {pos.Value.x} {pos.Value.z}"
                 : "build house";
 
-            LogHelper.LogError($"ParseBuildingCommand - pos: {pos} | command: {command}");
+            LogHelper.Log($"ParseBuildingCommand - pos: {pos} | command: {command}");
 
             return new CommandParseResult
             {
@@ -170,7 +170,7 @@ namespace YuankunHuang.Unity.SandboxCore
         {
             var match = Regex.Match(input, NaturalLanguagePatterns.PositionPattern);
 
-            LogHelper.LogError($"Matching Position Pattern -> {match}");
+            LogHelper.Log($"Matching Position Pattern -> {match}");
 
             // try coordinate
             if (match.Success)
@@ -185,7 +185,7 @@ namespace YuankunHuang.Unity.SandboxCore
             // try direction
             var directionMatch = Regex.Match(input, NaturalLanguagePatterns.DirectionPattern);
 
-            LogHelper.LogError($"Matching DirectionPattern -> {directionMatch}");
+            LogHelper.Log($"Matching DirectionPattern -> {directionMatch}");
 
             if (directionMatch.Success)
             {

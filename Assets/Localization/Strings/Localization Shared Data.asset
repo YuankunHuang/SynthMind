@@ -119,6 +119,42 @@ MonoBehaviour:
     m_Key: MainMenu_Admin
     m_Metadata:
       m_Items: []
+  - m_Id: 13946941558308864
+    m_Key: MainMenu_Setting_MasterVolume
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13947363593371648
+    m_Key: MainMenu_Setting_BGMVolume
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13947431272660992
+    m_Key: MainMenu_Setting_SFXVolume
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13947520049299456
+    m_Key: MainMenu_Setting_MasterMuted
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14026231171858432
+    m_Key: MainMenu_Setting_Resolution
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14026325057159168
+    m_Key: MainMenu_Setting_FullScreenMode
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14026523997192192
+    m_Key: MainMenu_Setting_QualityPreset
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14026625277050880
+    m_Key: MainMenu_Setting_FPSLimit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14026704394207232
+    m_Key: MainMenu_Setting_VSync
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

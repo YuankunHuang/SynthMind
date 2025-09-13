@@ -154,6 +154,42 @@ MonoBehaviour:
     m_Localized: ADMIN
     m_Metadata:
       m_Items: []
+  - m_Id: 13946941558308864
+    m_Localized: Master Volume
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13947363593371648
+    m_Localized: BGM Volume
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13947431272660992
+    m_Localized: SFX Volume
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13947520049299456
+    m_Localized: Master Muted
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14026231171858432
+    m_Localized: Resolution
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14026325057159168
+    m_Localized: Full Screen Mode
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14026523997192192
+    m_Localized: Quality Preset
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14026625277050880
+    m_Localized: FPS Limit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14026704394207232
+    m_Localized: V Sync
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

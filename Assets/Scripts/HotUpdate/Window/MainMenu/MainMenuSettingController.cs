@@ -43,7 +43,7 @@ namespace YuankunHuang.Unity.HotUpdate
 
             // sound
             var soundConfig = _config.ExtraWidgetConfigList[(int)ExtraConfig.Sound];
-            _soundController = new MainMenuSettingSoundController(languageConfig);
+            _soundController = new MainMenuSettingSoundController(soundConfig);
             _soundController.Init();
 
             // graphics

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using YuankunHuang.Unity.AssetCore;
+using YuankunHuang.Unity.AudioCore;
 using YuankunHuang.Unity.Core;
 using YuankunHuang.Unity.GameDataConfig;
 using YuankunHuang.Unity.ModuleCore;
@@ -53,7 +54,11 @@ namespace YuankunHuang.Unity.HotUpdate
             btn.onClick.RemoveAllListeners();
             if (onClick != null)
             {
-                btn.onClick.AddListener(() => onClick());
+                btn.onClick.AddListener(() =>
+                    {
+                        ModuleRegistry.Get<IAudioManager>().PlayUI(AudioIdType.TestButtonClick);
+                        onClick();
+                    });
             }
         }
 
