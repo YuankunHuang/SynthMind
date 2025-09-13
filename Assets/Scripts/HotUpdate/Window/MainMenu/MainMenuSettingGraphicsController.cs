@@ -74,10 +74,19 @@ namespace YuankunHuang.Unity.HotUpdate
             _resolutionDataList.Clear();
             var currentRes = GraphicPreferences.Resolution;
             var currentResIdx = -1;
+            var seenRes = new HashSet<Vector2Int>();
             for (var i = 0; i < Screen.resolutions.Length; ++i)
             {
                 var res = Screen.resolutions[i];
+
+                // avoid duplicate
+                if (!seenRes.Add(new Vector2Int(res.width, res.height)))
+                {
+                    continue;
+                }
+
                 _resolutionDataList.Add(new TMP_Dropdown.OptionData($"{res.width} x {res.height}"));
+
                 if (currentRes.x == res.width && currentRes.y == res.height)
                 {
                     currentResIdx = i;
@@ -147,7 +156,7 @@ namespace YuankunHuang.Unity.HotUpdate
             {
                 LogHelper.LogError($"No valid FPSLimit item matched! currentFpsLimit: {currentFpsLimit}");
             }
-            _qualityPresetController.Refresh(_fpsLimitDataList, currentFpsLimitIdx);
+            _fpsLimitController.Refresh(_fpsLimitDataList, currentFpsLimitIdx);
 
             // vsync
             _vsyncDataList.Clear();
@@ -158,7 +167,7 @@ namespace YuankunHuang.Unity.HotUpdate
             {
                 var vsync = vsyncs[i];
                 _vsyncDataList.Add(new TMP_Dropdown.OptionData(vsync.ToString()));
-                if ((int)vsync == currentVsyncIdx)
+                if (vsync == currentVSync)
                 {
                     currentVsyncIdx = i;
                 }

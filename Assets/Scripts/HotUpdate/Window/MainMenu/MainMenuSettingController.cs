@@ -9,6 +9,7 @@ using YuankunHuang.Unity.Util;
 using YuankunHuang.Unity.LocalizationCore;
 using YuankunHuang.Unity.GameDataConfig;
 using YuankunHuang.Unity.Core.Debug;
+using UnityEngine.UI;
 
 namespace YuankunHuang.Unity.HotUpdate
 {
@@ -22,9 +23,16 @@ namespace YuankunHuang.Unity.HotUpdate
             Graphics = 2,
         }
 
+        private enum ExtraObj
+        {
+            ScrollRect = 0,
+        }
+
         private MainMenuSettingLanguageController _langController;
         private MainMenuSettingSoundController _soundController;
         private MainMenuSettingGraphicsController _graphicsController;
+
+        private ScrollRect _scrollRect;
         #endregion
 
         private GeneralWidgetConfig _config;
@@ -50,6 +58,8 @@ namespace YuankunHuang.Unity.HotUpdate
             var graphicsConfig = _config.ExtraWidgetConfigList[(int)ExtraConfig.Graphics];
             _graphicsController = new MainMenuSettingGraphicsController(graphicsConfig);
             _graphicsController.Init();
+
+            _scrollRect = _config.ExtraObjectList[(int)ExtraObj.ScrollRect].GetComponent<ScrollRect>();
         }
 
         public void Show()
@@ -64,6 +74,8 @@ namespace YuankunHuang.Unity.HotUpdate
 
                 // graphics
                 _graphicsController.Refresh();
+
+                _scrollRect.verticalNormalizedPosition = 1;
 
                 _config.CanvasGroup.CanvasGroupOn();
             }
