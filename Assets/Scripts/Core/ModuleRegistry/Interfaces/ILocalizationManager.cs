@@ -13,6 +13,10 @@ namespace YuankunHuang.Unity.LocalizationCore
         string GetLocalizedTextFormatted(string key, params object[] args);
         string GetLocalizedTextFormatted(string table, string key, params object[] args);
 
+        // async methods for WebGL compatibility
+        void GetLocalizedTextAsync(string key, Action<string> callback);
+        void GetLocalizedTextAsync(string table, string key, Action<string> callback);
+
         // management
         Task InitializeAsync();
         void SetLanguage(string langCode);

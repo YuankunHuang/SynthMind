@@ -18,7 +18,7 @@ namespace YuankunHuang.Unity.UICore
                 { "MainMenu", () => new MainMenuController() },
                 { "ProfileWindow", () => new ProfileWindowController() },
                 { "InfoWindow", () => new InfoWindowController() },
-                { "ConfirmWindow", () => new ConfirmWindowController() }
+                { "ConfirmWindow", () => new ConfirmWindowController() },
             };
 
         public static WindowControllerBase CreateController(string windowName)
@@ -42,20 +42,6 @@ namespace YuankunHuang.Unity.UICore
 
             LogHelper.LogError($"[WindowControllerFactory] Controller not found for window: {windowName}");
             throw new Exception($"Controller not found: {windowName}Controller");
-        }
-
-        public static bool HasController(string windowName)
-        {
-            return _controllerFactories.ContainsKey(windowName);
-        }
-
-        /// <summary>
-        /// Register a new controller factory (for dynamic registration if needed)
-        /// </summary>
-        public static void RegisterController<T>(string windowName) where T : WindowControllerBase, new()
-        {
-            _controllerFactories[windowName] = () => new T();
-            LogHelper.Log($"[WindowControllerFactory] Registered controller factory for {windowName}");
         }
     }
 }

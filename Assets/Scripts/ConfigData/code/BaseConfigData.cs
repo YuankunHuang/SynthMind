@@ -250,9 +250,10 @@ namespace YuankunHuang.Unity.GameDataConfig
             using var stream = new MemoryStream(data);
             using var reader = new BinaryReader(stream);
 
+            // Same binary reading logic as LoadFromBinary
+            // ... (copy the entire LoadFromBinary logic here)
             try
             {
-                // Same binary reading logic as LoadFromBinary
                 if (stream.Length < 8)
                     throw new InvalidDataException($"Binary file too small for header: {stream.Length} bytes");
 

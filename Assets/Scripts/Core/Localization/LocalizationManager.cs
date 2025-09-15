@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
+using UnityEngine.Localization.Tables;
 using YuankunHuang.Unity.Core;
 using YuankunHuang.Unity.Core.Debug;
 
@@ -13,10 +14,12 @@ namespace YuankunHuang.Unity.LocalizationCore
     public class LocalizationManager : ILocalizationManager
     {
         public static string DefaultLocalizationTable = "Localization";
-        
+
         public bool IsInitialized { get; private set; } = false;
         public event Action<string> OnLanguageChanged;
         public string CurrentLanguage => LocalizationSettings.SelectedLocale?.Identifier.Code ?? "en";
+
+        private readonly Dictionary<string, string> _textCache = new Dictionary<string, string>();
 
         public async Task InitializeAsync()
         {
@@ -52,6 +55,20 @@ namespace YuankunHuang.Unity.LocalizationCore
                 return key;
             }
 
+            // Check cache first
+            var cacheKey = $"{table}:{key}";
+            if (_textCache.ContainsKey(cacheKey))
+            {
+                return _textCache[cacheKey];
+            }
+
+            // For WebGL, we need to use async loading, so return key as fallback
+            // and trigger async loading
+            #if UNITY_WEBGL && !UNITY_EDITOR
+            GetLocalizedTextAsync(table, key, null);
+            return key;
+            #else
+            // For other platforms, use synchronous loading
             try
             {
                 var stringTableCollection = LocalizationSettings.StringDatabase.GetTable(table);
@@ -68,12 +85,63 @@ namespace YuankunHuang.Unity.LocalizationCore
                     return key;
                 }
 
-                return entry.GetLocalizedString() ?? key;
+                var localizedText = entry.GetLocalizedString() ?? key;
+                _textCache[cacheKey] = localizedText;
+                return localizedText;
             }
             catch (Exception e)
             {
                 LogHelper.LogWarning($"[LocalizationManager] Failed to get text for key '{key}': {e.Message}");
                 return key;
+            }
+            #endif
+        }
+
+        public void GetLocalizedTextAsync(string key, System.Action<string> callback)
+        {
+            GetLocalizedTextAsync(DefaultLocalizationTable, key, callback);
+        }
+
+        public async void GetLocalizedTextAsync(string table, string key, System.Action<string> callback)
+        {
+            if (!IsInitialized)
+            {
+                LogHelper.LogWarning($"[LocalizationManager] Not initialized. Returning key: {key}");
+                callback?.Invoke(key);
+                return;
+            }
+
+            var cacheKey = $"{table}:{key}";
+
+            // Check cache first
+            if (_textCache.ContainsKey(cacheKey))
+            {
+                callback?.Invoke(_textCache[cacheKey]);
+                return;
+            }
+
+            try
+            {
+                // Use async loading for WebGL compatibility
+                var stringOperation = LocalizationSettings.StringDatabase.GetLocalizedStringAsync(table, key);
+                await stringOperation.Task;
+
+                if (stringOperation.Status == UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationStatus.Succeeded)
+                {
+                    var localizedText = stringOperation.Result ?? key;
+                    _textCache[cacheKey] = localizedText;
+                    callback?.Invoke(localizedText);
+                }
+                else
+                {
+                    LogHelper.LogWarning($"[LocalizationManager] Failed to get localized string for key '{key}' in table '{table}'");
+                    callback?.Invoke(key);
+                }
+            }
+            catch (Exception e)
+            {
+                LogHelper.LogWarning($"[LocalizationManager] Failed to get text for key '{key}': {e.Message}");
+                callback?.Invoke(key);
             }
         }
 
@@ -234,6 +302,11 @@ namespace YuankunHuang.Unity.LocalizationCore
             if (locale != null)
             {
                 var newLanguage = locale.Identifier.Code;
+
+                // Clear cache when language changes
+                _textCache.Clear();
+                LogHelper.Log($"[LocalizationManager] Cache cleared due to language change");
+
                 OnLanguageChanged?.Invoke(newLanguage);
                 LogHelper.Log($"[LocalizationManager] Language changed to {newLanguage}");
             }

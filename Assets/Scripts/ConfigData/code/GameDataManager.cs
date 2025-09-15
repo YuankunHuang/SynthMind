@@ -1,7 +1,7 @@
 using System;
 using System.Reflection;
 using System.Linq;
-using YuankunHuang.Unity.Core;
+using UnityEngine;
 
 namespace YuankunHuang.Unity.GameDataConfig
 {
@@ -20,7 +20,7 @@ namespace YuankunHuang.Unity.GameDataConfig
         {
             if (_isInitialized) return;
 
-            LogHelper.Log("[GameDataManager] Starting initialization...");
+            Debug.Log("[GameDataManager] Starting initialization...");
 
 #if UNITY_WEBGL && !UNITY_EDITOR
             // WebGL requires async initialization - start the async process
@@ -28,7 +28,7 @@ namespace YuankunHuang.Unity.GameDataConfig
 #else
             InitializeDefault();
             _isInitialized = true;
-            LogHelper.Log("[GameDataManager] Initialization completed");
+            Debug.Log("[GameDataManager] Initialization completed");
 #endif
         }
 
@@ -38,7 +38,7 @@ namespace YuankunHuang.Unity.GameDataConfig
         /// </summary>
         public static async System.Threading.Tasks.Task InitializeWebGLAsync()
         {
-            LogHelper.Log("[GameDataManager] Using WebGL async initialization mode");
+            Debug.Log("[GameDataManager] Using WebGL async initialization mode");
 
             var initTasks = new System.Collections.Generic.List<System.Threading.Tasks.Task>();
 
@@ -67,7 +67,7 @@ namespace YuankunHuang.Unity.GameDataConfig
             await System.Threading.Tasks.Task.WhenAll(initTasks);
 
             _isInitialized = true;
-            LogHelper.Log("[GameDataManager] WebGL async initialization completed");
+            Debug.Log("[GameDataManager] WebGL async initialization completed");
         }
 
         private static async System.Threading.Tasks.Task InitializeConfigAsync<T>(string configName, System.Func<System.Threading.Tasks.Task> initFunc)
@@ -75,51 +75,21 @@ namespace YuankunHuang.Unity.GameDataConfig
             try
             {
                 await initFunc();
-                LogHelper.Log($"[GameDataManager] {configName} initialized successfully");
+                Debug.Log($"[GameDataManager] {configName} initialized successfully");
             }
             catch (System.Exception e)
             {
-                LogHelper.LogWarning($"[GameDataManager] {configName} failed: {e.Message}");
+                Debug.LogWarning($"[GameDataManager] {configName} failed: {e.Message}");
             }
         }
 #endif
-
-                                                        /// <summary>
-        /// WebGL-compatible initialization (auto-generated)
-        /// </summary>
-        private static void InitializeWebGL()
-        {
-            LogHelper.Log("[GameDataManager] Using WebGL initialization mode");
-
-            try { AccountTestConfig.Initialize(); LogHelper.Log("[GameDataManager] AccountTestConfig initialized"); }
-            catch (Exception e) { LogHelper.LogWarning($"[GameDataManager] AccountTestConfig failed: {e.Message}"); }
-
-            try { AudioConfig.Initialize(); LogHelper.Log("[GameDataManager] AudioConfig initialized"); }
-            catch (Exception e) { LogHelper.LogWarning($"[GameDataManager] AudioConfig failed: {e.Message}"); }
-
-            try { AvatarConfig.Initialize(); LogHelper.Log("[GameDataManager] AvatarConfig initialized"); }
-            catch (Exception e) { LogHelper.LogWarning($"[GameDataManager] AvatarConfig failed: {e.Message}"); }
-
-            try { LanguageConfig.Initialize(); LogHelper.Log("[GameDataManager] LanguageConfig initialized"); }
-            catch (Exception e) { LogHelper.LogWarning($"[GameDataManager] LanguageConfig failed: {e.Message}"); }
-
-            try { SampleConfig.Initialize(); LogHelper.Log("[GameDataManager] SampleConfig initialized"); }
-            catch (Exception e) { LogHelper.LogWarning($"[GameDataManager] SampleConfig failed: {e.Message}"); }
-
-        }
-
-
-
-
-
-
 
         /// <summary>
         /// Default initialization using reflection (for other platforms)
         /// </summary>
         private static void InitializeDefault()
         {
-            LogHelper.Log("[GameDataManager] Using reflection-based initialization mode");
+            Debug.Log("[GameDataManager] Using reflection-based initialization mode");
 
             // Search in multiple assemblies for better detection
             var assemblies = new[]
@@ -139,7 +109,7 @@ namespace YuankunHuang.Unity.GameDataConfig
                     }
                     catch (Exception e)
                     {
-                        LogHelper.LogWarning($"[GameDataManager] Failed to get types from assembly {assembly.FullName}: {e.Message}");
+                        Debug.LogWarning($"[GameDataManager] Failed to get types from assembly {assembly.FullName}: {e.Message}");
                     }
                 }
             }
@@ -178,11 +148,11 @@ namespace YuankunHuang.Unity.GameDataConfig
                     try
                     {
                         method.Invoke(null, null);
-                        LogHelper.Log($"[GameDataManager] {type.Name} initialized");
+                        Debug.Log($"[GameDataManager] {type.Name} initialized");
                     }
                     catch (Exception e)
                     {
-                        LogHelper.LogWarning($"[GameDataManager] {type.Name} failed: {e.Message}");
+                        Debug.LogWarning($"[GameDataManager] {type.Name} failed: {e.Message}");
                     }
                 }
             }

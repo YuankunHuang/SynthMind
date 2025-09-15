@@ -34,6 +34,17 @@ namespace YuankunHuang.Unity.GameDataConfig
             PostInitialize();
         }
 
+#if UNITY_WEBGL && !UNITY_EDITOR
+        /// <summary>
+        /// Async initialization for WebGL platform
+        /// </summary>
+        public static async System.Threading.Tasks.Task InitializeAsync(string binaryPath)
+        {
+            await BaseConfigData<AudioData>.InitializeAsync(binaryPath);
+            PostInitialize();
+        }
+#endif
+
         /// <summary>
         /// Custom post-initialization logic (optional, see .ext.cs)
         /// </summary>

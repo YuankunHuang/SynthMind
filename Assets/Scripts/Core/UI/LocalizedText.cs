@@ -61,7 +61,14 @@ namespace YuankunHuang.Unity.UICore
 
             if (_localizationManager != null)
             {
+                #if UNITY_WEBGL && !UNITY_EDITOR
+                _localizationManager.GetLocalizedTextAsync(_tableName, _localizationKey, (localizedText) => {
+                    if (_textComponent != null)
+                        _textComponent.text = localizedText;
+                });
+                #else
                 _textComponent.text = _localizationManager.GetLocalizedText(_tableName, _localizationKey);
+                #endif
             }
         }
 
