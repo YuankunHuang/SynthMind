@@ -1,6 +1,8 @@
+#if !UNITY_WEBGL || UNITY_EDITOR
 using Firebase;
 using Firebase.Extensions;
 using Firebase.Firestore;
+#endif
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +12,7 @@ using YuankunHuang.Unity.Core;
 
 namespace YuankunHuang.Unity.FirebaseCore
 {
+#if !UNITY_WEBGL || UNITY_EDITOR
     public class FirebaseManager
     {
         public static bool IsInitialized { get; private set; } = false;
@@ -93,7 +96,7 @@ namespace YuankunHuang.Unity.FirebaseCore
                 var firebaseServices = GameObject.Find("Firebase Services");
                 if (firebaseServices != null)
                 {
-                    GameObject.DestroyImmediate(firebaseServices);
+                    GameObject.Destroy(firebaseServices);
                 }
 
                 IsInitialized = false;
@@ -514,6 +517,7 @@ namespace YuankunHuang.Unity.FirebaseCore
         }
         #endregion
     }
+#endif
 
     public class FirebaseCollections
     {
@@ -522,6 +526,7 @@ namespace YuankunHuang.Unity.FirebaseCore
         public static readonly string Messages = "messages";
     }
 
+#if !UNITY_WEBGL || UNITY_EDITOR
     public struct FirebaseConversationMessage
     {
         public string ConversationId { get; private set; }
@@ -541,4 +546,26 @@ namespace YuankunHuang.Unity.FirebaseCore
             Metadata = metadata ?? new Dictionary<string, object>();
         }
     }
+#else
+    // WebGL version of FirebaseConversationMessage that doesn't depend on Timestamp
+    public struct FirebaseConversationMessage
+    {
+        public string ConversationId { get; private set; }
+        public string MessageId { get; private set; }
+        public string SenderId { get; private set; }
+        public string Content { get; private set; }
+        public System.DateTime Timestamp { get; private set; }
+        public Dictionary<string, object> Metadata { get; private set; }
+
+        public FirebaseConversationMessage(string conversationId, string messageId, string senderId, string content, System.DateTime timeStamp, Dictionary<string, object> metadata = null)
+        {
+            ConversationId = conversationId;
+            MessageId = messageId;
+            SenderId = senderId;
+            Content = content;
+            Timestamp = timeStamp;
+            Metadata = metadata ?? new Dictionary<string, object>();
+        }
+    }
+#endif
 }

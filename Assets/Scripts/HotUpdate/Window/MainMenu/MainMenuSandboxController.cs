@@ -1,4 +1,6 @@
+#if !UNITY_WEBGL || UNITY_EDITOR
 using Firebase.Firestore;
+#endif
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -89,14 +91,14 @@ namespace YuankunHuang.Unity.HotUpdate
                 _isSandboxLoaded = true;
                 SandboxManager.Instance.Initialize(_rawImg, () =>
                 {
-                    if (!FirebaseManager.IsInitializing)
+                    var firebaseManager = ModuleRegistry.Get<IFirebaseManager>();
+
+                    if (firebaseManager.IsInitialized)
                     {
-                        FirebaseManager.InitializeDataBase(success =>
+                        var self = ModuleRegistry.Get<IAccountManager>().Self;
+                        firebaseManager.CreateNewConversation(FirebaseCollections.Command_Conversations, new List<string>() { self.UUID }, convId =>
                         {
-                            var self = ModuleRegistry.Get<IAccountManager>().Self;
-                            FirebaseManager.CreateNewConversation(FirebaseCollections.Command_Conversations, new List<string>() { self.UUID }, convId =>
-                            {
-                                _conversationId = convId;
+                            _conversationId = convId;
 
                                 var ai = ModuleRegistry.Get<IAccountManager>().AI;
                                 AddToChat(
@@ -108,7 +110,10 @@ namespace YuankunHuang.Unity.HotUpdate
                                     "'clear all' - Reset environment"
                                 );
                             });
-                        });
+                    }
+                    else
+                    {
+                        LogHelper.LogError($"Firebase manager is not initialized.");
                     }
 
                     _config.CanvasGroup.CanvasGroupOn();
@@ -260,7 +265,11 @@ namespace YuankunHuang.Unity.HotUpdate
 
             foreach (var message in messages)
             {
+#if UNITY_WEBGL && !UNITY_EDITOR
+                var msgData = new MainMenuMessageData($"{++MessageIDTest}", sender, message, System.DateTime.Now);
+#else
                 var msgData = new MainMenuMessageData($"{++MessageIDTest}", sender, message, Timestamp.GetCurrentTimestamp().ToDateTime());
+#endif
                 list.Add(msgData);
             }
 

@@ -1,5 +1,7 @@
+#if !UNITY_WEBGL || UNITY_EDITOR
 using Firebase.Analytics;
 using Firebase.Firestore;
+#endif
 using System;
 using System.Collections.Generic;
 using YuankunHuang.Unity.Core;
@@ -49,8 +51,12 @@ namespace YuankunHuang.Unity.NetworkCore
             var self = ModuleRegistry.Get<IAccountManager>().Self;
             if (self != null)
             {
-                FirebaseManager.CleanUpEmptyConversations(FirebaseCollections.AI_Conversations, self.UUID, null);
-                FirebaseManager.CleanUpEmptyConversations(FirebaseCollections.Command_Conversations, self.UUID, null);
+                var firebaseManager = ModuleRegistry.Get<IFirebaseManager>();
+                if (firebaseManager.IsInitialized)
+                {
+                    firebaseManager.CleanUpEmptyConversations(FirebaseCollections.AI_Conversations, self.UUID, null);
+                    firebaseManager.CleanUpEmptyConversations(FirebaseCollections.Command_Conversations, self.UUID, null);
+                }
             }
 
             RestApi.Dispose();
@@ -71,6 +77,7 @@ namespace YuankunHuang.Unity.NetworkCore
                 return;
             }
 
+#if !UNITY_WEBGL || UNITY_EDITOR
             FirebaseAnalytics.LogEvent("send_message", new Parameter[]
                 {
                     new Parameter("conversation_group", conversationGroup),
@@ -79,14 +86,24 @@ namespace YuankunHuang.Unity.NetworkCore
                     new Parameter("content", content),
                     new Parameter("timestamp", Timestamp.GetCurrentTimestamp().ToString())
                 });
+#endif
+#if UNITY_WEBGL && !UNITY_EDITOR
+            LogHelper.Log($"[Analytics] send_message by {senderId}: {content} in conversation: {conversationId} in conversation_group: {conversationGroup} at time {System.DateTime.Now.ToString()}");
+#else
             LogHelper.Log($"[Analytics] send_message by {senderId}: {content} in conversation: {conversationId} in conversation_group: {conversationGroup} at time {Timestamp.GetCurrentTimestamp().ToString()}");
+#endif
 
-            FirebaseManager.SendMessageToConversation(conversationGroup, conversationId, ModuleRegistry.Get<IAccountManager>().Self.UUID, content, null);
+            var firebaseManager = ModuleRegistry.Get<IFirebaseManager>();
+            if (firebaseManager.IsInitialized)
+            {
+                firebaseManager.SendMessageToConversation(conversationGroup, conversationId, ModuleRegistry.Get<IAccountManager>().Self.UUID, content, null);
+            }
 
             RestApi.SendMessage(content, server, reply =>
             {
                 var ai = ModuleRegistry.Get<IAccountManager>().AI;
 
+#if !UNITY_WEBGL || UNITY_EDITOR
                 FirebaseAnalytics.LogEvent("receive_message", new Parameter[]
                 {
                     new Parameter("conversation_group", conversationGroup),
@@ -95,9 +112,17 @@ namespace YuankunHuang.Unity.NetworkCore
                     new Parameter("content", reply),
                     new Parameter("timestamp", Timestamp.GetCurrentTimestamp().ToString())
                 });
+#endif
+#if UNITY_WEBGL && !UNITY_EDITOR
+                LogHelper.Log($"[Analytics] receive_message by {senderId}: {content} in conversation {conversationId} in conversation_group: {conversationGroup} at time {System.DateTime.Now.ToString()}");
+#else
                 LogHelper.Log($"[Analytics] receive_message by {senderId}: {content} in conversation {conversationId} in conversation_group: {conversationGroup} at time {Timestamp.GetCurrentTimestamp().ToString()}");
+#endif
 
-                FirebaseManager.SendMessageToConversation(conversationGroup, conversationId, ai.UUID, reply, null);
+                if (firebaseManager.IsInitialized)
+                {
+                    firebaseManager.SendMessageToConversation(conversationGroup, conversationId, ai.UUID, reply, null);
+                }
 
                 onSuccess?.Invoke(reply);
             }, onError);

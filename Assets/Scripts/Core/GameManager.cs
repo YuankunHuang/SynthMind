@@ -81,34 +81,91 @@ namespace YuankunHuang.Unity.Core
             {
                 try
                 {
-                    GameDataManager.Initialize();
-                    MonoManager.Initialize(_monoManager);
-                    InputBlocker.Initialize(_inputBlocker);
+                    LogHelper.Log("[GameManager] Starting GameDataManager initialization...");
+#if UNITY_WEBGL && !UNITY_EDITOR
+                    await YuankunHuang.Unity.GameDataConfig.GameDataManager.InitializeWebGLAsync();
+                    LogHelper.Log("[GameManager] GameDataManager initialized successfully (WebGL async)");
+#else
+                    YuankunHuang.Unity.GameDataConfig.GameDataManager.Initialize();
+                    LogHelper.Log("[GameManager] GameDataManager initialized successfully");
+#endif
 
+                    LogHelper.Log("[GameManager] Starting MonoManager initialization...");
+                    MonoManager.Initialize(_monoManager);
+                    LogHelper.Log("[GameManager] MonoManager initialized successfully");
+
+                    LogHelper.Log("[GameManager] Starting InputBlocker initialization...");
+                    InputBlocker.Initialize(_inputBlocker);
+                    LogHelper.Log("[GameManager] InputBlocker initialized successfully");
+
+                    LogHelper.Log("[GameManager] Starting AssetManager initialization...");
                     var assetManager = new AssetManager();
                     assetManager.Initialize(_assetManagerConfig);
                     ModuleRegistry.Register<IAssetManager>(assetManager);
-                    ModuleRegistry.Register<IUIManager>(new UIManager());
-                    ModuleRegistry.Register<INetworkManager>(new NetworkManager());
-                    ModuleRegistry.Register<ICameraManager>(new CameraManager());
-                    ModuleRegistry.Register<IAccountManager>(new AccountManager());
-                    ModuleRegistry.Register<ICommandManager>(new CommandManager());
-                    ModuleRegistry.Register<IAudioManager>(new AudioManager());
-                    ModuleRegistry.Register<IGraphicManager>(new GraphicManager());
+                    LogHelper.Log("[GameManager] AssetManager initialized successfully");
 
+                    LogHelper.Log("[GameManager] Starting UIManager initialization...");
+                    ModuleRegistry.Register<IUIManager>(new UIManager());
+                    LogHelper.Log("[GameManager] UIManager initialized successfully");
+
+                    LogHelper.Log("[GameManager] Starting NetworkManager initialization...");
+                    ModuleRegistry.Register<INetworkManager>(new NetworkManager());
+                    LogHelper.Log("[GameManager] NetworkManager initialized successfully");
+
+                    LogHelper.Log("[GameManager] Starting CameraManager initialization...");
+                    ModuleRegistry.Register<ICameraManager>(new CameraManager());
+                    LogHelper.Log("[GameManager] CameraManager initialized successfully");
+
+                    LogHelper.Log("[GameManager] Starting AccountManager initialization...");
+                    ModuleRegistry.Register<IAccountManager>(new AccountManager());
+                    LogHelper.Log("[GameManager] AccountManager initialized successfully");
+
+                    LogHelper.Log("[GameManager] Starting CommandManager initialization...");
+                    ModuleRegistry.Register<ICommandManager>(new CommandManager());
+                    LogHelper.Log("[GameManager] CommandManager initialized successfully");
+
+                    LogHelper.Log("[GameManager] Starting AudioManager initialization...");
+                    ModuleRegistry.Register<IAudioManager>(new AudioManager());
+                    LogHelper.Log("[GameManager] AudioManager initialized successfully");
+
+                    LogHelper.Log("[GameManager] Starting GraphicManager initialization...");
+                    ModuleRegistry.Register<IGraphicManager>(new GraphicManager());
+                    LogHelper.Log("[GameManager] GraphicManager initialized successfully");
+
+                    LogHelper.Log("[GameManager] Starting LocalizationManager initialization...");
                     var localizationManager = new LocalizationManager();
                     await localizationManager.InitializeAsync().WithLogging();
                     ModuleRegistry.Register<ILocalizationManager>(localizationManager);
+                    LogHelper.Log("[GameManager] LocalizationManager initialized successfully");
 
+                    LogHelper.Log("[GameManager] Starting FirebaseManager initialization...");
+                    var firebaseManager = new UnifiedFirebaseManager();
+                    try
+                    {
+                        await firebaseManager.InitializeAsync().WithLogging();
+                        ModuleRegistry.Register<IFirebaseManager>(firebaseManager);
+                        LogHelper.Log($"[GameManager] Firebase initialized: {firebaseManager.IsInitialized}");
+                    }
+                    catch (Exception firebaseEx)
+                    {
+                        LogHelper.LogWarning($"[GameManager] Firebase initialization failed, continuing without Firebase: {firebaseEx.Message}");
+                        ModuleRegistry.Register<IFirebaseManager>(firebaseManager);
+                    }
+
+                    LogHelper.Log("[GameManager] Starting Camera setup...");
                     var camManager = ModuleRegistry.Get<ICameraManager>();
                     camManager.AddToMainStack(camManager.UICamera);
+                    LogHelper.Log("[GameManager] Camera setup completed successfully");
 
+                    LogHelper.Log("[GameManager] Starting UI window show...");
                     ModuleRegistry.Get<IUIManager>().Show(WindowNames.LoginWindow);
+                    LogHelper.Log("[GameManager] All initialization completed successfully");
                 }
                 catch (Exception ex)
                 {
                     LogHelper.LogError($"[GameManager] Initialization failed: {ex.Message}");
                     LogHelper.LogError($"StackTrace: {ex.StackTrace}");
+                    LogHelper.LogError($"InnerException: {ex.InnerException?.Message}");
                 }
             }
         }
@@ -126,6 +183,7 @@ namespace YuankunHuang.Unity.Core
             ModuleRegistry.Get<IAccountManager>().Dispose();
             ModuleRegistry.Get<IAudioManager>().Dispose();
             ModuleRegistry.Get<IGraphicManager>().Dispose();
+            ModuleRegistry.Get<IFirebaseManager>().Dispose();
 
             ModuleRegistry.Unregister<IAssetManager>();
             ModuleRegistry.Unregister<IUIManager>();
@@ -136,11 +194,10 @@ namespace YuankunHuang.Unity.Core
             ModuleRegistry.Unregister<IAccountManager>();
             ModuleRegistry.Unregister<IAudioManager>();
             ModuleRegistry.Unregister<IGraphicManager>();
+            ModuleRegistry.Unregister<IFirebaseManager>();
 
             MonoManager.Dispose();
             InputBlocker.Dispose();
-
-            FirebaseManager.Dispose();
 
             SceneManager.UnloadAll(onFinished);
 
