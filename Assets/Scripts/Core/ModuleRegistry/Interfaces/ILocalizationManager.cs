@@ -7,15 +7,21 @@ namespace YuankunHuang.Unity.LocalizationCore
 {
     public interface ILocalizationManager : IModule
     {
-        // core
+        // legacy synchronous methods (deprecated for UI usage)
         string GetLocalizedText(string key);
         string GetLocalizedText(string table, string key);
         string GetLocalizedTextFormatted(string key, params object[] args);
         string GetLocalizedTextFormatted(string table, string key, params object[] args);
 
-        // async methods for WebGL compatibility
-        void GetLocalizedTextAsync(string key, Action<string> callback);
-        void GetLocalizedTextAsync(string table, string key, Action<string> callback);
+        // unified callback-based methods (recommended for UI)
+        void GetLocalizedText(string key, Action<string> callback);
+        void GetLocalizedText(string table, string key, Action<string> callback);
+        void GetLocalizedTextFormatted(string key, Action<string> callback, params object[] args);
+        void GetLocalizedTextFormatted(string table, string key, Action<string> callback, params object[] args);
+
+        // batch methods for multiple keys
+        void GetLocalizedTexts(string[] keys, Action<Dictionary<string, string>> callback);
+        void GetLocalizedTexts(string table, string[] keys, Action<Dictionary<string, string>> callback);
 
         // management
         Task InitializeAsync();

@@ -107,7 +107,16 @@ namespace YuankunHuang.Unity.HotUpdate
 
             var locManager = ModuleRegistry.Get<ILocalizationManager>();
             var uiManager = ModuleRegistry.Get<IUIManager>();
-            uiManager.Show(WindowNames.ConfirmWindow, new ConfirmWindowData(locManager.GetLocalizedText(LocalizationKeys.QuitGameTitle), locManager.GetLocalizedText(LocalizationKeys.QuitGameContent), QuitApp));
+
+            // Use batch localization for WebGL compatibility
+            locManager.GetLocalizedTexts(
+                new[] { LocalizationKeys.QuitGameTitle, LocalizationKeys.QuitGameContent },
+                (texts) =>
+                {
+                    var title = texts[LocalizationKeys.QuitGameTitle];
+                    var content = texts[LocalizationKeys.QuitGameContent];
+                    uiManager.Show(WindowNames.ConfirmWindow, new ConfirmWindowData(title, content, QuitApp));
+                });
         }
 
         private void QuitApp()

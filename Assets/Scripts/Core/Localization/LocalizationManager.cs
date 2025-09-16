@@ -102,7 +102,128 @@ namespace YuankunHuang.Unity.LocalizationCore
             GetLocalizedTextAsync(DefaultLocalizationTable, key, callback);
         }
 
-        public async void GetLocalizedTextAsync(string table, string key, System.Action<string> callback)
+        // Unified callback-based methods (recommended for UI)
+        public void GetLocalizedText(string key, Action<string> callback)
+        {
+            GetLocalizedText(DefaultLocalizationTable, key, callback);
+        }
+
+        public void GetLocalizedText(string table, string key, Action<string> callback)
+        {
+#if UNITY_WEBGL && !UNITY_EDITOR
+            // WebGL: always use async
+            GetLocalizedTextAsync(table, key, callback);
+#else
+            // Other platforms: use sync and call callback immediately
+            try
+            {
+                var result = GetLocalizedText(table, key);
+                callback?.Invoke(result);
+            }
+            catch (Exception e)
+            {
+                LogHelper.LogWarning($"[LocalizationManager] Failed to get text for key '{key}': {e.Message}");
+                callback?.Invoke(key);
+            }
+#endif
+        }
+
+        public void GetLocalizedTextFormatted(string key, Action<string> callback, params object[] args)
+        {
+            GetLocalizedTextFormatted(DefaultLocalizationTable, key, callback, args);
+        }
+
+        public void GetLocalizedTextFormatted(string table, string key, Action<string> callback, params object[] args)
+        {
+#if UNITY_WEBGL && !UNITY_EDITOR
+            // WebGL: get text async then format
+            GetLocalizedTextAsync(table, key, (text) =>
+            {
+                try
+                {
+                    var formatted = string.Format(text, args);
+                    callback?.Invoke(formatted);
+                }
+                catch (Exception e)
+                {
+                    LogHelper.LogWarning($"[LocalizationManager] Failed to format text '{text}': {e.Message}");
+                    callback?.Invoke(text);
+                }
+            });
+#else
+            // Other platforms: use sync
+            try
+            {
+                var result = GetLocalizedTextFormatted(table, key, args);
+                callback?.Invoke(result);
+            }
+            catch (Exception e)
+            {
+                LogHelper.LogWarning($"[LocalizationManager] Failed to get formatted text for key '{key}': {e.Message}");
+                callback?.Invoke(key);
+            }
+#endif
+        }
+
+        // Batch methods for multiple keys
+        public void GetLocalizedTexts(string[] keys, Action<Dictionary<string, string>> callback)
+        {
+            GetLocalizedTexts(DefaultLocalizationTable, keys, callback);
+        }
+
+        public void GetLocalizedTexts(string table, string[] keys, Action<Dictionary<string, string>> callback)
+        {
+            if (keys == null || keys.Length == 0)
+            {
+                callback?.Invoke(new Dictionary<string, string>());
+                return;
+            }
+
+#if UNITY_WEBGL && !UNITY_EDITOR
+            // WebGL: use async for all keys
+            var results = new Dictionary<string, string>();
+            int completedCount = 0;
+            int totalCount = keys.Length;
+
+            foreach (var key in keys)
+            {
+                GetLocalizedTextAsync(table, key, (text) =>
+                {
+                    lock (results)
+                    {
+                        results[key] = text;
+                        completedCount++;
+
+                        if (completedCount == totalCount)
+                        {
+                            callback?.Invoke(results);
+                        }
+                    }
+                });
+            }
+#else
+            // Other platforms: use sync
+            var results = new Dictionary<string, string>();
+
+            foreach (var key in keys)
+            {
+                try
+                {
+                    results[key] = GetLocalizedText(table, key);
+                }
+                catch (Exception e)
+                {
+                    LogHelper.LogWarning($"[LocalizationManager] Failed to get text for key '{key}': {e.Message}");
+                    results[key] = key;
+                }
+            }
+
+            callback?.Invoke(results);
+#endif
+        }
+
+        // Legacy async methods (internal)
+        private async void GetLocalizedTextAsync(string table, string key, System.Action<string> callback)
         {
             if (!IsInitialized)
             {
