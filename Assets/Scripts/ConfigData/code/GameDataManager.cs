@@ -44,23 +44,23 @@ namespace YuankunHuang.Unity.GameDataConfig
 
             // Start all config initializations in parallel
             initTasks.Add(InitializeConfigAsync<YuankunHuang.Unity.GameDataConfig.AccountTestData>("AccountTestConfig",
-                () => YuankunHuang.Unity.GameDataConfig.AccountTestConfig.InitializeAsync(
+                () => YuankunHuang.Unity.GameDataConfig.BaseConfigData<YuankunHuang.Unity.GameDataConfig.AccountTestData>.InitializeAsync(
                     System.IO.Path.Combine(UnityEngine.Application.streamingAssetsPath, "ConfigData", "AccountTest.data"))));
 
             initTasks.Add(InitializeConfigAsync<YuankunHuang.Unity.GameDataConfig.AudioData>("AudioConfig",
-                () => YuankunHuang.Unity.GameDataConfig.AudioConfig.InitializeAsync(
+                () => YuankunHuang.Unity.GameDataConfig.BaseConfigData<YuankunHuang.Unity.GameDataConfig.AudioData>.InitializeAsync(
                     System.IO.Path.Combine(UnityEngine.Application.streamingAssetsPath, "ConfigData", "Audio.data"))));
 
             initTasks.Add(InitializeConfigAsync<YuankunHuang.Unity.GameDataConfig.AvatarData>("AvatarConfig",
-                () => YuankunHuang.Unity.GameDataConfig.AvatarConfig.InitializeAsync(
+                () => YuankunHuang.Unity.GameDataConfig.BaseConfigData<YuankunHuang.Unity.GameDataConfig.AvatarData>.InitializeAsync(
                     System.IO.Path.Combine(UnityEngine.Application.streamingAssetsPath, "ConfigData", "Avatar.data"))));
 
             initTasks.Add(InitializeConfigAsync<YuankunHuang.Unity.GameDataConfig.LanguageData>("LanguageConfig",
-                () => YuankunHuang.Unity.GameDataConfig.LanguageConfig.InitializeAsync(
+                () => YuankunHuang.Unity.GameDataConfig.BaseConfigData<YuankunHuang.Unity.GameDataConfig.LanguageData>.InitializeAsync(
                     System.IO.Path.Combine(UnityEngine.Application.streamingAssetsPath, "ConfigData", "Language.data"))));
 
             initTasks.Add(InitializeConfigAsync<YuankunHuang.Unity.GameDataConfig.SampleData>("SampleConfig",
-                () => YuankunHuang.Unity.GameDataConfig.SampleConfig.InitializeAsync(
+                () => YuankunHuang.Unity.GameDataConfig.BaseConfigData<YuankunHuang.Unity.GameDataConfig.SampleData>.InitializeAsync(
                     System.IO.Path.Combine(UnityEngine.Application.streamingAssetsPath, "ConfigData", "Sample.data"))));
 
             // Wait for all configurations to load

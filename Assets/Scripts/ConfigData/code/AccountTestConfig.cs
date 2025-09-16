@@ -33,19 +33,7 @@ namespace YuankunHuang.Unity.GameDataConfig
         {
             string binaryPath = System.IO.Path.Combine(UnityEngine.Application.streamingAssetsPath, "ConfigData", "AccountTest.data");
             Initialize(binaryPath);
-            PostInitialize();
         }
-
-#if UNITY_WEBGL && !UNITY_EDITOR
-        /// <summary>
-        /// Async initialization for WebGL platform
-        /// </summary>
-        public static async System.Threading.Tasks.Task InitializeAsync(string binaryPath)
-        {
-            await BaseConfigData<AccountTestData>.InitializeAsync(binaryPath);
-            PostInitialize();
-        }
-#endif
 
         /// <summary>
         /// Custom post-initialization logic (optional, see .ext.cs)

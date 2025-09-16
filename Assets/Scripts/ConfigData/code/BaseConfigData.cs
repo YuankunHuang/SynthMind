@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Linq;
+using UnityEngine;
 #if UNITY_WEBGL && !UNITY_EDITOR
 using System.Threading.Tasks;
-using UnityEngine;
 using UnityEngine.Networking;
 #endif
 
@@ -26,6 +26,7 @@ namespace YuankunHuang.Unity.GameDataConfig
 #else
             LoadFromBinary(binaryPath);
             _isInitialized = true;
+            CallPostInitialize();
 #endif
         }
 
@@ -38,6 +39,7 @@ namespace YuankunHuang.Unity.GameDataConfig
             {
                 await LoadFromBinaryAsync(binaryPath);
                 _isInitialized = true;
+                CallPostInitialize();
                 Debug.Log($"[BaseConfigData] {typeof(T).Name} loaded successfully from {binaryPath}");
             }
             catch (Exception e)
@@ -47,6 +49,7 @@ namespace YuankunHuang.Unity.GameDataConfig
                 _allData = new List<T>();
                 _dataById = new Dictionary<int, T>();
                 _isInitialized = true;
+                CallPostInitialize();
             }
         }
 #endif
@@ -71,6 +74,48 @@ namespace YuankunHuang.Unity.GameDataConfig
         {
             _isInitialized = false;
             Initialize(binaryPath);
+        }
+
+        private static void CallPostInitialize()
+        {
+            // Call PostInitialize method if it exists on the concrete Config class
+            // We need to find the actual Config class that inherits from BaseConfigData<T>
+            var assemblies = new[] { Assembly.GetExecutingAssembly(), typeof(T).Assembly };
+            foreach (var assembly in assemblies.Distinct())
+            {
+                if (assembly != null)
+                {
+                    try
+                    {
+                        var configTypes = assembly.GetTypes()
+                            .Where(type => type.IsClass && !type.IsAbstract)
+                            .Where(type => type.BaseType != null && type.BaseType.IsGenericType)
+                            .Where(type => type.BaseType.GetGenericTypeDefinition() == typeof(BaseConfigData<>))
+                            .Where(type => type.BaseType.GetGenericArguments()[0] == typeof(T));
+
+                        foreach (var configType in configTypes)
+                        {
+                            var postInitMethod = configType.GetMethod("PostInitialize", BindingFlags.NonPublic | BindingFlags.Static);
+                            if (postInitMethod != null)
+                            {
+                                try
+                                {
+                                    postInitMethod.Invoke(null, null);
+                                    return; // Found and called, exit
+                                }
+                                catch (Exception e)
+                                {
+                                    Debug.LogWarning($"[BaseConfigData] PostInitialize failed for {configType.Name}: {e.Message}");
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.LogWarning($"[BaseConfigData] Failed to search for PostInitialize in assembly {assembly.FullName}: {e.Message}");
+                    }
+                }
+            }
         }
 
         private static DateTime ReadValidDateTime(BinaryReader reader)
