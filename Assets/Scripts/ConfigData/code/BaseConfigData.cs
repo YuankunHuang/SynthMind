@@ -19,38 +19,61 @@ namespace YuankunHuang.Unity.GameDataConfig
 
         public static void Initialize(string binaryPath)
         {
-            if (_isInitialized) return;
+            Debug.Log($"[BaseConfigData] Initialize ENTER for {typeof(T).Name}, path: {binaryPath}");
+
+            if (_isInitialized)
+            {
+                Debug.Log($"[BaseConfigData] {typeof(T).Name} already initialized, skipping");
+                return;
+            }
+
 #if UNITY_WEBGL && !UNITY_EDITOR
+            Debug.Log($"[BaseConfigData] WebGL mode - calling InitializeAsync for {typeof(T).Name}");
             // WebGL requires async initialization
             _ = InitializeAsync(binaryPath);
 #else
+            Debug.Log($"[BaseConfigData] Non-WebGL mode - calling LoadFromBinary for {typeof(T).Name}");
             LoadFromBinary(binaryPath);
             _isInitialized = true;
+            Debug.Log($"[BaseConfigData] LoadFromBinary completed for {typeof(T).Name}, calling CallPostInitialize");
             CallPostInitialize();
 #endif
+            Debug.Log($"[BaseConfigData] Initialize EXIT for {typeof(T).Name}");
         }
 
 #if UNITY_WEBGL && !UNITY_EDITOR
         public static async Task InitializeAsync(string binaryPath)
         {
-            if (_isInitialized) return;
+            Debug.Log($"[BaseConfigData] InitializeAsync ENTER for {typeof(T).Name}, path: {binaryPath}");
+
+            if (_isInitialized)
+            {
+                Debug.Log($"[BaseConfigData] {typeof(T).Name} already initialized, skipping async");
+                return;
+            }
 
             try
             {
+                Debug.Log($"[BaseConfigData] Calling LoadFromBinaryAsync for {typeof(T).Name}");
                 await LoadFromBinaryAsync(binaryPath);
                 _isInitialized = true;
+                Debug.Log($"[BaseConfigData] LoadFromBinaryAsync completed for {typeof(T).Name}, calling CallPostInitialize");
                 CallPostInitialize();
                 Debug.Log($"[BaseConfigData] {typeof(T).Name} loaded successfully from {binaryPath}");
             }
             catch (Exception e)
             {
-                Debug.LogWarning($"[BaseConfigData] Failed to load {typeof(T).Name} from {binaryPath}: {e.Message}");
+                Debug.LogError($"[BaseConfigData] Failed to load {typeof(T).Name} from {binaryPath}: {e.Message}");
+                Debug.LogException(e);
                 // Initialize empty collections to prevent null reference
                 _allData = new List<T>();
                 _dataById = new Dictionary<int, T>();
                 _isInitialized = true;
+                Debug.Log($"[BaseConfigData] Error recovery - calling CallPostInitialize for {typeof(T).Name}");
                 CallPostInitialize();
             }
+
+            Debug.Log($"[BaseConfigData] InitializeAsync EXIT for {typeof(T).Name}");
         }
 #endif
 
@@ -78,43 +101,90 @@ namespace YuankunHuang.Unity.GameDataConfig
 
         private static void CallPostInitialize()
         {
-            // Call PostInitialize method if it exists on the concrete Config class
-            // We need to find the actual Config class that inherits from BaseConfigData<T>
-            var assemblies = new[] { Assembly.GetExecutingAssembly(), typeof(T).Assembly };
-            foreach (var assembly in assemblies.Distinct())
-            {
-                if (assembly != null)
-                {
-                    try
-                    {
-                        var configTypes = assembly.GetTypes()
-                            .Where(type => type.IsClass && !type.IsAbstract)
-                            .Where(type => type.BaseType != null && type.BaseType.IsGenericType)
-                            .Where(type => type.BaseType.GetGenericTypeDefinition() == typeof(BaseConfigData<>))
-                            .Where(type => type.BaseType.GetGenericArguments()[0] == typeof(T));
+            Debug.Log($"[BaseConfigData] CallPostInitialize ENTER for {typeof(T).Name}");
 
-                        foreach (var configType in configTypes)
+            try
+            {
+                // Call PostInitialize method if it exists on the concrete Config class
+                // We need to find the actual Config class that inherits from BaseConfigData<T>
+                Debug.Log($"[BaseConfigData] Getting assemblies for {typeof(T).Name}");
+
+                var executingAssembly = Assembly.GetExecutingAssembly();
+                var typeAssembly = typeof(T).Assembly;
+
+                Debug.Log($"[BaseConfigData] ExecutingAssembly: {executingAssembly?.FullName ?? "null"}");
+                Debug.Log($"[BaseConfigData] TypeAssembly: {typeAssembly?.FullName ?? "null"}");
+
+                var assemblies = new[] { executingAssembly, typeAssembly };
+
+                Debug.Log($"[BaseConfigData] Processing {assemblies.Length} assemblies");
+
+                foreach (var assembly in assemblies.Distinct())
+                {
+                    if (assembly != null)
+                    {
+                        Debug.Log($"[BaseConfigData] Processing assembly: {assembly.FullName}");
+
+                        try
                         {
-                            var postInitMethod = configType.GetMethod("PostInitialize", BindingFlags.NonPublic | BindingFlags.Static);
-                            if (postInitMethod != null)
+                            Debug.Log($"[BaseConfigData] Getting types from assembly: {assembly.FullName}");
+                            var allTypes = assembly.GetTypes();
+                            Debug.Log($"[BaseConfigData] Found {allTypes.Length} types in assembly");
+
+                            var configTypes = allTypes
+                                .Where(type => type.IsClass && !type.IsAbstract)
+                                .Where(type => type.BaseType != null && type.BaseType.IsGenericType)
+                                .Where(type => type.BaseType.GetGenericTypeDefinition() == typeof(BaseConfigData<>))
+                                .Where(type => type.BaseType.GetGenericArguments()[0] == typeof(T));
+
+                            var configTypesList = configTypes.ToList();
+                            Debug.Log($"[BaseConfigData] Found {configTypesList.Count} matching config types");
+
+                            foreach (var configType in configTypesList)
                             {
-                                try
+                                Debug.Log($"[BaseConfigData] Checking config type: {configType.Name}");
+
+                                var postInitMethod = configType.GetMethod("PostInitialize", BindingFlags.NonPublic | BindingFlags.Static);
+                                if (postInitMethod != null)
                                 {
-                                    postInitMethod.Invoke(null, null);
-                                    return; // Found and called, exit
+                                    Debug.Log($"[BaseConfigData] Found PostInitialize method in {configType.Name}, invoking...");
+
+                                    try
+                                    {
+                                        postInitMethod.Invoke(null, null);
+                                        Debug.Log($"[BaseConfigData] PostInitialize completed successfully for {configType.Name}");
+                                        return; // Found and called, exit
+                                    }
+                                    catch (Exception e)
+                                    {
+                                        Debug.LogError($"[BaseConfigData] PostInitialize failed for {configType.Name}: {e.Message}");
+                                        Debug.LogException(e);
+                                    }
                                 }
-                                catch (Exception e)
+                                else
                                 {
-                                    Debug.LogWarning($"[BaseConfigData] PostInitialize failed for {configType.Name}: {e.Message}");
+                                    Debug.Log($"[BaseConfigData] No PostInitialize method found in {configType.Name}");
                                 }
                             }
                         }
+                        catch (Exception e)
+                        {
+                            Debug.LogError($"[BaseConfigData] Failed to search for PostInitialize in assembly {assembly.FullName}: {e.Message}");
+                            Debug.LogException(e);
+                        }
                     }
-                    catch (Exception e)
+                    else
                     {
-                        Debug.LogWarning($"[BaseConfigData] Failed to search for PostInitialize in assembly {assembly.FullName}: {e.Message}");
+                        Debug.LogWarning($"[BaseConfigData] Assembly is null");
                     }
                 }
+
+                Debug.Log($"[BaseConfigData] CallPostInitialize COMPLETE for {typeof(T).Name}");
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"[BaseConfigData] CallPostInitialize FAILED for {typeof(T).Name}: {e.Message}");
+                Debug.LogException(e);
             }
         }
 
