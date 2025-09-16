@@ -1,11 +1,11 @@
 // Firebase WebGL JavaScript Library for Unity
 mergeInto(LibraryManager.library, {
     InitFirebaseWeb: function() {
-        console.log("[FirebaseWebGL] Initializing Firebase for WebGL...");
+        console.log("[FirebaseWebGL] Checking Firebase availability for WebGL...");
 
         // Check if Firebase is available
         if (typeof firebase === 'undefined') {
-            console.error("[FirebaseWebGL] Firebase SDK is not loaded. Please include Firebase SDK in your HTML.");
+            console.log("[FirebaseWebGL] Firebase SDK not yet loaded - this is normal on first call");
             return false;
         }
 

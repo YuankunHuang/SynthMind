@@ -296,18 +296,12 @@ namespace YuankunHuang.Unity.UICore
                     _loadingIndicatorCoroutine = null;
                 }
 
-                LogHelper.Log($"[InputBlocker] Started blocking (count: {_blockCount})");
-
                 _currentAnimationCoroutine = StartCoroutine(FadeInCoroutine());
 
                 if (showLoadingIndicator && _currentLoadingIndicator != null && loadingDelay >= 0)
                 {
                     _loadingIndicatorCoroutine = StartCoroutine(ShowLoadingIndicatorDelayed(loadingDelay));
                 }
-            }
-            else
-            {
-                LogHelper.Log($"[InputBlocker] Block count increased: {_blockCount}");
             }
 
             if (duration > 0)
@@ -335,12 +329,6 @@ namespace YuankunHuang.Unity.UICore
                 }
 
                 _currentAnimationCoroutine = StartCoroutine(FadeOutAndDisable());
-
-                LogHelper.Log("[InputBlocker] Stopped blocking");
-            }
-            else if (_blockCount > 0)
-            {
-                LogHelper.Log($"[InputBlocker] Block count decreased: {_blockCount}");
             }
         }
 
@@ -361,8 +349,6 @@ namespace YuankunHuang.Unity.UICore
             }
 
             _blockerCanvasGroup.alpha = 1f;
-
-            LogHelper.Log("[InputBlocker] Fade in completed");
         }
 
         private IEnumerator ShowLoadingIndicatorDelayed(float delay)
@@ -405,8 +391,6 @@ namespace YuankunHuang.Unity.UICore
 
             _isBlocking = false;
             _currentAnimationCoroutine = null;
-
-            LogHelper.Log("[InputBlocker] Fade out completed");
         }
 
         private IEnumerator AutoStopBlocking(float delay)

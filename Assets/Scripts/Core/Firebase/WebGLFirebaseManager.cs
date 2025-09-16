@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -50,14 +51,40 @@ namespace YuankunHuang.Unity.FirebaseCore
             {
                 LogHelper.Log("[WebGLFirebaseManager] Initializing WebGL Firebase...");
 
-                // Try to initialize Firebase - continue gracefully if it's not available
+                // Try to initialize Firebase with retry mechanism
                 try
                 {
-                    bool firebaseAvailable = InitFirebaseWeb();
+                    bool firebaseAvailable = false;
+                    int maxRetries = 30; // Wait up to 3 seconds (100ms * 30 retries)
+                    int retryCount = 0;
+
+                    while (!firebaseAvailable && retryCount < maxRetries)
+                    {
+                        firebaseAvailable = InitFirebaseWeb();
+
+                        if (!firebaseAvailable)
+                        {
+                            if (retryCount == 0)
+                            {
+                                LogHelper.Log("[WebGLFirebaseManager] Firebase SDK not ready yet, waiting for scripts to load...");
+                            }
+
+                            retryCount++;
+
+#if UNITY_WEBGL && !UNITY_EDITOR
+                            // Use coroutine-based delay for WebGL via MonoManager
+                            var tcs = new System.Threading.Tasks.TaskCompletionSource<bool>();
+                            MonoManager.Instance.StartCoroutine(DelayCoroutine(0.1f, tcs));
+                            await tcs.Task;
+#else
+                            await Task.Delay(100);
+#endif
+                        }
+                    }
 
                     if (!firebaseAvailable)
                     {
-                        LogHelper.LogWarning("[WebGLFirebaseManager] Firebase initialization failed - continuing without Firebase functionality.");
+                        LogHelper.LogWarning("[WebGLFirebaseManager] Firebase initialization failed after waiting - continuing without Firebase functionality.");
                         LogHelper.LogWarning("[WebGLFirebaseManager] Firebase features will be disabled. Check your Firebase configuration if Firebase is required.");
                         IsInitialized = false;
                         return; // Return gracefully instead of throwing
@@ -371,6 +398,14 @@ namespace YuankunHuang.Unity.FirebaseCore
 
             return messages;
         }
+
+#if UNITY_WEBGL && !UNITY_EDITOR
+        private static IEnumerator DelayCoroutine(float duration, System.Threading.Tasks.TaskCompletionSource<bool> tcs)
+        {
+            yield return new WaitForSeconds(duration);
+            tcs.TrySetResult(true);
+        }
+#endif
 
         public void Dispose()
         {

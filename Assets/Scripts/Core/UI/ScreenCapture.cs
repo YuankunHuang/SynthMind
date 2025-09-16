@@ -24,6 +24,7 @@ namespace YuankunHuang.Unity.UICore
             Graphics.Blit(tex, rt);
             UnityEngine.Object.Destroy(tex);
 #endif
+
             onComplete?.Invoke(rt);
         }
 
