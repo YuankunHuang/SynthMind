@@ -45,9 +45,14 @@ namespace YuankunHuang.Unity.Editor
             EditorGUILayout.HelpBox("Usage in scripts:\n\n" +
                 "// Get localized text\n" +
                 "var locManager = ModuleRegistry.Get<ILocalizationManager>();\n" +
-                "string text = locManager.GetLocalizedText(LocalizationKeys.KeyName);\n\n" +
+                "locManager.GetLocalizedText(LocalizationKeys.KeyName, (text) => {\n" +
+                "    // Use the localized text here\n" +
+                "    myLabel.text = text;\n" +
+                "});\n\n" +
                 "// Format localized text\n" +
-                "string formatted = locManager.GetLocalizedTextFormatted(LocalizationKeys.HelloUser, userName);", 
+                "locManager.GetLocalizedTextFormatted(LocalizationKeys.HelloUser, (formatted) => {\n" +
+                "    myLabel.text = formatted;\n" +
+                "}, userName);",
                 MessageType.None);
         }
     }

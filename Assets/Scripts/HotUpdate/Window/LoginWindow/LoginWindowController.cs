@@ -136,7 +136,9 @@ namespace YuankunHuang.Unity.HotUpdate
             string password = _passwordInputField.text.Trim();
             if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
             {
-                _noticeTxt.text = ModuleRegistry.Get<ILocalizationManager>().GetLocalizedText(LocalizationKeys.MainMenuNoticeEmptyUsernameOrPassword);
+                ModuleRegistry.Get<ILocalizationManager>().GetLocalizedText(LocalizationKeys.MainMenuNoticeEmptyUsernameOrPassword, (text) => {
+                    _noticeTxt.text = text;
+                });
                 return;
             }
 
@@ -154,14 +156,18 @@ namespace YuankunHuang.Unity.HotUpdate
 
         private void OnLoginSuccess()
         {
-            _noticeTxt.text = ModuleRegistry.Get<ILocalizationManager>().GetLocalizedText(LocalizationKeys.MainMenuNoticeSuccess);
+            ModuleRegistry.Get<ILocalizationManager>().GetLocalizedText(LocalizationKeys.MainMenuNoticeSuccess, (text) => {
+                _noticeTxt.text = text;
+            });
 
             ModuleRegistry.Get<IUIManager>().Show(WindowNames.MainMenu);
         }
 
         private void OnLoginError(string errorMessage)
         {
-            _noticeTxt.text = string.Format(ModuleRegistry.Get<ILocalizationManager>().GetLocalizedText(LocalizationKeys.MainMenuNoticeFailed), errorMessage);
+            ModuleRegistry.Get<ILocalizationManager>().GetLocalizedTextFormatted(LocalizationKeys.MainMenuNoticeFailed, (text) => {
+                _noticeTxt.text = text;
+            }, errorMessage);
         }
         #endregion
     }
