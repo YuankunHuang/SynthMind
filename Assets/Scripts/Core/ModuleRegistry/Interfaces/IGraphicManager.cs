@@ -14,9 +14,12 @@ namespace YuankunHuang.Unity.GraphicCore
 
     public enum GraphicQuality
     {
-        Low = 0,
-        Mid = 1,
-        High = 2,
+        VeryLow = 0,
+        Low = 1,
+        Medium = 2,
+        High = 3,
+        VeryHigh = 4,
+        Ultra = 5,
     }
 
     public enum GraphicVSync

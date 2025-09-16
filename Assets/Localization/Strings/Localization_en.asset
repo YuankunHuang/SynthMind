@@ -246,6 +246,18 @@ MonoBehaviour:
     m_Localized: EveryTwoFrames
     m_Metadata:
       m_Items: []
+  - m_Id: 15211546016055296
+    m_Localized: Very Low
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15211608817369088
+    m_Localized: Very High
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15215356608348160
+    m_Localized: Ultra
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

@@ -51,7 +51,12 @@ mergeInto(LibraryManager.library, {
             if (typeof firebase === 'undefined' || !firebase.firestore) {
                 console.error("[FirebaseWebGL] Firebase Firestore not available");
                 try {
-                    window.WebGLFirebaseManager_OnJSCallback(callbackId + '|false');
+                    // Call static C# method directly
+                    if (window.unityInstance && window.unityInstance.Module) {
+                        window.unityInstance.Module.ccall('WebGLFirebaseManager_InvokeCallback', null, ['string', 'string'], [callbackId, 'false']);
+                    } else {
+                        console.warn('[FirebaseWebGL] Unity instance not ready for callback');
+                    }
                 } catch(e) {
                     console.error('[FirebaseWebGL] Callback failed:', e);
                 }
@@ -82,7 +87,34 @@ mergeInto(LibraryManager.library, {
                 })
                 .then(function() {
                     try {
-                        window.WebGLFirebaseManager_OnJSCallback(callbackId + '|true');
+                        // Store result and trigger Unity callback via eval (simpler approach)
+                        if (typeof window !== 'undefined') {
+                            // Store the callback result globally
+                            window.firebaseCallbackResults = window.firebaseCallbackResults || {};
+                            window.firebaseCallbackResults[callbackId] = 'true';
+
+                            // Call the static C# method directly via Module function
+                            var callbackCode = `
+                                if (typeof Module !== 'undefined' && Module.dynCall_vii) {
+                                    try {
+                                        var stringToPtr = function(str) {
+                                            var len = lengthBytesUTF8(str) + 1;
+                                            var ptr = _malloc(len);
+                                            stringToUTF8(str, ptr, len);
+                                            return ptr;
+                                        };
+                                        var callbackIdPtr = stringToPtr("${callbackId}");
+                                        var resultPtr = stringToPtr("true");
+                                        Module.dynCall_vii(Module._WebGLFirebaseManager_OnJSCallback, callbackIdPtr, resultPtr);
+                                        _free(callbackIdPtr);
+                                        _free(resultPtr);
+                                    } catch(e) {
+                                        console.error('[FirebaseWebGL] Direct callback failed:', e);
+                                    }
+                                }
+                            `;
+                            eval(callbackCode);
+                        }
                     } catch(e) {
                         console.error('[FirebaseWebGL] Callback failed:', e);
                     }
@@ -90,7 +122,12 @@ mergeInto(LibraryManager.library, {
                 .catch(function(error) {
                     console.error("[FirebaseWebGL] Error sending message:", error);
                     try {
-                    window.WebGLFirebaseManager_OnJSCallback(callbackId + '|false');
+                    // Call static C# method directly
+                    if (window.unityInstance && window.unityInstance.Module) {
+                        window.unityInstance.Module.ccall('WebGLFirebaseManager_InvokeCallback', null, ['string', 'string'], [callbackId, 'false']);
+                    } else {
+                        console.warn('[FirebaseWebGL] Unity instance not ready for callback');
+                    }
                 } catch(e) {
                     console.error('[FirebaseWebGL] Callback failed:', e);
                 }
@@ -151,7 +188,12 @@ mergeInto(LibraryManager.library, {
                     var messagesJson = JSON.stringify(messages);
                     console.log("[FirebaseWebGL] Messages loaded:", messages.length);
                     try {
-                        window.WebGLFirebaseManager_OnJSCallback(callbackId + '|' + messagesJson);
+                        // Call static C# method directly
+                        if (window.unityInstance && window.unityInstance.Module) {
+                            window.unityInstance.Module.ccall('WebGLFirebaseManager_InvokeCallback', null, ['string', 'string'], [callbackId, messagesJson]);
+                        } else {
+                            console.warn('[FirebaseWebGL] Unity instance not ready for callback');
+                        }
                     } catch(e) {
                         console.error('[FirebaseWebGL] Callback failed:', e);
                     }
@@ -159,7 +201,12 @@ mergeInto(LibraryManager.library, {
                 .catch(function(error) {
                     console.error("[FirebaseWebGL] Error loading messages:", error);
                     try {
-                        window.WebGLFirebaseManager_OnJSCallback(callbackId + '|[]');
+                        // Call static C# method directly
+                        if (window.unityInstance && window.unityInstance.Module) {
+                            window.unityInstance.Module.ccall('WebGLFirebaseManager_InvokeCallback', null, ['string', 'string'], [callbackId, '[]']);
+                        } else {
+                            console.warn('[FirebaseWebGL] Unity instance not ready for callback');
+                        }
                     } catch(e) {
                         console.error('[FirebaseWebGL] Callback failed:', e);
                     }
@@ -208,7 +255,12 @@ mergeInto(LibraryManager.library, {
                 .then(function(docRef) {
                     console.log("[FirebaseWebGL] Conversation created:", docRef.id);
                     try {
-                        window.WebGLFirebaseManager_OnJSCallback(callbackId + '|' + docRef.id);
+                        // Call static C# method directly
+                        if (window.unityInstance && window.unityInstance.Module) {
+                            window.unityInstance.Module.ccall('WebGLFirebaseManager_InvokeCallback', null, ['string', 'string'], [callbackId, docRef.id]);
+                        } else {
+                            console.warn('[FirebaseWebGL] Unity instance not ready for callback');
+                        }
                     } catch(e) {
                         console.error('[FirebaseWebGL] Callback failed:', e);
                     }
@@ -216,7 +268,12 @@ mergeInto(LibraryManager.library, {
                 .catch(function(error) {
                     console.error("[FirebaseWebGL] Error creating conversation:", error);
                     try {
-                        window.WebGLFirebaseManager_OnJSCallback(callbackId + '|null');
+                        // Call static C# method directly
+                        if (window.unityInstance && window.unityInstance.Module) {
+                            window.unityInstance.Module.ccall('WebGLFirebaseManager_InvokeCallback', null, ['string', 'string'], [callbackId, 'null']);
+                        } else {
+                            console.warn('[FirebaseWebGL] Unity instance not ready for callback');
+                        }
                     } catch(e) {
                         console.error('[FirebaseWebGL] Callback failed:', e);
                     }
@@ -246,7 +303,12 @@ mergeInto(LibraryManager.library, {
             if (typeof firebase === 'undefined' || !firebase.firestore) {
                 console.error("[FirebaseWebGL] Firebase Firestore not available");
                 try {
-                    window.WebGLFirebaseManager_OnJSCallback(callbackId + '|false');
+                    // Call static C# method directly
+                    if (window.unityInstance && window.unityInstance.Module) {
+                        window.unityInstance.Module.ccall('WebGLFirebaseManager_InvokeCallback', null, ['string', 'string'], [callbackId, 'false']);
+                    } else {
+                        console.warn('[FirebaseWebGL] Unity instance not ready for callback');
+                    }
                 } catch(e) {
                     console.error('[FirebaseWebGL] Callback failed:', e);
                 }
@@ -274,7 +336,34 @@ mergeInto(LibraryManager.library, {
                 .then(function() {
                     console.log("[FirebaseWebGL] Conversation deleted successfully");
                     try {
-                        window.WebGLFirebaseManager_OnJSCallback(callbackId + '|true');
+                        // Store result and trigger Unity callback via eval (simpler approach)
+                        if (typeof window !== 'undefined') {
+                            // Store the callback result globally
+                            window.firebaseCallbackResults = window.firebaseCallbackResults || {};
+                            window.firebaseCallbackResults[callbackId] = 'true';
+
+                            // Call the static C# method directly via Module function
+                            var callbackCode = `
+                                if (typeof Module !== 'undefined' && Module.dynCall_vii) {
+                                    try {
+                                        var stringToPtr = function(str) {
+                                            var len = lengthBytesUTF8(str) + 1;
+                                            var ptr = _malloc(len);
+                                            stringToUTF8(str, ptr, len);
+                                            return ptr;
+                                        };
+                                        var callbackIdPtr = stringToPtr("${callbackId}");
+                                        var resultPtr = stringToPtr("true");
+                                        Module.dynCall_vii(Module._WebGLFirebaseManager_OnJSCallback, callbackIdPtr, resultPtr);
+                                        _free(callbackIdPtr);
+                                        _free(resultPtr);
+                                    } catch(e) {
+                                        console.error('[FirebaseWebGL] Direct callback failed:', e);
+                                    }
+                                }
+                            `;
+                            eval(callbackCode);
+                        }
                     } catch(e) {
                         console.error('[FirebaseWebGL] Callback failed:', e);
                     }
@@ -282,7 +371,12 @@ mergeInto(LibraryManager.library, {
                 .catch(function(error) {
                     console.error("[FirebaseWebGL] Error deleting conversation:", error);
                     try {
-                    window.WebGLFirebaseManager_OnJSCallback(callbackId + '|false');
+                    // Call static C# method directly
+                    if (window.unityInstance && window.unityInstance.Module) {
+                        window.unityInstance.Module.ccall('WebGLFirebaseManager_InvokeCallback', null, ['string', 'string'], [callbackId, 'false']);
+                    } else {
+                        console.warn('[FirebaseWebGL] Unity instance not ready for callback');
+                    }
                 } catch(e) {
                     console.error('[FirebaseWebGL] Callback failed:', e);
                 }
@@ -327,7 +421,12 @@ mergeInto(LibraryManager.library, {
                     if (querySnapshot.empty) {
                         console.log("[FirebaseWebGL] No recent conversation found");
                         try {
-                        window.WebGLFirebaseManager_OnJSCallback(callbackId + '|null');
+                        // Call static C# method directly
+                        if (window.unityInstance && window.unityInstance.Module) {
+                            window.unityInstance.Module.ccall('WebGLFirebaseManager_InvokeCallback', null, ['string', 'string'], [callbackId, 'null']);
+                        } else {
+                            console.warn('[FirebaseWebGL] Unity instance not ready for callback');
+                        }
                     } catch(e) {
                         console.error('[FirebaseWebGL] Callback failed:', e);
                     }
@@ -337,7 +436,12 @@ mergeInto(LibraryManager.library, {
                     var doc = querySnapshot.docs[0];
                     console.log("[FirebaseWebGL] Most recent conversation found:", doc.id);
                     try {
-                        window.WebGLFirebaseManager_OnJSCallback(callbackId + '|' + doc.id);
+                        // Call static C# method directly
+                        if (window.unityInstance && window.unityInstance.Module) {
+                            window.unityInstance.Module.ccall('WebGLFirebaseManager_InvokeCallback', null, ['string', 'string'], [callbackId, doc.id]);
+                        } else {
+                            console.warn('[FirebaseWebGL] Unity instance not ready for callback');
+                        }
                     } catch(e) {
                         console.error('[FirebaseWebGL] Callback failed:', e);
                     }
@@ -345,7 +449,12 @@ mergeInto(LibraryManager.library, {
                 .catch(function(error) {
                     console.error("[FirebaseWebGL] Error loading most recent conversation:", error);
                     try {
-                        window.WebGLFirebaseManager_OnJSCallback(callbackId + '|null');
+                        // Call static C# method directly
+                        if (window.unityInstance && window.unityInstance.Module) {
+                            window.unityInstance.Module.ccall('WebGLFirebaseManager_InvokeCallback', null, ['string', 'string'], [callbackId, 'null']);
+                        } else {
+                            console.warn('[FirebaseWebGL] Unity instance not ready for callback');
+                        }
                     } catch(e) {
                         console.error('[FirebaseWebGL] Callback failed:', e);
                     }
@@ -375,7 +484,12 @@ mergeInto(LibraryManager.library, {
             if (typeof firebase === 'undefined' || !firebase.firestore) {
                 console.error("[FirebaseWebGL] Firebase Firestore not available");
                 try {
-                    window.WebGLFirebaseManager_OnJSCallback(callbackId + '|false');
+                    // Call static C# method directly
+                    if (window.unityInstance && window.unityInstance.Module) {
+                        window.unityInstance.Module.ccall('WebGLFirebaseManager_InvokeCallback', null, ['string', 'string'], [callbackId, 'false']);
+                    } else {
+                        console.warn('[FirebaseWebGL] Unity instance not ready for callback');
+                    }
                 } catch(e) {
                     console.error('[FirebaseWebGL] Callback failed:', e);
                 }
@@ -393,7 +507,12 @@ mergeInto(LibraryManager.library, {
                     var isEmpty = querySnapshot.empty;
                     console.log("[FirebaseWebGL] Conversation empty check result:", isEmpty);
                     try {
-                        window.WebGLFirebaseManager_OnJSCallback(callbackId + '|' + (isEmpty ? 'true' : 'false'));
+                        // Call static C# method directly
+                        if (window.unityInstance && window.unityInstance.Module) {
+                            window.unityInstance.Module.ccall('WebGLFirebaseManager_InvokeCallback', null, ['string', 'string'], [callbackId, isEmpty ? 'true' : 'false']);
+                        } else {
+                            console.warn('[FirebaseWebGL] Unity instance not ready for callback');
+                        }
                     } catch(e) {
                         console.error('[FirebaseWebGL] Callback failed:', e);
                     }
@@ -401,7 +520,12 @@ mergeInto(LibraryManager.library, {
                 .catch(function(error) {
                     console.error("[FirebaseWebGL] Error checking if conversation is empty:", error);
                     try {
-                    window.WebGLFirebaseManager_OnJSCallback(callbackId + '|false');
+                    // Call static C# method directly
+                    if (window.unityInstance && window.unityInstance.Module) {
+                        window.unityInstance.Module.ccall('WebGLFirebaseManager_InvokeCallback', null, ['string', 'string'], [callbackId, 'false']);
+                    } else {
+                        console.warn('[FirebaseWebGL] Unity instance not ready for callback');
+                    }
                 } catch(e) {
                     console.error('[FirebaseWebGL] Callback failed:', e);
                 }

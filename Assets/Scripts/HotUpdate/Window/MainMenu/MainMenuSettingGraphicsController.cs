@@ -36,11 +36,18 @@ namespace YuankunHuang.Unity.HotUpdate
             VSync = 4,
         }
 
+        private enum ExtraObj
+        {
+            ResolutionRoot = 0,
+        }
+
         private CommDropdownController _resolutionController;
         private CommDropdownController _fullscreenModeController;
         private CommDropdownController _qualityPresetController;
         private CommDropdownController _fpsLimitController;
         private CommDropdownController _vsyncController;
+
+        private Transform _resolutionRoot;
         #endregion
 
         #region Fields
@@ -71,6 +78,8 @@ namespace YuankunHuang.Unity.HotUpdate
             _qualityPresetDataList = new List<DropdownOptionData>();
             _fpsLimitDataList = new List<DropdownOptionData>();
             _vsyncDataList = new List<DropdownOptionData>();
+
+            _resolutionRoot = _config.ExtraObjectList[(int)ExtraObj.ResolutionRoot];
 
             _resolutionController.OnValueChanged += OnResolutionValueChanged;
             _fullscreenModeController.OnValueChanged += OnFullscreenValueChanged;
@@ -106,19 +115,19 @@ namespace YuankunHuang.Unity.HotUpdate
 
         public void Refresh()
         {
-            InitializeResolutionDropdown();
+            InitializeResolutionSetting();
 
             // fullscreen mode - async initialization
-            InitializeFullscreenModeDropdown();
+            InitializeFullscreenModeSetting();
 
             // quality preset - async initialization
-            InitializeQualityPresetDropdown();
+            InitializeQualityPresetSetting();
 
             // fps limit - async initialization
-            InitializeFpsLimitDropdown();
+            InitializeFpsLimitSetting();
 
             // vsync - async initialization
-            InitializeVSyncDropdown();
+            InitializeVSyncSetting();
         }
         #endregion
 
@@ -167,8 +176,15 @@ namespace YuankunHuang.Unity.HotUpdate
             }
         }
 
-        private void InitializeResolutionDropdown()
+        private void InitializeResolutionSetting()
         {
+#if UNITY_WEBGL && !UNITY_EDITOR
+            _resolutionRoot.gameObject.SetActive(false);
+            return;
+#else
+            _resolutionRoot.gameObject.SetActive(true);
+#endif
+
             // resolution
             _resolutionDataList.Clear();
             var resOptions = new List<TMP_Dropdown.OptionData>();
@@ -202,7 +218,7 @@ namespace YuankunHuang.Unity.HotUpdate
             _resolutionController.Refresh(resOptions, currentResIdx);
         }
 
-        private void InitializeFullscreenModeDropdown()
+        private void InitializeFullscreenModeSetting()
         {
             _fullscreenModeDataList.Clear();
             var currentFullscreenMode = GraphicPreferences.FullScreenMode;
@@ -258,16 +274,19 @@ namespace YuankunHuang.Unity.HotUpdate
             };
         }
 
-        private void InitializeQualityPresetDropdown()
+        private void InitializeQualityPresetSetting()
         {
             _qualityPresetDataList.Clear();
             var currentQuality = GraphicPreferences.Quality;
             var qualities = (GraphicQuality[])Enum.GetValues(typeof(GraphicQuality));
 
             var keys = new[] {
+                LocalizationKeys.CommonVeryLow,
                 LocalizationKeys.CommonLow,
                 LocalizationKeys.CommonMid,
-                LocalizationKeys.CommonHigh
+                LocalizationKeys.CommonHigh,
+                LocalizationKeys.CommonVeryHigh,
+                LocalizationKeys.CommonUltra
             };
 
             var locManager = ModuleRegistry.Get<ILocalizationManager>();
@@ -304,14 +323,17 @@ namespace YuankunHuang.Unity.HotUpdate
         {
             return quality switch
             {
+                GraphicQuality.VeryLow => LocalizationKeys.CommonVeryLow,
                 GraphicQuality.Low => LocalizationKeys.CommonLow,
-                GraphicQuality.Mid => LocalizationKeys.CommonMid,
+                GraphicQuality.Medium => LocalizationKeys.CommonMid,
                 GraphicQuality.High => LocalizationKeys.CommonHigh,
-                _ => LocalizationKeys.CommonMid
+                GraphicQuality.VeryHigh => LocalizationKeys.CommonVeryHigh,
+                GraphicQuality.Ultra => LocalizationKeys.CommonUltra,
+                _ => "#UNDEFINED#"
             };
         }
 
-        private void InitializeFpsLimitDropdown()
+        private void InitializeFpsLimitSetting()
         {
             _fpsLimitDataList.Clear();
             var currentFpsLimit = GraphicPreferences.FPSLimit;
@@ -364,7 +386,7 @@ namespace YuankunHuang.Unity.HotUpdate
             };
         }
 
-        private void InitializeVSyncDropdown()
+        private void InitializeVSyncSetting()
         {
             _vsyncDataList.Clear();
             var currentVSync = GraphicPreferences.VSync;

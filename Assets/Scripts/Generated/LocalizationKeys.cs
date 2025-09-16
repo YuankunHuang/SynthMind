@@ -11,6 +11,9 @@ namespace YuankunHuang.Unity.Core
         public const string CommonHigh = "Common_High";
         public const string CommonLow = "Common_Low";
         public const string CommonMid = "Common_Mid";
+        public const string CommonUltra = "Common_Ultra";
+        public const string CommonVeryHigh = "Common_VeryHigh";
+        public const string CommonVeryLow = "Common_VeryLow";
         public const string FullScreenModeExclusiveFullScreen = "FullScreenMode_ExclusiveFullScreen";
         public const string FullScreenModeFullScreenWindow = "FullScreenMode_FullScreenWindow";
         public const string FullScreenModeMaximizedWindow = "FullScreenMode_MaximizedWindow";

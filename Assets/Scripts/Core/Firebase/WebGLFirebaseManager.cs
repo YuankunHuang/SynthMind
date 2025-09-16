@@ -63,39 +63,7 @@ namespace YuankunHuang.Unity.FirebaseCore
                         return; // Return gracefully instead of throwing
                     }
 
-                    // Register global callback function for JavaScript
-                    // Use a fixed GameObject name since MonoManager is always named "MonoManager"
-                    var monoManagerName = "MonoManager";
-
-                    // Use direct JavaScript execution instead of deprecated Application.ExternalEval
-                    try
-                    {
-                        // Modern WebGL approach - register callback through the window object
-                        var jsCode = $@"
-                            if (typeof window !== 'undefined') {{
-                                window.WebGLFirebaseManager_OnJSCallback = function(callbackData) {{
-                                    if (typeof unityInstance !== 'undefined' && unityInstance.SendMessage) {{
-                                        unityInstance.SendMessage('{monoManagerName}', 'OnFirebaseCallback', callbackData);
-                                    }} else if (typeof SendMessage !== 'undefined') {{
-                                        SendMessage('{monoManagerName}', 'OnFirebaseCallback', callbackData);
-                                    }} else {{
-                                        console.warn('Unity SendMessage not available');
-                                    }}
-                                }};
-                                console.log('WebGL Firebase callback registered successfully');
-                            }}
-                        ";
-
-                        // Try modern approach first, fallback to legacy if needed
-#pragma warning disable CS0618 // Application.ExternalEval is obsolete
-                        Application.ExternalEval(jsCode);
-#pragma warning restore CS0618
-                    }
-                    catch (Exception jsEx)
-                    {
-                        LogHelper.LogWarning($"[WebGLFirebaseManager] JavaScript callback registration failed: {jsEx.Message}");
-                        // Continue initialization even if callback registration fails
-                    }
+                    // Callback system is handled via static methods - no setup needed
 
                     IsInitialized = true;
                     LogHelper.Log("[WebGLFirebaseManager] WebGL Firebase initialized successfully.");
@@ -343,6 +311,12 @@ namespace YuankunHuang.Unity.FirebaseCore
         private static void UnregisterCallback(string callbackId)
         {
             _callbacks.Remove(callbackId);
+        }
+
+        // JavaScript callback handling
+        public static void WebGLFirebaseManager_OnJSCallback(string callbackId, string result)
+        {
+            OnJSCallback(callbackId, result);
         }
 
         // This method will be called from JavaScript

@@ -4644,7 +4644,8 @@ MonoBehaviour:
   _extraRectTransformList: []
   _extraTMPTextList: []
   _extraButtonList: []
-  _extraObjectList: []
+  _extraObjectList:
+  - {fileID: 7901583210207577887}
   _extraGameObjectList: []
   _extraIntList: 
   _extraCanvasGroupList: []
