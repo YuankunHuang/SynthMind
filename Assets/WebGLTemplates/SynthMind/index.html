@@ -24,10 +24,16 @@
       </div>
     </div>
 
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-analytics-compat.js"></script>
+    <!-- Firebase SDK - Using stable v9 -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"
+            onload="console.log('[Firebase] firebase-app-compat.js loaded successfully')"
+            onerror="console.error('[Firebase] Failed to load firebase-app-compat.js')"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"
+            onload="console.log('[Firebase] firebase-firestore-compat.js loaded successfully')"
+            onerror="console.error('[Firebase] Failed to load firebase-firestore-compat.js')"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-analytics-compat.js"
+            onload="console.log('[Firebase] firebase-analytics-compat.js loaded successfully')"
+            onerror="console.error('[Firebase] Failed to load firebase-analytics-compat.js')"></script>
 
     <!-- Firebase Configuration -->
     <script>
@@ -62,6 +68,36 @@
         console.error("[Firebase] Firebase initialization failed:", error);
         alert("Firebase configuration error. Please check the console for details.");
       }
+
+      // Debug function to check Firebase availability
+      window.checkFirebaseStatus = function() {
+        console.log("[Firebase Debug] typeof firebase:", typeof firebase);
+        console.log("[Firebase Debug] firebase.apps.length:", firebase ? firebase.apps.length : "Firebase is undefined");
+        console.log("[Firebase Debug] firebase.firestore:", firebase ? typeof firebase.firestore : "Firebase is undefined");
+        return typeof firebase !== 'undefined';
+      };
+
+      // Call this function after some delay to see if Firebase loads eventually
+      setTimeout(function() {
+        console.log("[Firebase Debug] Status after 5 seconds:");
+        window.checkFirebaseStatus();
+      }, 5000);
+
+      // Version check - THIS IS THE LATEST VERSION!
+      console.log("[VERSION CHECK] Template version: 2024-09-16-03:30 - LATEST WITH FIREBASE");
+
+      // Immediate check to see if Firebase scripts are in DOM
+      setTimeout(function() {
+        var scripts = document.getElementsByTagName('script');
+        var firebaseScripts = [];
+        for (var i = 0; i < scripts.length; i++) {
+          if (scripts[i].src && scripts[i].src.includes('firebase')) {
+            firebaseScripts.push(scripts[i].src);
+          }
+        }
+        console.log("[Firebase Debug] Immediate script check found:", firebaseScripts.length, "Firebase scripts");
+        console.log("[Firebase Debug] Firebase script URLs:", firebaseScripts);
+      }, 1000);
     </script>
 
     <script>

@@ -3,6 +3,33 @@ mergeInto(LibraryManager.library, {
     InitFirebaseWeb: function() {
         console.log("[FirebaseWebGL] Checking Firebase availability for WebGL...");
 
+        // Debug: Check what's available in the global scope
+        console.log("[FirebaseWebGL] Global firebase object:", typeof firebase);
+        console.log("[FirebaseWebGL] Window firebase:", typeof window.firebase);
+
+        // List all loaded scripts for debugging
+        var scripts = document.getElementsByTagName('script');
+        var firebaseScripts = [];
+        var allScripts = [];
+        for (var i = 0; i < scripts.length; i++) {
+            allScripts.push(scripts[i].src || 'inline script');
+            if (scripts[i].src && scripts[i].src.includes('firebase')) {
+                firebaseScripts.push({
+                    src: scripts[i].src,
+                    loaded: scripts[i].readyState || 'unknown',
+                    error: scripts[i].onerror ? 'has error handler' : 'no error handler'
+                });
+            }
+        }
+        console.log("[FirebaseWebGL] All scripts:", allScripts);
+        console.log("[FirebaseWebGL] Firebase scripts found:", firebaseScripts);
+
+        // Check for script loading errors
+        if (firebaseScripts.length > 0) {
+            console.log("[FirebaseWebGL] Firebase scripts are present in DOM but firebase object is undefined");
+            console.log("[FirebaseWebGL] This suggests scripts failed to load or execute");
+        }
+
         // Check if Firebase is available
         if (typeof firebase === 'undefined') {
             console.log("[FirebaseWebGL] Firebase SDK not yet loaded - this is normal on first call");
