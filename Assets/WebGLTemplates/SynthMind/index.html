@@ -4,10 +4,42 @@
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 
-    <!-- Firebase SDK - Must be first -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-analytics-compat.js"></script>
+    <!-- Firebase SDK - Dynamic Loading -->
+    <script>
+      // Dynamically load Firebase scripts
+      function loadFirebaseScript(src) {
+        return new Promise((resolve, reject) => {
+          const script = document.createElement('script');
+          script.src = src;
+          script.onload = () => {
+            console.log('[Firebase] Loaded:', src);
+            resolve();
+          };
+          script.onerror = () => {
+            console.error('[Firebase] Failed to load:', src);
+            reject();
+          };
+          document.head.appendChild(script);
+        });
+      }
+
+      // Load Firebase scripts in sequence
+      async function loadFirebase() {
+        try {
+          await loadFirebaseScript('https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js');
+          await loadFirebaseScript('https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js');
+          await loadFirebaseScript('https://www.gstatic.com/firebasejs/9.22.0/firebase-analytics-compat.js');
+          console.log('[Firebase] All scripts loaded successfully');
+          window.firebaseScriptsReady = true;
+        } catch (error) {
+          console.error('[Firebase] Script loading failed:', error);
+          window.firebaseScriptsReady = false;
+        }
+      }
+
+      // Start loading Firebase immediately
+      loadFirebase();
+    </script>
 
     <title>SynthMind</title>
     <link rel="shortcut icon" href="TemplateData/favicon.ico">
@@ -79,7 +111,7 @@
       }, 5000);
 
       // Version check - THIS IS THE LATEST VERSION!
-      console.log("[VERSION CHECK] Template version: 2025-09-23-FIREBASE-SIMPLE - SIMPLIFIED FIREBASE SCRIPTS");
+      console.log("[VERSION CHECK] Template version: 2025-09-23-FIREBASE-DYNAMIC - DYNAMIC FIREBASE LOADING");
 
       // Immediate check to see if Firebase scripts are in DOM
       setTimeout(function() {
