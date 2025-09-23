@@ -404,12 +404,13 @@ namespace YuankunHuang.Unity.FirebaseCore
                     {
                         foreach (var doc in task.Result.Documents)
                         {
+                            var timestamp = doc.ContainsField("timestamp") ? doc.GetValue<Timestamp>("timestamp") : Timestamp.GetCurrentTimestamp();
                             messages.Add(new FirebaseConversationMessage(
                                 conversationId,
                                 doc.GetValue<string>("messageId"),
                                 doc.GetValue<string>("senderId"),
                                 doc.GetValue<string>("content"),
-                                doc.ContainsField("timestamp") ? doc.GetValue<Timestamp>("timestamp") : Timestamp.GetCurrentTimestamp(),
+                                new FirebaseTimestamp(timestamp),
                                 doc.ContainsField("metadata") ? doc.GetValue<Dictionary<string, object>>("metadata") : null)
                             );
                         }
@@ -456,12 +457,13 @@ namespace YuankunHuang.Unity.FirebaseCore
 
                 foreach (var doc in result.Documents)
                 {
+                    var timestamp = doc.ContainsField("timestamp") ? doc.GetValue<Timestamp>("timestamp") : Timestamp.GetCurrentTimestamp();
                     messages.Add(new FirebaseConversationMessage(
                         conversationId,
                         doc.GetValue<string>("messageId"),
                         doc.GetValue<string>("senderId"),
                         doc.GetValue<string>("content"),
-                        doc.ContainsField("timestamp") ? doc.GetValue<Timestamp>("timestamp") : Timestamp.GetCurrentTimestamp(),
+                        new FirebaseTimestamp(timestamp),
                         doc.ContainsField("metadata") ? doc.GetValue<Dictionary<string, object>>("metadata") : null
                     ));
                 }
@@ -496,12 +498,13 @@ namespace YuankunHuang.Unity.FirebaseCore
                     foreach (var doc in snapshot.Documents)
                     {
                         var data = doc.ToDictionary();
+                        var timestamp = data.ContainsKey("timestamp") ? (Timestamp)data["timestamp"] : Timestamp.GetCurrentTimestamp();
                         var message = new FirebaseConversationMessage(
                             conversationId,
                             data.ContainsKey("messageId") ? data["messageId"].ToString() : string.Empty,
                             data.ContainsKey("senderId") ? data["senderId"].ToString() : string.Empty,
                             data.ContainsKey("content") ? data["content"].ToString() : string.Empty,
-                            data.ContainsKey("timestamp") ? (Timestamp)data["timestamp"] : Timestamp.GetCurrentTimestamp(),
+                            new FirebaseTimestamp(timestamp),
                             data.ContainsKey("metadata") ? (Dictionary<string, object>)data["metadata"] : null
                         );
                         messages.Add(message);
@@ -526,46 +529,41 @@ namespace YuankunHuang.Unity.FirebaseCore
         public static readonly string Messages = "messages";
     }
 
+    /// <summary>
+    /// Unified Firebase conversation message that works across all platforms
+    /// </summary>
+    [System.Serializable]
+    public struct FirebaseConversationMessage
+    {
+        public string ConversationId { get; private set; }
+        public string MessageId { get; private set; }
+        public string SenderId { get; private set; }
+        public string Content { get; private set; }
+        public FirebaseTimestamp Timestamp { get; private set; }
+        public Dictionary<string, object> Metadata { get; private set; }
+
+        public FirebaseConversationMessage(string conversationId, string messageId, string senderId, string content, FirebaseTimestamp timeStamp, Dictionary<string, object> metadata = null)
+        {
+            ConversationId = conversationId;
+            MessageId = messageId;
+            SenderId = senderId;
+            Content = content;
+            Timestamp = timeStamp;
+            Metadata = metadata ?? new Dictionary<string, object>();
+        }
+
 #if !UNITY_WEBGL || UNITY_EDITOR
-    public struct FirebaseConversationMessage
-    {
-        public string ConversationId { get; private set; }
-        public string MessageId { get; private set; }
-        public string SenderId { get; private set; }
-        public string Content { get; private set; }
-        public Timestamp Timestamp { get; private set; }
-        public Dictionary<string, object> Metadata { get; private set; }
-
-        public FirebaseConversationMessage(string conversationId, string messageId, string senderId, string content, Timestamp timeStamp, Dictionary<string, object> metadata = null)
+        // Convenience constructor for Firebase Timestamp (non-WebGL platforms)
+        public FirebaseConversationMessage(string conversationId, string messageId, string senderId, string content, Timestamp firebaseTimeStamp, Dictionary<string, object> metadata = null)
+            : this(conversationId, messageId, senderId, content, new FirebaseTimestamp(firebaseTimeStamp), metadata)
         {
-            ConversationId = conversationId;
-            MessageId = messageId;
-            SenderId = senderId;
-            Content = content;
-            Timestamp = timeStamp;
-            Metadata = metadata ?? new Dictionary<string, object>();
         }
-    }
-#else
-    // WebGL version of FirebaseConversationMessage that doesn't depend on Timestamp
-    public struct FirebaseConversationMessage
-    {
-        public string ConversationId { get; private set; }
-        public string MessageId { get; private set; }
-        public string SenderId { get; private set; }
-        public string Content { get; private set; }
-        public System.DateTime Timestamp { get; private set; }
-        public Dictionary<string, object> Metadata { get; private set; }
-
-        public FirebaseConversationMessage(string conversationId, string messageId, string senderId, string content, System.DateTime timeStamp, Dictionary<string, object> metadata = null)
-        {
-            ConversationId = conversationId;
-            MessageId = messageId;
-            SenderId = senderId;
-            Content = content;
-            Timestamp = timeStamp;
-            Metadata = metadata ?? new Dictionary<string, object>();
-        }
-    }
 #endif
+
+        // Convenience constructor for DateTime (all platforms)
+        public FirebaseConversationMessage(string conversationId, string messageId, string senderId, string content, System.DateTime dateTime, Dictionary<string, object> metadata = null)
+            : this(conversationId, messageId, senderId, content, new FirebaseTimestamp(dateTime), metadata)
+        {
+        }
+    }
 }

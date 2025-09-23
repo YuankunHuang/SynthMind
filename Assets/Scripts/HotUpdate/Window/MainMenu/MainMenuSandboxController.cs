@@ -265,11 +265,7 @@ namespace YuankunHuang.Unity.HotUpdate
 
             foreach (var message in messages)
             {
-#if UNITY_WEBGL && !UNITY_EDITOR
-                var msgData = new MainMenuMessageData($"{++MessageIDTest}", sender, message, System.DateTime.Now);
-#else
-                var msgData = new MainMenuMessageData($"{++MessageIDTest}", sender, message, Timestamp.GetCurrentTimestamp().ToDateTime());
-#endif
+                var msgData = new MainMenuMessageData($"{++MessageIDTest}", sender, message, System.DateTime.UtcNow);
                 list.Add(msgData);
             }
 

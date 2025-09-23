@@ -113,11 +113,7 @@ namespace YuankunHuang.Unity.HotUpdate
                             foreach (var msg in messages)
                             {
                                 var sender = ModuleRegistry.Get<IAccountManager>().GetAccount(msg.SenderId);
-#if UNITY_WEBGL && !UNITY_EDITOR
-                                _messages.Add(new MainMenuMessageData(msg.MessageId, sender, msg.Content, msg.Timestamp));
-#else
-                                _messages.Add(new MainMenuMessageData(msg.MessageId, sender, msg.Content, msg.Timestamp.ToDateTime()));
-#endif
+                                _messages.Add(new MainMenuMessageData(msg.MessageId, sender, msg.Content, msg.Timestamp.DateTime));
                             }
 
                             _grid.Refresh();
@@ -167,11 +163,7 @@ namespace YuankunHuang.Unity.HotUpdate
 
             if (!string.IsNullOrEmpty(content))
             {
-#if UNITY_WEBGL && !UNITY_EDITOR
-                _messages.Add(new MainMenuMessageData($"{++MessageIDTest}", ModuleRegistry.Get<IAccountManager>().Self, content, System.DateTime.Now));
-#else
-                _messages.Add(new MainMenuMessageData($"{++MessageIDTest}", ModuleRegistry.Get<IAccountManager>().Self, content, Timestamp.GetCurrentTimestamp().ToDateTime()));
-#endif
+                _messages.Add(new MainMenuMessageData($"{++MessageIDTest}", ModuleRegistry.Get<IAccountManager>().Self, content, System.DateTime.UtcNow));
                 _grid.AppendBottom(_messages.Count - 1);
                 _grid.scrollRect.StopMovement();
                 _grid.GoToBottom();
@@ -182,11 +174,7 @@ namespace YuankunHuang.Unity.HotUpdate
                     (reply) =>
                     {
                         var ai = ModuleRegistry.Get<IAccountManager>().AI;
-#if UNITY_WEBGL && !UNITY_EDITOR
-                        var data = new MainMenuMessageData($"{++MessageIDTest}", ai, reply, System.DateTime.Now);
-#else
-                        var data = new MainMenuMessageData($"{++MessageIDTest}", ai, reply, Timestamp.GetCurrentTimestamp().ToDateTime());
-#endif
+                        var data = new MainMenuMessageData($"{++MessageIDTest}", ai, reply, System.DateTime.UtcNow);
 
                         _messages.Add(data);
                         _grid.AppendBottom(_messages.Count - 1);
