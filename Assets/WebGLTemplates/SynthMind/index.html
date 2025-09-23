@@ -3,20 +3,15 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+    <!-- Firebase SDK - Must be first -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-analytics-compat.js"></script>
+
     <title>SynthMind</title>
     <link rel="shortcut icon" href="TemplateData/favicon.ico">
     <link rel="stylesheet" href="TemplateData/style.css">
-
-    <!-- Firebase SDK - Using stable v9 -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"
-            onload="console.log('[Firebase] firebase-app-compat.js loaded successfully'); window.firebaseAppLoaded = true;"
-            onerror="console.error('[Firebase] Failed to load firebase-app-compat.js'); window.firebaseAppFailed = true;"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"
-            onload="console.log('[Firebase] firebase-firestore-compat.js loaded successfully'); window.firebaseFirestoreLoaded = true;"
-            onerror="console.error('[Firebase] Failed to load firebase-firestore-compat.js'); window.firebaseFirestoreFailed = true;"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-analytics-compat.js"
-            onload="console.log('[Firebase] firebase-analytics-compat.js loaded successfully'); window.firebaseAnalyticsLoaded = true;"
-            onerror="console.error('[Firebase] Failed to load firebase-analytics-compat.js'); window.firebaseAnalyticsFailed = true;"></script>
   </head>
   <body>
     <div id="unity-container" class="unity-desktop">
@@ -84,7 +79,7 @@
       }, 5000);
 
       // Version check - THIS IS THE LATEST VERSION!
-      console.log("[VERSION CHECK] Template version: 2025-09-23-FIREBASE-HEAD-FIX - FIREBASE SCRIPTS IN HEAD");
+      console.log("[VERSION CHECK] Template version: 2025-09-23-FIREBASE-SIMPLE - SIMPLIFIED FIREBASE SCRIPTS");
 
       // Immediate check to see if Firebase scripts are in DOM
       setTimeout(function() {
