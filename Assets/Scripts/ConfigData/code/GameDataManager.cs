@@ -89,31 +89,23 @@ namespace YuankunHuang.Unity.GameDataConfig
         /// </summary>
         private static void InitializeDefault()
         {
-            Debug.Log("[GameDataManager] InitializeDefault ENTER");
             Debug.Log("[GameDataManager] Using reflection-based initialization mode");
 
-            try
+            // Search in multiple assemblies for better detection
+            var assemblies = new[]
             {
-                // Search in multiple assemblies for better detection
-                var assemblies = new[]
-                {
-                    Assembly.GetExecutingAssembly(),
-                    typeof(GameDataManager).Assembly
-                };
+                Assembly.GetExecutingAssembly(),
+                typeof(GameDataManager).Assembly
+            };
 
-                Debug.Log($"[GameDataManager] Searching in {assemblies.Length} assemblies");
-
-                var allTypes = new System.Collections.Generic.List<System.Type>();
-                foreach (var assembly in assemblies.Distinct())
+            var allTypes = new System.Collections.Generic.List<System.Type>();
+            foreach (var assembly in assemblies.Distinct())
+            {
+                if (assembly != null)
                 {
-                    if (assembly != null)
+                    try
                     {
-                        Debug.Log($"[GameDataManager] Processing assembly: {assembly.FullName}");
-                        try
-                        {
-                            var types = assembly.GetTypes();
-                            Debug.Log($"[GameDataManager] Found {types.Length} types in assembly");
-                            allTypes.AddRange(types);
+                        allTypes.AddRange(assembly.GetTypes());
                     }
                     catch (Exception e)
                     {
@@ -122,66 +114,47 @@ namespace YuankunHuang.Unity.GameDataConfig
                 }
             }
 
-                Debug.Log($"[GameDataManager] Total types collected: {allTypes.Count}");
-
-                var configTypes = allTypes
-                    .Where(t =>
-                    {
-                        if (!t.IsClass || !t.IsPublic || !t.Name.EndsWith("Config"))
-                            return false;
-
-                        if (t.BaseType == null)
-                            return false;
-
-                        // More flexible base type checking
-                        var baseType = t.BaseType;
-                        while (baseType != null)
-                        {
-                            if (baseType.IsGenericType)
-                            {
-                                var genericDef = baseType.GetGenericTypeDefinition();
-                                if (genericDef.Name.StartsWith("BaseConfigData"))
-                                    return true;
-                            }
-                            if (baseType.Name.StartsWith("BaseConfigData"))
-                                return true;
-                            baseType = baseType.BaseType;
-                        }
-                        return false;
-                    }).ToList();
-
-                Debug.Log($"[GameDataManager] Found {configTypes.Count} config types to initialize");
-
-                foreach (var type in configTypes)
+            var configTypes = allTypes
+                .Where(t =>
                 {
-                    Debug.Log($"[GameDataManager] Initializing {type.Name}...");
+                    if (!t.IsClass || !t.IsPublic || !t.Name.EndsWith("Config"))
+                        return false;
 
-                    var method = type.GetMethod("Initialize", BindingFlags.Public | BindingFlags.Static, null, Type.EmptyTypes, null);
-                    if (method != null)
+                    if (t.BaseType == null)
+                        return false;
+
+                    // More flexible base type checking
+                    var baseType = t.BaseType;
+                    while (baseType != null)
                     {
-                        try
+                        if (baseType.IsGenericType)
                         {
-                            method.Invoke(null, null);
-                            Debug.Log($"[GameDataManager] {type.Name} initialized successfully");
+                            var genericDef = baseType.GetGenericTypeDefinition();
+                            if (genericDef.Name.StartsWith("BaseConfigData"))
+                                return true;
                         }
-                        catch (Exception e)
-                        {
-                            Debug.LogError($"[GameDataManager] {type.Name} failed: {e.Message}");
-                            Debug.LogException(e);
-                        }
+                        if (baseType.Name.StartsWith("BaseConfigData"))
+                            return true;
+                        baseType = baseType.BaseType;
                     }
-                    else
+                    return false;
+                });
+
+            foreach (var type in configTypes)
+            {
+                var method = type.GetMethod("Initialize", BindingFlags.Public | BindingFlags.Static, null, Type.EmptyTypes, null);
+                if (method != null)
+                {
+                    try
                     {
-                        Debug.LogWarning($"[GameDataManager] No Initialize method found for {type.Name}");
+                        method.Invoke(null, null);
+                        Debug.Log($"[GameDataManager] {type.Name} initialized");
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.LogWarning($"[GameDataManager] {type.Name} failed: {e.Message}");
                     }
                 }
-
-                Debug.Log("[GameDataManager] InitializeDefault COMPLETE");
-            }
-            catch (Exception e)
-            {
-                Debug.LogError($"[GameDataManager] InitializeDefault FAILED: {e.Message}");
-                Debug.LogException(e);
             }
         }
     }

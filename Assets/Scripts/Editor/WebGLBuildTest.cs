@@ -21,6 +21,9 @@ namespace YuankunHuang.Unity.Editor
             // Set template
             PlayerSettings.WebGL.template = "PROJECT:SynthMind";
 
+            // Force refresh to ensure template is recognized
+            AssetDatabase.Refresh();
+
             // Build settings
             string[] scenes = {
                 "Assets/Scenes/Bootstrapper.unity",
