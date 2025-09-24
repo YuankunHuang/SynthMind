@@ -6,6 +6,17 @@
 
     <!-- Firebase SDK - Dynamic Loading -->
     <script>
+      // Firebase configuration - Real configuration for SynthMind project
+      const firebaseConfig = {
+        apiKey: "AIzaSyAr0k5z3nRxw6_Gn-yeYBlafm76cdQAPME",
+        authDomain: "synthmind-yuankunhuang.firebaseapp.com",
+        projectId: "synthmind-yuankunhuang",
+        storageBucket: "synthmind-yuankunhuang.firebasestorage.app",
+        messagingSenderId: "976701209071",
+        appId: "1:976701209071:web:d4309fbcf343275864de1a",
+        measurementId: "G-JQVCFKPFYE"
+      };
+
       // Dynamically load Firebase scripts
       function loadFirebaseScript(src) {
         return new Promise((resolve, reject) => {
@@ -101,16 +112,6 @@
 
     <!-- Firebase Configuration -->
     <script>
-      // Firebase configuration - Real configuration for SynthMind project
-      const firebaseConfig = {
-        apiKey: "AIzaSyAr0k5z3nRxw6_Gn-yeYBlafm76cdQAPME",
-        authDomain: "synthmind-yuankunhuang.firebaseapp.com",
-        projectId: "synthmind-yuankunhuang",
-        storageBucket: "synthmind-yuankunhuang.firebasestorage.app",
-        messagingSenderId: "976701209071",
-        appId: "1:976701209071:web:d4309fbcf343275864de1a",
-        measurementId: "G-JQVCFKPFYE"
-      };
 
       // Debug function to check Firebase availability
       window.checkFirebaseStatus = function() {
