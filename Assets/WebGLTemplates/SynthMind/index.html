@@ -135,6 +135,18 @@
       // Version check - THIS IS THE LATEST VERSION!
       console.log("[VERSION CHECK] Template version: 2025-09-23-FIREBASE-DYNAMIC - DYNAMIC FIREBASE LOADING");
 
+      // UUID generation function for Firebase WebGL integration
+      function generateUUID() {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+          var r = Math.random() * 16 | 0,
+              v = c == 'x' ? r : (r & 0x3 | 0x8);
+          return v.toString(16);
+        });
+      }
+
+      // Make generateUUID globally available for Unity WebGL
+      window.generateUUID = generateUUID;
+
       // Immediate check to see if Firebase scripts are in DOM
       setTimeout(function() {
         var scripts = document.getElementsByTagName('script');
