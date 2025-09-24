@@ -23,6 +23,38 @@
         });
       }
 
+      // Initialize Firebase after scripts are loaded
+      function initializeFirebase() {
+        try {
+          if (typeof firebase === 'undefined') {
+            console.error("[Firebase] Firebase is not loaded yet!");
+            return false;
+          }
+
+          // Initialize Firebase
+          firebase.initializeApp(firebaseConfig);
+
+          // Initialize Analytics (optional)
+          if (firebaseConfig.measurementId) {
+            try {
+              firebase.analytics();
+              console.log("[Firebase] Analytics initialized successfully");
+            } catch (analyticsError) {
+              console.warn("[Firebase] Analytics initialization failed:", analyticsError.message);
+            }
+          }
+
+          console.log("[Firebase] ✅ Firebase initialized successfully for WebGL");
+          console.log("[Firebase] Project ID:", firebaseConfig.projectId);
+          window.firebaseInitialized = true;
+          return true;
+        } catch (error) {
+          console.error("[Firebase] Firebase initialization failed:", error);
+          window.firebaseInitialized = false;
+          return false;
+        }
+      }
+
       // Load Firebase scripts in sequence
       async function loadFirebase() {
         try {
@@ -79,38 +111,6 @@
         appId: "1:976701209071:web:d4309fbcf343275864de1a",
         measurementId: "G-JQVCFKPFYE"
       };
-
-      // Initialize Firebase after scripts are loaded
-      function initializeFirebase() {
-        try {
-          if (typeof firebase === 'undefined') {
-            console.error("[Firebase] Firebase is not loaded yet!");
-            return false;
-          }
-
-          // Initialize Firebase
-          firebase.initializeApp(firebaseConfig);
-
-          // Initialize Analytics (optional)
-          if (firebaseConfig.measurementId) {
-            try {
-              firebase.analytics();
-              console.log("[Firebase] Analytics initialized successfully");
-            } catch (analyticsError) {
-              console.warn("[Firebase] Analytics initialization failed:", analyticsError.message);
-            }
-          }
-
-          console.log("[Firebase] ✅ Firebase initialized successfully for WebGL");
-          console.log("[Firebase] Project ID:", firebaseConfig.projectId);
-          window.firebaseInitialized = true;
-          return true;
-        } catch (error) {
-          console.error("[Firebase] Firebase initialization failed:", error);
-          window.firebaseInitialized = false;
-          return false;
-        }
-      }
 
       // Debug function to check Firebase availability
       window.checkFirebaseStatus = function() {
