@@ -29,11 +29,16 @@
           await loadFirebaseScript('https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js');
           await loadFirebaseScript('https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js');
           await loadFirebaseScript('https://www.gstatic.com/firebasejs/9.22.0/firebase-analytics-compat.js');
+
           console.log('[Firebase] All scripts loaded successfully');
           window.firebaseScriptsReady = true;
+
+          // Initialize Firebase after scripts are loaded
+          initializeFirebase();
         } catch (error) {
           console.error('[Firebase] Script loading failed:', error);
           window.firebaseScriptsReady = false;
+          window.firebaseLoadError = error;
         }
       }
 
@@ -75,32 +80,49 @@
         measurementId: "G-JQVCFKPFYE"
       };
 
-      try {
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-
-        // Initialize Analytics (optional) - ignore errors if already exists
-        if (firebaseConfig.measurementId) {
-          try {
-            firebase.analytics();
-            console.log("[Firebase] Analytics initialized successfully");
-          } catch (analyticsError) {
-            console.warn("[Firebase] Analytics initialization failed (this is normal if already exists):", analyticsError.message);
+      // Initialize Firebase after scripts are loaded
+      function initializeFirebase() {
+        try {
+          if (typeof firebase === 'undefined') {
+            console.error("[Firebase] Firebase is not loaded yet!");
+            return false;
           }
-        }
 
-        console.log("[Firebase] Firebase initialized successfully for WebGL");
-        console.log("[Firebase] Project ID:", firebaseConfig.projectId);
-      } catch (error) {
-        console.error("[Firebase] Firebase initialization failed:", error);
-        alert("Firebase configuration error. Please check the console for details.");
+          // Initialize Firebase
+          firebase.initializeApp(firebaseConfig);
+
+          // Initialize Analytics (optional)
+          if (firebaseConfig.measurementId) {
+            try {
+              firebase.analytics();
+              console.log("[Firebase] Analytics initialized successfully");
+            } catch (analyticsError) {
+              console.warn("[Firebase] Analytics initialization failed:", analyticsError.message);
+            }
+          }
+
+          console.log("[Firebase] ✅ Firebase initialized successfully for WebGL");
+          console.log("[Firebase] Project ID:", firebaseConfig.projectId);
+          window.firebaseInitialized = true;
+          return true;
+        } catch (error) {
+          console.error("[Firebase] Firebase initialization failed:", error);
+          window.firebaseInitialized = false;
+          return false;
+        }
       }
 
       // Debug function to check Firebase availability
       window.checkFirebaseStatus = function() {
-        console.log("[Firebase Debug] typeof firebase:", typeof firebase);
-        console.log("[Firebase Debug] firebase.apps.length:", firebase ? firebase.apps.length : "Firebase is undefined");
-        console.log("[Firebase Debug] firebase.firestore:", firebase ? typeof firebase.firestore : "Firebase is undefined");
+        console.log("=== Firebase Status ===");
+        console.log("typeof firebase:", typeof firebase);
+        console.log("firebaseScriptsReady:", window.firebaseScriptsReady);
+        console.log("firebaseInitialized:", window.firebaseInitialized);
+        if (typeof firebase !== 'undefined') {
+          console.log("Firebase apps:", firebase.apps.length);
+          console.log("Firebase firestore available:", typeof firebase.firestore);
+        }
+        console.log("========================");
         return typeof firebase !== 'undefined';
       };
 
