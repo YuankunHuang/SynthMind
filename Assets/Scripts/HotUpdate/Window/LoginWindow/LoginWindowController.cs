@@ -107,7 +107,16 @@ namespace YuankunHuang.Unity.HotUpdate
 
             var locManager = ModuleRegistry.Get<ILocalizationManager>();
             var uiManager = ModuleRegistry.Get<IUIManager>();
-            uiManager.Show(WindowNames.ConfirmWindow, new ConfirmWindowData(locManager.GetLocalizedText(LocalizationKeys.QuitGameTitle), locManager.GetLocalizedText(LocalizationKeys.QuitGameContent), QuitApp));
+
+            // Use batch localization for WebGL compatibility
+            locManager.GetLocalizedTexts(
+                new[] { LocalizationKeys.QuitGameTitle, LocalizationKeys.QuitGameContent },
+                (texts) =>
+                {
+                    var title = texts[LocalizationKeys.QuitGameTitle];
+                    var content = texts[LocalizationKeys.QuitGameContent];
+                    uiManager.Show(WindowNames.ConfirmWindow, new ConfirmWindowData(title, content, QuitApp));
+                });
         }
 
         private void QuitApp()
@@ -127,7 +136,9 @@ namespace YuankunHuang.Unity.HotUpdate
             string password = _passwordInputField.text.Trim();
             if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
             {
-                _noticeTxt.text = ModuleRegistry.Get<ILocalizationManager>().GetLocalizedText(LocalizationKeys.MainMenuNoticeEmptyUsernameOrPassword);
+                ModuleRegistry.Get<ILocalizationManager>().GetLocalizedText(LocalizationKeys.MainMenuNoticeEmptyUsernameOrPassword, (text) => {
+                    _noticeTxt.text = text;
+                });
                 return;
             }
 
@@ -145,14 +156,18 @@ namespace YuankunHuang.Unity.HotUpdate
 
         private void OnLoginSuccess()
         {
-            _noticeTxt.text = ModuleRegistry.Get<ILocalizationManager>().GetLocalizedText(LocalizationKeys.MainMenuNoticeSuccess);
+            ModuleRegistry.Get<ILocalizationManager>().GetLocalizedText(LocalizationKeys.MainMenuNoticeSuccess, (text) => {
+                _noticeTxt.text = text;
+            });
 
             ModuleRegistry.Get<IUIManager>().Show(WindowNames.MainMenu);
         }
 
         private void OnLoginError(string errorMessage)
         {
-            _noticeTxt.text = string.Format(ModuleRegistry.Get<ILocalizationManager>().GetLocalizedText(LocalizationKeys.MainMenuNoticeFailed), errorMessage);
+            ModuleRegistry.Get<ILocalizationManager>().GetLocalizedTextFormatted(LocalizationKeys.MainMenuNoticeFailed, (text) => {
+                _noticeTxt.text = text;
+            }, errorMessage);
         }
         #endregion
     }

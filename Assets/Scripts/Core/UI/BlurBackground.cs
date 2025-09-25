@@ -59,7 +59,15 @@ namespace YuankunHuang.Unity.UICore
             // 6. Setup image
             rawImage.texture = _blurTexture;
             rawImage.raycastTarget = false;
+
+            // Fix UV coordinates for WebGL platform
+#if UNITY_WEBGL && !UNITY_EDITOR
+            // In WebGL, texture coordinates may be flipped
+            rawImage.uvRect = new Rect(0, 0, 1, 1);
+#else
+            // For other platforms, maintain original behavior
             rawImage.uvRect = new Rect(0, 1, 1, -1);
+#endif
 
             return true;
         }

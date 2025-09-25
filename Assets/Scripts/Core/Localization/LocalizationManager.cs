@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
+using UnityEngine.Localization.Tables;
 using YuankunHuang.Unity.Core;
 using YuankunHuang.Unity.Core.Debug;
 
@@ -13,10 +14,12 @@ namespace YuankunHuang.Unity.LocalizationCore
     public class LocalizationManager : ILocalizationManager
     {
         public static string DefaultLocalizationTable = "Localization";
-        
+
         public bool IsInitialized { get; private set; } = false;
         public event Action<string> OnLanguageChanged;
         public string CurrentLanguage => LocalizationSettings.SelectedLocale?.Identifier.Code ?? "en";
+
+        private readonly Dictionary<string, string> _textCache = new Dictionary<string, string>();
 
         public async Task InitializeAsync()
         {
@@ -39,66 +42,239 @@ namespace YuankunHuang.Unity.LocalizationCore
             }
         }
 
-        public string GetLocalizedText(string key)
+        // Callback-based methods for cross-platform compatibility
+        public void GetLocalizedText(string key, Action<string> callback)
         {
-            return GetLocalizedText(DefaultLocalizationTable, key);
+            GetLocalizedText(DefaultLocalizationTable, key, callback);
         }
 
-        public string GetLocalizedText(string table, string key)
+        public void GetLocalizedText(string table, string key, Action<string> callback)
         {
-            if (!IsInitialized)
-            {
-                LogHelper.LogWarning($"[LocalizationManager] Not initialized. Returning key: {key}");
-                return key;
-            }
-
+#if UNITY_WEBGL && !UNITY_EDITOR
+            // WebGL: always use async
+            GetLocalizedTextAsync(table, key, callback);
+#else
+            // Other platforms: use sync loading and call callback immediately
             try
             {
+                if (!IsInitialized)
+                {
+                    LogHelper.LogWarning($"[LocalizationManager] Not initialized. Returning key: {key}");
+                    callback?.Invoke(key);
+                    return;
+                }
+
+                var cacheKey = $"{table}:{key}";
+                if (_textCache.ContainsKey(cacheKey))
+                {
+                    callback?.Invoke(_textCache[cacheKey]);
+                    return;
+                }
+
                 var stringTableCollection = LocalizationSettings.StringDatabase.GetTable(table);
                 if (stringTableCollection == null)
                 {
                     LogHelper.LogWarning($"[LocalizationManager] Table '{table}' not found");
-                    return key;
+                    callback?.Invoke(key);
+                    return;
                 }
 
                 var entry = stringTableCollection.GetEntry(key);
                 if (entry == null)
                 {
                     LogHelper.LogWarning($"[LocalizationManager] Key '{key}' not found in table '{table}'");
-                    return key;
+                    callback?.Invoke(key);
+                    return;
                 }
 
-                return entry.GetLocalizedString() ?? key;
+                var localizedText = entry.GetLocalizedString() ?? key;
+                _textCache[cacheKey] = localizedText;
+                callback?.Invoke(localizedText);
             }
             catch (Exception e)
             {
                 LogHelper.LogWarning($"[LocalizationManager] Failed to get text for key '{key}': {e.Message}");
-                return key;
+                callback?.Invoke(key);
             }
+#endif
         }
 
-        public string GetLocalizedTextFormatted(string key, params object[] args)
+        public void GetLocalizedTextFormatted(string key, Action<string> callback, params object[] args)
         {
-            return GetLocalizedTextFormatted(DefaultLocalizationTable, key, args);
+            GetLocalizedTextFormatted(DefaultLocalizationTable, key, callback, args);
         }
 
-        public string GetLocalizedTextFormatted(string table, string key, params object[] args)
+        public void GetLocalizedTextFormatted(string table, string key, Action<string> callback, params object[] args)
         {
-            var template = GetLocalizedText(table, key);
-            
-            if (args == null || args.Length == 0)
-                return template;
+#if UNITY_WEBGL && !UNITY_EDITOR
+            // WebGL: get text async then format
+            GetLocalizedTextAsync(table, key, (text) =>
+            {
+                try
+                {
+                    var formatted = string.Format(text, args);
+                    callback?.Invoke(formatted);
+                }
+                catch (Exception e)
+                {
+                    LogHelper.LogWarning($"[LocalizationManager] Failed to format text '{text}': {e.Message}");
+                    callback?.Invoke(text);
+                }
+            });
+#else
+            // Other platforms: get text sync then format
+            GetLocalizedText(table, key, (text) =>
+            {
+                try
+                {
+                    if (args == null || args.Length == 0)
+                    {
+                        callback?.Invoke(text);
+                        return;
+                    }
+
+                    var formatted = string.Format(text, args);
+                    callback?.Invoke(formatted);
+                }
+                catch (Exception e)
+                {
+                    LogHelper.LogWarning($"[LocalizationManager] Failed to format text '{text}': {e.Message}");
+                    callback?.Invoke(text);
+                }
+            });
+#endif
+        }
+
+        // Batch methods for multiple keys
+        public void GetLocalizedTexts(string[] keys, Action<Dictionary<string, string>> callback)
+        {
+            GetLocalizedTexts(DefaultLocalizationTable, keys, callback);
+        }
+
+        public void GetLocalizedTexts(string table, string[] keys, Action<Dictionary<string, string>> callback)
+        {
+            if (keys == null || keys.Length == 0)
+            {
+                callback?.Invoke(new Dictionary<string, string>());
+                return;
+            }
+
+#if UNITY_WEBGL && !UNITY_EDITOR
+            // WebGL: use async for all keys
+            var results = new Dictionary<string, string>();
+            int completedCount = 0;
+            int totalCount = keys.Length;
+
+            foreach (var key in keys)
+            {
+                GetLocalizedTextAsync(table, key, (text) =>
+                {
+                    lock (results)
+                    {
+                        results[key] = text;
+                        completedCount++;
+
+                        if (completedCount == totalCount)
+                        {
+                            callback?.Invoke(results);
+                        }
+                    }
+                });
+            }
+#else
+            // Other platforms: use sync loading for all keys
+            var results = new Dictionary<string, string>();
+
+            foreach (var key in keys)
+            {
+                try
+                {
+                    if (!IsInitialized)
+                    {
+                        results[key] = key;
+                        continue;
+                    }
+
+                    var cacheKey = $"{table}:{key}";
+                    if (_textCache.ContainsKey(cacheKey))
+                    {
+                        results[key] = _textCache[cacheKey];
+                        continue;
+                    }
+
+                    var stringTableCollection = LocalizationSettings.StringDatabase.GetTable(table);
+                    if (stringTableCollection == null)
+                    {
+                        results[key] = key;
+                        continue;
+                    }
+
+                    var entry = stringTableCollection.GetEntry(key);
+                    if (entry == null)
+                    {
+                        results[key] = key;
+                        continue;
+                    }
+
+                    var localizedText = entry.GetLocalizedString() ?? key;
+                    _textCache[cacheKey] = localizedText;
+                    results[key] = localizedText;
+                }
+                catch (Exception e)
+                {
+                    LogHelper.LogWarning($"[LocalizationManager] Failed to get text for key '{key}': {e.Message}");
+                    results[key] = key;
+                }
+            }
+
+            callback?.Invoke(results);
+#endif
+        }
+
+        // Internal async implementation for WebGL platform
+        private async void GetLocalizedTextAsync(string table, string key, System.Action<string> callback)
+        {
+            if (!IsInitialized)
+            {
+                LogHelper.LogWarning($"[LocalizationManager] Not initialized. Returning key: {key}");
+                callback?.Invoke(key);
+                return;
+            }
+
+            var cacheKey = $"{table}:{key}";
+
+            // Check cache first
+            if (_textCache.ContainsKey(cacheKey))
+            {
+                callback?.Invoke(_textCache[cacheKey]);
+                return;
+            }
 
             try
             {
-                return string.Format(template, args);
+                // Use async loading for WebGL compatibility
+                var stringOperation = LocalizationSettings.StringDatabase.GetLocalizedStringAsync(table, key);
+                await stringOperation.Task;
+
+                if (stringOperation.Status == UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationStatus.Succeeded)
+                {
+                    var localizedText = stringOperation.Result ?? key;
+                    _textCache[cacheKey] = localizedText;
+                    callback?.Invoke(localizedText);
+                }
+                else
+                {
+                    LogHelper.LogWarning($"[LocalizationManager] Failed to get localized string for key '{key}' in table '{table}'");
+                    callback?.Invoke(key);
+                }
             }
             catch (Exception e)
             {
-                LogHelper.LogWarning($"[LocalizationManager] String format error for key '{key}': {e.Message}");
-                return template;
+                LogHelper.LogWarning($"[LocalizationManager] Failed to get text for key '{key}': {e.Message}");
+                callback?.Invoke(key);
             }
         }
+
 
         public void SetLanguage(string langCode)
         {
@@ -234,6 +410,11 @@ namespace YuankunHuang.Unity.LocalizationCore
             if (locale != null)
             {
                 var newLanguage = locale.Identifier.Code;
+
+                // Clear cache when language changes
+                _textCache.Clear();
+                LogHelper.Log($"[LocalizationManager] Cache cleared due to language change");
+
                 OnLanguageChanged?.Invoke(newLanguage);
                 LogHelper.Log($"[LocalizationManager] Language changed to {newLanguage}");
             }

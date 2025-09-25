@@ -1,4 +1,6 @@
+#if !UNITY_WEBGL || UNITY_EDITOR
 using Firebase.Firestore;
+#endif
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -80,51 +82,54 @@ namespace YuankunHuang.Unity.HotUpdate
 
         public void Show()
         {
-            if (!FirebaseManager.IsInitializing)
+            var firebaseManager = ModuleRegistry.Get<IFirebaseManager>();
+
+            if (firebaseManager.IsInitialized)
             {
-                FirebaseManager.InitializeDataBase(success =>
-                {
-                    if (success)
-                    {
-                        FirebaseManager.LoadMostRecentConversation(FirebaseCollections.AI_Conversations, convId =>
-                        {
-                            if (!string.IsNullOrEmpty(convId))
-                            {
-                                _conversationId = convId;
-
-                                FirebaseManager.LoadConversationMessages(FirebaseCollections.AI_Conversations, _conversationId, messages =>
-                                {
-                                    if (messages != null && messages.Count > 0)
-                                    {
-                                        foreach (var msg in messages)
-                                        {
-                                            var sender = ModuleRegistry.Get<IAccountManager>().GetAccount(msg.SenderId);
-                                            _messages.Add(new MainMenuMessageData(msg.MessageId, sender, msg.Content, msg.Timestamp.ToDateTime()));
-                                        }
-
-                                        _grid.Refresh();
-                                    }
-                                });
-                            }
-                            else
-                            {
-                                var self = ModuleRegistry.Get<IAccountManager>().Self;
-                                var ai = ModuleRegistry.Get<IAccountManager>().AI;
-                                FirebaseManager.CreateNewConversation(FirebaseCollections.AI_Conversations, new List<string>() { self.UUID, ai.UUID }, convId =>
-                                {
-                                    _conversationId = convId;
-                                });
-                            }
-                        });
-                    }
-                });
+                LoadExistingOrCreateNewConversation();
             }
             else
             {
-                LogHelper.LogError($"FirebaseManager is initializing.");
+                LogHelper.LogError($"Firebase manager is not initialized.");
             }
 
             _config.CanvasGroup.CanvasGroupOn();
+        }
+
+        private void LoadExistingOrCreateNewConversation()
+        {
+            var firebaseManager = ModuleRegistry.Get<IFirebaseManager>();
+
+            firebaseManager.LoadMostRecentConversation(FirebaseCollections.AI_Conversations, convId =>
+            {
+                if (!string.IsNullOrEmpty(convId))
+                {
+                    _conversationId = convId;
+
+                    firebaseManager.LoadConversationMessages(FirebaseCollections.AI_Conversations, _conversationId, messages =>
+                    {
+                        if (messages != null && messages.Count > 0)
+                        {
+                            foreach (var msg in messages)
+                            {
+                                var sender = ModuleRegistry.Get<IAccountManager>().GetAccount(msg.SenderId);
+                                _messages.Add(new MainMenuMessageData(msg.MessageId, sender, msg.Content, msg.Timestamp.DateTime));
+                            }
+
+                            _grid.Refresh();
+                        }
+                    });
+                }
+                else
+                {
+                    var self = ModuleRegistry.Get<IAccountManager>().Self;
+                    var ai = ModuleRegistry.Get<IAccountManager>().AI;
+                    firebaseManager.CreateNewConversation(FirebaseCollections.AI_Conversations, new List<string>() { self.UUID, ai.UUID }, convId =>
+                    {
+                        _conversationId = convId;
+                    });
+                }
+            });
         }
 
         public void Hide()
@@ -158,7 +163,7 @@ namespace YuankunHuang.Unity.HotUpdate
 
             if (!string.IsNullOrEmpty(content))
             {
-                _messages.Add(new MainMenuMessageData($"{++MessageIDTest}", ModuleRegistry.Get<IAccountManager>().Self, content, Timestamp.GetCurrentTimestamp().ToDateTime()));
+                _messages.Add(new MainMenuMessageData($"{++MessageIDTest}", ModuleRegistry.Get<IAccountManager>().Self, content, System.DateTime.UtcNow));
                 _grid.AppendBottom(_messages.Count - 1);
                 _grid.scrollRect.StopMovement();
                 _grid.GoToBottom();
@@ -169,7 +174,7 @@ namespace YuankunHuang.Unity.HotUpdate
                     (reply) =>
                     {
                         var ai = ModuleRegistry.Get<IAccountManager>().AI;
-                        var data = new MainMenuMessageData($"{++MessageIDTest}", ai, reply, Timestamp.GetCurrentTimestamp().ToDateTime());
+                        var data = new MainMenuMessageData($"{++MessageIDTest}", ai, reply, System.DateTime.UtcNow);
 
                         _messages.Add(data);
                         _grid.AppendBottom(_messages.Count - 1);

@@ -7,20 +7,24 @@ namespace YuankunHuang.Unity.LocalizationCore
 {
     public interface ILocalizationManager : IModule
     {
-        // core
-        string GetLocalizedText(string key);
-        string GetLocalizedText(string table, string key);
-        string GetLocalizedTextFormatted(string key, params object[] args);
-        string GetLocalizedTextFormatted(string table, string key, params object[] args);
+        // Callback-based methods for cross-platform compatibility
+        void GetLocalizedText(string key, Action<string> callback);
+        void GetLocalizedText(string table, string key, Action<string> callback);
+        void GetLocalizedTextFormatted(string key, Action<string> callback, params object[] args);
+        void GetLocalizedTextFormatted(string table, string key, Action<string> callback, params object[] args);
 
-        // management
+        // Batch methods for multiple keys
+        void GetLocalizedTexts(string[] keys, Action<Dictionary<string, string>> callback);
+        void GetLocalizedTexts(string table, string[] keys, Action<Dictionary<string, string>> callback);
+
+        // Management
         Task InitializeAsync();
         void SetLanguage(string langCode);
         Task SetLanguageAsync(string langCode);
         string GetLanguageDisplayName(string langCode);
         List<string> GetAvailableLanguages();
 
-        // state + event
+        // State and events
         string CurrentLanguage { get; }
         event Action<string> OnLanguageChanged;
     }

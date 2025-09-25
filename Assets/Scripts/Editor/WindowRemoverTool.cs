@@ -218,6 +218,11 @@ namespace YuankunHuang.Unity.Editor
                 // Update WindowNames.cs
                 RemoveFromWindowNames(ref removedCount, errors);
 
+                EditorUtility.DisplayProgressBar("Removing Window", "Updating WindowControllerFactory...", 0.85f);
+
+                // Update WindowControllerFactory
+                UpdateWindowControllerFactory(ref removedCount, errors);
+
                 EditorUtility.DisplayProgressBar("Removing Window", "Refreshing assets...", 0.9f);
                 
                 AssetDatabase.Refresh();
@@ -391,6 +396,63 @@ namespace YuankunHuang.Unity.Editor
             }
 
             return true;
+        }
+
+        private void UpdateWindowControllerFactory(ref int removedCount, List<string> errors)
+        {
+            try
+            {
+                var factoryPath = "Assets/Scripts/Core/UI/WindowControllerFactory.cs";
+
+                if (!File.Exists(factoryPath))
+                {
+                    LogHelper.LogWarning($"[WindowRemoverTool] WindowControllerFactory.cs not found at {factoryPath}");
+                    return;
+                }
+
+                var content = File.ReadAllText(factoryPath);
+                var newContent = RemoveEntryFromFactoryDictionary(content, windowName);
+
+                if (newContent != content)
+                {
+                    File.WriteAllText(factoryPath, newContent);
+                    removedCount++;
+                    LogHelper.Log($"Successfully removed {windowName} from WindowControllerFactory");
+                }
+                else
+                {
+                    LogHelper.Log($"{windowName} was not found in WindowControllerFactory");
+                }
+            }
+            catch (Exception e)
+            {
+                errors.Add($"WindowControllerFactory update error: {e.Message}");
+                LogHelper.LogError($"Please manually remove '{windowName}' from WindowControllerFactory.cs");
+            }
+        }
+
+        private string RemoveEntryFromFactoryDictionary(string content, string windowName)
+        {
+            var lines = content.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
+            var newLines = new List<string>();
+
+            foreach (var line in lines)
+            {
+                var trimmed = line.Trim();
+
+                // Skip the line that contains our window's factory entry
+                if (trimmed.Contains($"\"{windowName}\"") &&
+                    trimmed.Contains("() => new") &&
+                    trimmed.Contains($"{windowName}Controller()"))
+                {
+                    LogHelper.Log($"Removing factory entry: {line.Trim()}");
+                    continue; // Skip this line
+                }
+
+                newLines.Add(line);
+            }
+
+            return string.Join(System.Environment.NewLine, newLines);
         }
     }
 }

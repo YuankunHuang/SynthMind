@@ -228,6 +228,8 @@ namespace YuankunHuang.Unity.Editor
 
                 AddToWindowNames();
 
+                UpdateWindowControllerFactory();
+
                 AssetDatabase.Refresh();
 
                 EditorUtility.DisplayDialog("Success", $"Window '{windowName}' created successfully!", "OK");
@@ -542,6 +544,103 @@ namespace YuankunHuang.Unity.Editor
                 }
                 
                 newLines.Add(line);
+            }
+
+            return string.Join(System.Environment.NewLine, newLines);
+        }
+
+        private void UpdateWindowControllerFactory()
+        {
+            try
+            {
+                Debug.Log($"[WindowCreatorTool] Starting WindowControllerFactory update for window: {windowName}");
+                var factoryPath = "Assets/Scripts/Core/UI/WindowControllerFactory.cs";
+
+                if (!File.Exists(factoryPath))
+                {
+                    Debug.LogWarning($"[WindowCreatorTool] WindowControllerFactory.cs not found at {factoryPath}");
+                    return;
+                }
+
+                var content = File.ReadAllText(factoryPath);
+                Debug.Log($"[WindowCreatorTool] Read factory file, content length: {content.Length}");
+
+                // Check if the window already exists in factory
+                var entryPattern = $"\"{windowName}\"";
+                if (content.Contains(entryPattern))
+                {
+                    Debug.Log($"[WindowCreatorTool] {windowName} already exists in WindowControllerFactory");
+                    return;
+                }
+
+                // Find the dictionary and add new entry
+                var newEntry = $"                {{ \"{windowName}\", () => new {windowName}Controller() }},";
+                Debug.Log($"[WindowCreatorTool] Preparing to add entry: {newEntry}");
+
+                var newContent = AddEntryToFactoryDictionary(content, newEntry);
+
+                if (newContent != content)
+                {
+                    Debug.Log($"[WindowCreatorTool] Content changed, writing to file...");
+                    File.WriteAllText(factoryPath, newContent);
+                    Debug.Log($"[WindowCreatorTool] Successfully added {windowName} to WindowControllerFactory");
+                }
+                else
+                {
+                    Debug.LogWarning($"[WindowCreatorTool] Content unchanged - entry was not added");
+                }
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"[WindowCreatorTool] Failed to update WindowControllerFactory: {e.Message}");
+                Debug.LogError($"[WindowCreatorTool] Stack trace: {e.StackTrace}");
+                Debug.Log($"Please manually add '{{ \"{windowName}\", () => new {windowName}Controller() }},' to WindowControllerFactory.cs");
+            }
+        }
+
+        private string AddEntryToFactoryDictionary(string content, string newEntry)
+        {
+            var lines = content.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
+            var newLines = new List<string>();
+            bool entryAdded = false;
+            bool inFactoryDictionary = false;
+
+            for (int i = 0; i < lines.Length; i++)
+            {
+                var line = lines[i];
+                var trimmedLine = line.Trim();
+
+                // Detect if we're starting the _controllerFactories dictionary declaration
+                if (!inFactoryDictionary && line.Contains("_controllerFactories"))
+                {
+                    inFactoryDictionary = true;
+                    Debug.Log("[WindowCreatorTool] Found _controllerFactories dictionary start");
+                }
+
+                // Look for the opening brace of the dictionary initialization
+                if (inFactoryDictionary && trimmedLine == "{")
+                {
+                    // We're now inside the dictionary
+                    Debug.Log("[WindowCreatorTool] Inside dictionary initialization");
+                }
+
+                // If we're in the dictionary and found the closing brace with semicolon
+                if (inFactoryDictionary && !entryAdded && trimmedLine == "};")
+                {
+                    // Insert the new entry before the closing brace
+                    newLines.Add(newEntry);
+                    entryAdded = true;
+                    inFactoryDictionary = false; // Reset for potential future dictionaries
+                    Debug.Log($"[WindowCreatorTool] Added entry: {newEntry.Trim()}");
+                }
+
+                newLines.Add(line);
+            }
+
+            if (!entryAdded)
+            {
+                Debug.LogWarning("[WindowCreatorTool] Could not find the right place to add the factory entry");
+                Debug.LogWarning("[WindowCreatorTool] Please check the WindowControllerFactory.cs structure");
             }
 
             return string.Join(System.Environment.NewLine, newLines);

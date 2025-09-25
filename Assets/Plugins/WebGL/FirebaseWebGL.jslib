@@ -1,0 +1,569 @@
+// Firebase WebGL JavaScript Library for Unity
+mergeInto(LibraryManager.library, {
+    InitFirebaseWeb: function() {
+        console.log("[FirebaseWebGL] Checking Firebase availability for WebGL...");
+
+        // Debug: Check what's available in the global scope
+        console.log("[FirebaseWebGL] Global firebase object:", typeof firebase);
+        console.log("[FirebaseWebGL] Window firebase:", typeof window.firebase);
+
+        // List all loaded scripts for debugging
+        var scripts = document.getElementsByTagName('script');
+        var firebaseScripts = [];
+        var allScripts = [];
+        for (var i = 0; i < scripts.length; i++) {
+            allScripts.push(scripts[i].src || 'inline script');
+            if (scripts[i].src && scripts[i].src.includes('firebase')) {
+                firebaseScripts.push({
+                    src: scripts[i].src,
+                    loaded: scripts[i].readyState || 'unknown',
+                    error: scripts[i].onerror ? 'has error handler' : 'no error handler'
+                });
+            }
+        }
+        console.log("[FirebaseWebGL] All scripts:", allScripts);
+        console.log("[FirebaseWebGL] Firebase scripts found:", firebaseScripts);
+
+        // Check for script loading errors
+        if (firebaseScripts.length > 0) {
+            console.log("[FirebaseWebGL] Firebase scripts are present in DOM but firebase object is undefined");
+            console.log("[FirebaseWebGL] This suggests scripts failed to load or execute");
+        }
+
+        // Check if Firebase is available
+        if (typeof firebase === 'undefined') {
+            console.log("[FirebaseWebGL] Firebase SDK not yet loaded - this is normal on first call");
+            return false;
+        }
+
+        // Check if Firebase is properly initialized
+        if (!firebase.apps.length) {
+            console.error("[FirebaseWebGL] Firebase is not initialized. Please configure Firebase in your HTML template.");
+            return false;
+        }
+
+        // Check if Firestore is available
+        if (!firebase.firestore) {
+            console.error("[FirebaseWebGL] Firestore is not available. Please include firebase-firestore-compat.js in your HTML.");
+            return false;
+        }
+
+        // Verify Firebase app is properly configured
+        var app = firebase.app();
+        if (!app.options.projectId || app.options.projectId.includes('your-project')) {
+            console.error("[FirebaseWebGL] Firebase project ID is not properly configured. Please update your Firebase config with real values.");
+            return false;
+        }
+
+        console.log("[FirebaseWebGL] Firebase initialized successfully.");
+        console.log("[FirebaseWebGL] Project ID: " + app.options.projectId);
+        return true;
+    },
+
+    SendMessageWeb: function(conversationGroupPtr, conversationIdPtr, senderIdPtr, contentPtr, callbackPtr) {
+        var conversationGroup = UTF8ToString(conversationGroupPtr);
+        var conversationId = UTF8ToString(conversationIdPtr);
+        var senderId = UTF8ToString(senderIdPtr);
+        var content = UTF8ToString(contentPtr);
+        var callbackId = UTF8ToString(callbackPtr);
+
+        console.log("[FirebaseWebGL] Sending message:", {
+            conversationGroup: conversationGroup,
+            conversationId: conversationId,
+            senderId: senderId,
+            content: content
+        });
+
+        try {
+            if (typeof firebase === 'undefined' || !firebase.firestore) {
+                console.error("[FirebaseWebGL] Firebase Firestore not available");
+                try {
+                    // Call static C# method directly
+                    if (window.unityInstance) {
+                        window.unityInstance.SendMessage('MonoManager', 'OnFirebaseCallback', callbackId + '|false');
+                    } else {
+                        console.warn('[FirebaseWebGL] Unity instance not ready for callback');
+                    }
+                } catch(e) {
+                    console.error('[FirebaseWebGL] Callback failed:', e);
+                }
+                return;
+            }
+
+            var db = firebase.firestore();
+            var messageData = {
+                messageId: generateUUID(),
+                senderId: senderId,
+                content: content,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            db.collection(conversationGroup)
+                .doc(conversationId)
+                .collection('messages')
+                .add(messageData)
+                .then(function(docRef) {
+                    console.log("[FirebaseWebGL] Message sent successfully:", docRef.id);
+
+                    // Update conversation lastUpdated
+                    return db.collection(conversationGroup)
+                        .doc(conversationId)
+                        .update({
+                            lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                })
+                .then(function() {
+                    try {
+                        if (window.unityInstance) {
+                            window.unityInstance.SendMessage('MonoManager', 'OnFirebaseCallback', callbackId + '|true');
+                        } else {
+                            console.warn('[FirebaseWebGL] Unity instance not ready for callback');
+                        }
+                    } catch(e) {
+                        console.error('[FirebaseWebGL] Callback failed:', e);
+                    }
+                })
+                .catch(function(error) {
+                    console.error("[FirebaseWebGL] Error sending message:", error);
+                    try {
+                    // Call static C# method directly
+                    if (window.unityInstance) {
+                        window.unityInstance.SendMessage('MonoManager', 'OnFirebaseCallback', callbackId + '|false');
+                    } else {
+                        console.warn('[FirebaseWebGL] Unity instance not ready for callback');
+                    }
+                } catch(e) {
+                    console.error('[FirebaseWebGL] Callback failed:', e);
+                }
+                });
+
+        } catch (error) {
+            console.error("[FirebaseWebGL] Exception in SendMessageWeb:", error);
+            try {
+                if (window.unityInstance && window.unityInstance.Module) {
+                    window.unityInstance.SendMessage('MonoManager', 'OnFirebaseCallback', callbackId + '|false');
+                } else {
+                    console.warn('[FirebaseWebGL] Unity instance not ready for callback');
+                }
+            } catch(e) {
+                console.error('[FirebaseWebGL] Callback failed:', e);
+            }
+        }
+    },
+
+    LoadRecentMessagesWeb: function(conversationGroupPtr, conversationIdPtr, limit, callbackPtr) {
+        var conversationGroup = UTF8ToString(conversationGroupPtr);
+        var conversationId = UTF8ToString(conversationIdPtr);
+        var callbackId = UTF8ToString(callbackPtr);
+
+        console.log("[FirebaseWebGL] Loading recent messages:", {
+            conversationGroup: conversationGroup,
+            conversationId: conversationId,
+            limit: limit
+        });
+
+        try {
+            if (typeof firebase === 'undefined' || !firebase.firestore) {
+                console.error("[FirebaseWebGL] Firebase Firestore not available");
+                try {
+                    if (window.unityInstance && window.unityInstance.Module) {
+                        window.unityInstance.SendMessage('MonoManager', 'OnFirebaseCallback', callbackId + '|[]');
+                    } else {
+                        console.warn('[FirebaseWebGL] Unity instance not ready for callback');
+                    }
+                } catch(e) {
+                    console.error('[FirebaseWebGL] Callback failed:', e);
+                }
+                return;
+            }
+
+            var db = firebase.firestore();
+
+            db.collection(conversationGroup)
+                .doc(conversationId)
+                .collection('messages')
+                .orderBy('timestamp', 'desc')
+                .limit(limit)
+                .get()
+                .then(function(querySnapshot) {
+                    var messages = [];
+                    querySnapshot.forEach(function(doc) {
+                        var data = doc.data();
+                        messages.push({
+                            messageId: data.messageId || '',
+                            senderId: data.senderId || '',
+                            content: data.content || '',
+                            timestamp: data.timestamp ? data.timestamp.toDate().toISOString() : new Date().toISOString()
+                        });
+                    });
+
+                    var messagesJson = JSON.stringify(messages);
+                    console.log("[FirebaseWebGL] Messages loaded:", messages.length);
+                    try {
+                        // Call static C# method directly
+                        if (window.unityInstance) {
+                            window.unityInstance.SendMessage('MonoManager', 'OnFirebaseCallback', callbackId + '|' + messagesJson);
+                        } else {
+                            console.warn('[FirebaseWebGL] Unity instance not ready for callback');
+                        }
+                    } catch(e) {
+                        console.error('[FirebaseWebGL] Callback failed:', e);
+                    }
+                })
+                .catch(function(error) {
+                    console.error("[FirebaseWebGL] Error loading messages:", error);
+                    try {
+                        // Call static C# method directly
+                        if (window.unityInstance && window.unityInstance.Module) {
+                            window.unityInstance.SendMessage('MonoManager', 'OnFirebaseCallback', callbackId + '|[]');
+                        } else {
+                            console.warn('[FirebaseWebGL] Unity instance not ready for callback');
+                        }
+                    } catch(e) {
+                        console.error('[FirebaseWebGL] Callback failed:', e);
+                    }
+                });
+
+        } catch (error) {
+            console.error("[FirebaseWebGL] Exception in LoadRecentMessagesWeb:", error);
+            try {
+                if (window.unityInstance && window.unityInstance.Module) {
+                    window.unityInstance.SendMessage('MonoManager', 'OnFirebaseCallback', callbackId + '|[]');
+                } else {
+                    console.warn('[FirebaseWebGL] Unity instance not ready for callback');
+                }
+            } catch(e) {
+                console.error('[FirebaseWebGL] Callback failed:', e);
+            }
+        }
+    },
+
+    CreateNewConversationWeb: function(conversationGroupPtr, participantIdsPtr, callbackPtr) {
+        var conversationGroup = UTF8ToString(conversationGroupPtr);
+        var participantIds = UTF8ToString(participantIdsPtr).split(',');
+        var callbackId = UTF8ToString(callbackPtr);
+
+        console.log("[FirebaseWebGL] Creating new conversation:", {
+            conversationGroup: conversationGroup,
+            participantIds: participantIds
+        });
+
+        try {
+            if (typeof firebase === 'undefined' || !firebase.firestore) {
+                console.error("[FirebaseWebGL] Firebase Firestore not available");
+                try {
+                    if (window.unityInstance && window.unityInstance.Module) {
+                        window.unityInstance.SendMessage('MonoManager', 'OnFirebaseCallback', callbackId + '|null');
+                    } else {
+                        console.warn('[FirebaseWebGL] Unity instance not ready for callback');
+                    }
+                } catch(e) {
+                    console.error('[FirebaseWebGL] Callback failed:', e);
+                }
+                return;
+            }
+
+            var db = firebase.firestore();
+            var conversationData = {
+                participants: participantIds,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            db.collection(conversationGroup)
+                .add(conversationData)
+                .then(function(docRef) {
+                    console.log("[FirebaseWebGL] Conversation created:", docRef.id);
+                    try {
+                        // Call static C# method directly
+                        if (window.unityInstance && window.unityInstance.Module) {
+                            window.unityInstance.SendMessage('MonoManager', 'OnFirebaseCallback', callbackId + '|' + docRef.id);
+                        } else {
+                            console.warn('[FirebaseWebGL] Unity instance not ready for callback');
+                        }
+                    } catch(e) {
+                        console.error('[FirebaseWebGL] Callback failed:', e);
+                    }
+                })
+                .catch(function(error) {
+                    console.error("[FirebaseWebGL] Error creating conversation:", error);
+                    try {
+                        // Call static C# method directly
+                        if (window.unityInstance && window.unityInstance.Module) {
+                            window.unityInstance.SendMessage('MonoManager', 'OnFirebaseCallback', callbackId + '|null');
+                        } else {
+                            console.warn('[FirebaseWebGL] Unity instance not ready for callback');
+                        }
+                    } catch(e) {
+                        console.error('[FirebaseWebGL] Callback failed:', e);
+                    }
+                });
+
+        } catch (error) {
+            console.error("[FirebaseWebGL] Exception in CreateNewConversationWeb:", error);
+            try {
+                if (window.unityInstance && window.unityInstance.Module) {
+                    window.unityInstance.SendMessage('MonoManager', 'OnFirebaseCallback', callbackId + '|null');
+                } else {
+                    console.warn('[FirebaseWebGL] Unity instance not ready for callback');
+                }
+            } catch(e) {
+                console.error('[FirebaseWebGL] Callback failed:', e);
+            }
+        }
+    },
+
+    DeleteConversationWeb: function(conversationGroupPtr, conversationIdPtr, callbackPtr) {
+        var conversationGroup = UTF8ToString(conversationGroupPtr);
+        var conversationId = UTF8ToString(conversationIdPtr);
+        var callbackId = UTF8ToString(callbackPtr);
+
+        console.log("[FirebaseWebGL] Deleting conversation:", {
+            conversationGroup: conversationGroup,
+            conversationId: conversationId
+        });
+
+        try {
+            if (typeof firebase === 'undefined' || !firebase.firestore) {
+                console.error("[FirebaseWebGL] Firebase Firestore not available");
+                try {
+                    // Call static C# method directly
+                    if (window.unityInstance) {
+                        window.unityInstance.SendMessage('MonoManager', 'OnFirebaseCallback', callbackId + '|false');
+                    } else {
+                        console.warn('[FirebaseWebGL] Unity instance not ready for callback');
+                    }
+                } catch(e) {
+                    console.error('[FirebaseWebGL] Callback failed:', e);
+                }
+                return;
+            }
+
+            var db = firebase.firestore();
+
+            // First delete all messages in the conversation
+            db.collection(conversationGroup)
+                .doc(conversationId)
+                .collection('messages')
+                .get()
+                .then(function(querySnapshot) {
+                    var batch = db.batch();
+                    querySnapshot.forEach(function(doc) {
+                        batch.delete(doc.ref);
+                    });
+                    return batch.commit();
+                })
+                .then(function() {
+                    // Then delete the conversation document itself
+                    return db.collection(conversationGroup).doc(conversationId).delete();
+                })
+                .then(function() {
+                    console.log("[FirebaseWebGL] Conversation deleted successfully");
+                    try {
+                        if (window.unityInstance) {
+                            window.unityInstance.SendMessage('MonoManager', 'OnFirebaseCallback', callbackId + '|true');
+                        } else {
+                            console.warn('[FirebaseWebGL] Unity instance not ready for callback');
+                        }
+                    } catch(e) {
+                        console.error('[FirebaseWebGL] Callback failed:', e);
+                    }
+                })
+                .catch(function(error) {
+                    console.error("[FirebaseWebGL] Error deleting conversation:", error);
+                    try {
+                    // Call static C# method directly
+                    if (window.unityInstance) {
+                        window.unityInstance.SendMessage('MonoManager', 'OnFirebaseCallback', callbackId + '|false');
+                    } else {
+                        console.warn('[FirebaseWebGL] Unity instance not ready for callback');
+                    }
+                } catch(e) {
+                    console.error('[FirebaseWebGL] Callback failed:', e);
+                }
+                });
+
+        } catch (error) {
+            console.error("[FirebaseWebGL] Exception in DeleteConversationWeb:", error);
+            try {
+                if (window.unityInstance && window.unityInstance.Module) {
+                    window.unityInstance.SendMessage('MonoManager', 'OnFirebaseCallback', callbackId + '|false');
+                } else {
+                    console.warn('[FirebaseWebGL] Unity instance not ready for callback');
+                }
+            } catch(e) {
+                console.error('[FirebaseWebGL] Callback failed:', e);
+            }
+        }
+    },
+
+    LoadMostRecentConversationWeb: function(conversationGroupPtr, callbackPtr) {
+        var conversationGroup = UTF8ToString(conversationGroupPtr);
+        var callbackId = UTF8ToString(callbackPtr);
+
+        console.log("[FirebaseWebGL] Loading most recent conversation:", {
+            conversationGroup: conversationGroup
+        });
+
+        try {
+            if (typeof firebase === 'undefined' || !firebase.firestore) {
+                console.error("[FirebaseWebGL] Firebase Firestore not available");
+                try {
+                    if (window.unityInstance && window.unityInstance.Module) {
+                        window.unityInstance.SendMessage('MonoManager', 'OnFirebaseCallback', callbackId + '|null');
+                    } else {
+                        console.warn('[FirebaseWebGL] Unity instance not ready for callback');
+                    }
+                } catch(e) {
+                    console.error('[FirebaseWebGL] Callback failed:', e);
+                }
+                return;
+            }
+
+            var db = firebase.firestore();
+
+            db.collection(conversationGroup)
+                .orderBy('lastUpdated', 'desc')
+                .limit(1)
+                .get()
+                .then(function(querySnapshot) {
+                    if (querySnapshot.empty) {
+                        console.log("[FirebaseWebGL] No recent conversation found");
+                        try {
+                        // Call static C# method directly
+                        if (window.unityInstance && window.unityInstance.Module) {
+                            window.unityInstance.SendMessage('MonoManager', 'OnFirebaseCallback', callbackId + '|null');
+                        } else {
+                            console.warn('[FirebaseWebGL] Unity instance not ready for callback');
+                        }
+                    } catch(e) {
+                        console.error('[FirebaseWebGL] Callback failed:', e);
+                    }
+                        return;
+                    }
+
+                    var doc = querySnapshot.docs[0];
+                    console.log("[FirebaseWebGL] Most recent conversation found:", doc.id);
+                    try {
+                        // Call static C# method directly
+                        if (window.unityInstance && window.unityInstance.Module) {
+                            window.unityInstance.SendMessage('MonoManager', 'OnFirebaseCallback', callbackId + '|' + doc.id);
+                        } else {
+                            console.warn('[FirebaseWebGL] Unity instance not ready for callback');
+                        }
+                    } catch(e) {
+                        console.error('[FirebaseWebGL] Callback failed:', e);
+                    }
+                })
+                .catch(function(error) {
+                    console.error("[FirebaseWebGL] Error loading most recent conversation:", error);
+                    try {
+                        // Call static C# method directly
+                        if (window.unityInstance && window.unityInstance.Module) {
+                            window.unityInstance.SendMessage('MonoManager', 'OnFirebaseCallback', callbackId + '|null');
+                        } else {
+                            console.warn('[FirebaseWebGL] Unity instance not ready for callback');
+                        }
+                    } catch(e) {
+                        console.error('[FirebaseWebGL] Callback failed:', e);
+                    }
+                });
+
+        } catch (error) {
+            console.error("[FirebaseWebGL] Exception in LoadMostRecentConversationWeb:", error);
+            try {
+                if (window.unityInstance && window.unityInstance.Module) {
+                    window.unityInstance.SendMessage('MonoManager', 'OnFirebaseCallback', callbackId + '|null');
+                } else {
+                    console.warn('[FirebaseWebGL] Unity instance not ready for callback');
+                }
+            } catch(e) {
+                console.error('[FirebaseWebGL] Callback failed:', e);
+            }
+        }
+    },
+
+    CheckIsConversationEmptyWeb: function(conversationGroupPtr, conversationIdPtr, callbackPtr) {
+        var conversationGroup = UTF8ToString(conversationGroupPtr);
+        var conversationId = UTF8ToString(conversationIdPtr);
+        var callbackId = UTF8ToString(callbackPtr);
+
+        console.log("[FirebaseWebGL] Checking if conversation is empty:", {
+            conversationGroup: conversationGroup,
+            conversationId: conversationId
+        });
+
+        try {
+            if (typeof firebase === 'undefined' || !firebase.firestore) {
+                console.error("[FirebaseWebGL] Firebase Firestore not available");
+                try {
+                    // Call static C# method directly
+                    if (window.unityInstance) {
+                        window.unityInstance.SendMessage('MonoManager', 'OnFirebaseCallback', callbackId + '|false');
+                    } else {
+                        console.warn('[FirebaseWebGL] Unity instance not ready for callback');
+                    }
+                } catch(e) {
+                    console.error('[FirebaseWebGL] Callback failed:', e);
+                }
+                return;
+            }
+
+            var db = firebase.firestore();
+
+            db.collection(conversationGroup)
+                .doc(conversationId)
+                .collection('messages')
+                .limit(1)
+                .get()
+                .then(function(querySnapshot) {
+                    var isEmpty = querySnapshot.empty;
+                    console.log("[FirebaseWebGL] Conversation empty check result:", isEmpty);
+                    try {
+                        // Call static C# method directly
+                        if (window.unityInstance && window.unityInstance.Module) {
+                            window.unityInstance.SendMessage('MonoManager', 'OnFirebaseCallback', callbackId + '|' + (isEmpty ? 'true' : 'false'));
+                        } else {
+                            console.warn('[FirebaseWebGL] Unity instance not ready for callback');
+                        }
+                    } catch(e) {
+                        console.error('[FirebaseWebGL] Callback failed:', e);
+                    }
+                })
+                .catch(function(error) {
+                    console.error("[FirebaseWebGL] Error checking if conversation is empty:", error);
+                    try {
+                    // Call static C# method directly
+                    if (window.unityInstance) {
+                        window.unityInstance.SendMessage('MonoManager', 'OnFirebaseCallback', callbackId + '|false');
+                    } else {
+                        console.warn('[FirebaseWebGL] Unity instance not ready for callback');
+                    }
+                } catch(e) {
+                    console.error('[FirebaseWebGL] Callback failed:', e);
+                }
+                });
+
+        } catch (error) {
+            console.error("[FirebaseWebGL] Exception in CheckIsConversationEmptyWeb:", error);
+            try {
+                if (window.unityInstance && window.unityInstance.Module) {
+                    window.unityInstance.SendMessage('MonoManager', 'OnFirebaseCallback', callbackId + '|false');
+                } else {
+                    console.warn('[FirebaseWebGL] Unity instance not ready for callback');
+                }
+            } catch(e) {
+                console.error('[FirebaseWebGL] Callback failed:', e);
+            }
+        }
+    }
+});
+
+// Utility function to generate UUID
+function generateUUID() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = Math.random() * 16 | 0,
+            v = c == 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+    });
+}

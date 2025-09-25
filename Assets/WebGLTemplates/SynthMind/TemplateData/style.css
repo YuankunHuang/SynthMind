@@ -1,0 +1,104 @@
+body { padding: 0; margin: 0; width: 100%; height: 100%; overflow: hidden; }
+html { width: 100%; height: 100%; }
+
+/* Responsive container for iframe compatibility */
+#unity-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Desktop style - responsive design */
+#unity-container.unity-desktop {
+  width: 100%;
+  height: 100%;
+}
+
+/* Mobile style */
+#unity-container.unity-mobile {
+  width: 100%;
+  height: 100%;
+}
+
+/* Canvas responsive styling - JS will handle precise sizing */
+#unity-canvas {
+  background: #231F20;
+  display: block;
+  /* Don't set width/height here - let JS handle it for precise aspect ratio control */
+}
+
+/* Mobile canvas */
+.unity-mobile #unity-canvas {
+  width: 100%;
+  height: 100%;
+}
+/* Loading bar - positioned over canvas */
+#unity-loading-bar {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: none;
+  z-index: 1000;
+}
+
+#unity-logo {
+  width: 154px;
+  height: 130px;
+  background: url('unity-logo-dark.png') no-repeat center;
+}
+
+#unity-progress-bar-empty {
+  width: 141px;
+  height: 18px;
+  margin-top: 10px;
+  background: url('progress-bar-empty-dark.png') no-repeat center;
+}
+
+#unity-progress-bar-full {
+  width: 0%;
+  height: 18px;
+  margin-top: 10px;
+  background: url('progress-bar-full-dark.png') no-repeat center;
+}
+
+/* Footer - Hide Unity's built-in UI for standardized experience */
+#unity-footer {
+  display: none !important; /* Hide footer completely */
+}
+
+.unity-mobile #unity-footer {
+  display: none !important;
+}
+
+/* Hide individual footer elements */
+#unity-webgl-logo {
+  display: none !important;
+}
+
+#unity-build-title {
+  display: none !important;
+}
+
+#unity-fullscreen-button {
+  display: none !important;
+}
+
+/* Warning messages */
+#unity-warning {
+  position: absolute;
+  left: 50%;
+  top: 5%;
+  transform: translate(-50%, 0);
+  background: white;
+  border: 2px solid red;
+  padding: 5px;
+  display: none;
+  z-index: 1001;
+  max-width: 90%;
+  text-align: center;
+}

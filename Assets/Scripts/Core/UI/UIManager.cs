@@ -56,19 +56,27 @@ namespace YuankunHuang.Unity.UICore
         {
             using (new InputBlock())
             {
-                // Load attributes first to check if blur is needed
-                var attributes = await _loader.LoadAttributeDataAsync(windowName).WithLogging();
+                try
+                {
+                    // Load attributes first to check if blur is needed
+                    var attributes = await _loader.LoadAttributeDataAsync(windowName).WithLogging();
 
-                // Capture screen using Coroutine for proper frame timing
-                var blurTexture = await CaptureBlurIfNeededAsync(attributes).WithLogging();
+                    // Capture screen using Coroutine for proper frame timing
+                    var blurTexture = await CaptureBlurIfNeededAsync(attributes).WithLogging();
 
-                // Load window using async
-                var window = await _loader.LoadAsync(windowName).WithLogging();
-                
-                HandleCurrentWindow(window.Attributes);
-                window.Init(blurTexture);
-                window.Show(data, WindowShowState.New);
-                _stack.Push(window);
+                    // Load window using async
+                    var window = await _loader.LoadAsync(windowName).WithLogging();
+
+                    HandleCurrentWindow(window.Attributes);
+                    window.Init(blurTexture);
+                    window.Show(data, WindowShowState.New);
+                    _stack.Push(window);
+                }
+                catch (System.Exception ex)
+                {
+                    LogHelper.LogError($"[UIManager] ShowAsync failed for {windowName}: {ex.Message}");
+                    LogHelper.LogError($"[UIManager] Stack trace: {ex.StackTrace}");
+                }
             }
         }
         
@@ -126,14 +134,22 @@ namespace YuankunHuang.Unity.UICore
         {
             using (new InputBlock())
             {
-                var window = _stack.Pop();
-                await HideWithAnimationAsync(window).WithLogging();
-                window.Dispose();
-                
-                if (_stack.Count > 0)
+                try
                 {
-                    var top = _stack.Peek();
-                    top.Show(top.Data, WindowShowState.Uncovered);
+                    var window = _stack.Pop();
+                    await HideWithAnimationAsync(window);
+                    window.Dispose();
+
+                    if (_stack.Count > 0)
+                    {
+                        var top = _stack.Peek();
+                        top.Show(top.Data, WindowShowState.Uncovered);
+                    }
+                }
+                catch (System.Exception ex)
+                {
+                    LogHelper.LogError($"[UIManager] GoBackAsync failed: {ex.Message}");
+                    LogHelper.LogError($"[UIManager] Stack trace: {ex.StackTrace}");
                 }
             }
         }
@@ -175,12 +191,27 @@ namespace YuankunHuang.Unity.UICore
         {
             var duration = window.Attributes.usePopupAnimation ? window.Attributes.animationSettings.exitDuration : 0;
             window.Hide(WindowHideState.Removed, duration);
-            
+
             if (duration > 0)
             {
+#if UNITY_WEBGL && !UNITY_EDITOR
+                // Use coroutine-based delay for WebGL compatibility
+                var tcs = new TaskCompletionSource<bool>();
+                MonoManager.Instance.StartCoroutine(DelayCoroutine(duration, tcs));
+                await tcs.Task;
+#else
                 await Task.Delay((int)(duration * 1000));
+#endif
             }
         }
+
+#if UNITY_WEBGL && !UNITY_EDITOR
+        private IEnumerator DelayCoroutine(float duration, TaskCompletionSource<bool> tcs)
+        {
+            yield return new WaitForSeconds(duration);
+            tcs.TrySetResult(true);
+        }
+#endif
     }
     
     public class InputBlock : IDisposable

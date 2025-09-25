@@ -21,7 +21,6 @@ namespace YuankunHuang.Unity.GameDataConfig
         {
             string binaryPath = System.IO.Path.Combine(UnityEngine.Application.streamingAssetsPath, "ConfigData", "Avatar.data");
             Initialize(binaryPath);
-            PostInitialize();
         }
 
         /// <summary>

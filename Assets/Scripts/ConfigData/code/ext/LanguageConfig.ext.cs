@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 
 namespace YuankunHuang.Unity.GameDataConfig
 {
@@ -16,14 +17,35 @@ namespace YuankunHuang.Unity.GameDataConfig
 
         static partial void PostInitialize()
         {
-            _langCodeDict = new Dictionary<string, LanguageData>();
+            Debug.Log("[LanguageConfig] PostInitialize ENTER");
 
-            foreach (var data in GetAll())
+            try
             {
-                if (data != null)
+                _langCodeDict = new Dictionary<string, LanguageData>();
+                Debug.Log("[LanguageConfig] Created _langCodeDict");
+
+                var allData = GetAll();
+                Debug.Log($"[LanguageConfig] GetAll() returned {allData?.Count() ?? 0} items");
+
+                foreach (var data in allData)
                 {
-                    _langCodeDict[data.LangCode] = data;
+                    if (data != null)
+                    {
+                        Debug.Log($"[LanguageConfig] Adding language: {data.LangCode}");
+                        _langCodeDict[data.LangCode] = data;
+                    }
+                    else
+                    {
+                        Debug.LogWarning("[LanguageConfig] Found null data item");
+                    }
                 }
+
+                Debug.Log($"[LanguageConfig] PostInitialize COMPLETE - Added {_langCodeDict.Count} languages");
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"[LanguageConfig] PostInitialize FAILED: {e.Message}");
+                Debug.LogException(e);
             }
         }
 

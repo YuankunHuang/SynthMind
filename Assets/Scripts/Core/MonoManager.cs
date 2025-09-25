@@ -65,5 +65,17 @@ namespace YuankunHuang.Unity.Core
         {
             OnFixedTick?.Invoke();
         }
+
+        // Firebase WebGL callback handler
+        public void OnFirebaseCallback(string callbackData)
+        {
+#if UNITY_WEBGL && !UNITY_EDITOR
+            var parts = callbackData.Split('|', 2);
+            if (parts.Length == 2)
+            {
+                YuankunHuang.Unity.FirebaseCore.WebGLFirebaseManager.OnJSCallback(parts[0], parts[1]);
+            }
+#endif
+        }
     }
 }

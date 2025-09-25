@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+    <!-- Firebase SDK - Dynamic Loading -->
+    <script>
+      // Firebase configuration - Real configuration for SynthMind project
+      const firebaseConfig = {
+        apiKey: "AIzaSyAr0k5z3nRxw6_Gn-yeYBlafm76cdQAPME",
+        authDomain: "synthmind-yuankunhuang.firebaseapp.com",
+        projectId: "synthmind-yuankunhuang",
+        storageBucket: "synthmind-yuankunhuang.firebasestorage.app",
+        messagingSenderId: "976701209071",
+        appId: "1:976701209071:web:d4309fbcf343275864de1a",
+        measurementId: "G-JQVCFKPFYE"
+      };
+
+      // Dynamically load Firebase scripts
+      function loadFirebaseScript(src) {
+        return new Promise((resolve, reject) => {
+          const script = document.createElement('script');
+          script.src = src;
+          script.onload = () => {
+            console.log('[Firebase] Loaded:', src);
+            resolve();
+          };
+          script.onerror = () => {
+            console.error('[Firebase] Failed to load:', src);
+            reject();
+          };
+          document.head.appendChild(script);
+        });
+      }
+
+      // Initialize Firebase after scripts are loaded
+      function initializeFirebase() {
+        try {
+          if (typeof firebase === 'undefined') {
+            console.error("[Firebase] Firebase is not loaded yet!");
+            return false;
+          }
+
+          // Initialize Firebase
+          firebase.initializeApp(firebaseConfig);
+
+          // Initialize Analytics (optional)
+          if (firebaseConfig.measurementId) {
+            try {
+              firebase.analytics();
+              console.log("[Firebase] Analytics initialized successfully");
+            } catch (analyticsError) {
+              console.warn("[Firebase] Analytics initialization failed:", analyticsError.message);
+            }
+          }
+
+          console.log("[Firebase] ✅ Firebase initialized successfully for WebGL");
+          console.log("[Firebase] Project ID:", firebaseConfig.projectId);
+          window.firebaseInitialized = true;
+          return true;
+        } catch (error) {
+          console.error("[Firebase] Firebase initialization failed:", error);
+          window.firebaseInitialized = false;
+          return false;
+        }
+      }
+
+      // Load Firebase scripts in sequence
+      async function loadFirebase() {
+        try {
+          await loadFirebaseScript('https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js');
+          await loadFirebaseScript('https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js');
+          await loadFirebaseScript('https://www.gstatic.com/firebasejs/9.22.0/firebase-analytics-compat.js');
+
+          console.log('[Firebase] All scripts loaded successfully');
+          window.firebaseScriptsReady = true;
+
+          // Initialize Firebase after scripts are loaded
+          initializeFirebase();
+        } catch (error) {
+          console.error('[Firebase] Script loading failed:', error);
+          window.firebaseScriptsReady = false;
+          window.firebaseLoadError = error;
+        }
+      }
+
+      // Start loading Firebase immediately
+      loadFirebase();
+    </script>
+
+    <title>SynthMind</title>
+    <link rel="shortcut icon" href="TemplateData/favicon.ico">
+    <link rel="stylesheet" href="TemplateData/style.css">
+  </head>
+  <body>
+    <div id="unity-container" class="unity-desktop">
+      <canvas id="unity-canvas" width=960 height=600></canvas>
+      <div id="unity-loading-bar">
+        <div id="unity-logo"></div>
+        <div id="unity-progress-bar-empty">
+          <div id="unity-progress-bar-full"></div>
+        </div>
+      </div>
+      <div id="unity-warning"> </div>
+      <!-- Unity footer removed for standardized UI experience -->
+    </div>
+
+    <!-- Firebase Configuration -->
+    <script>
+
+      // Debug function to check Firebase availability
+      window.checkFirebaseStatus = function() {
+        console.log("=== Firebase Status ===");
+        console.log("typeof firebase:", typeof firebase);
+        console.log("firebaseScriptsReady:", window.firebaseScriptsReady);
+        console.log("firebaseInitialized:", window.firebaseInitialized);
+        if (typeof firebase !== 'undefined') {
+          console.log("Firebase apps:", firebase.apps.length);
+          console.log("Firebase firestore available:", typeof firebase.firestore);
+        }
+        console.log("========================");
+        return typeof firebase !== 'undefined';
+      };
+
+      // Call this function after some delay to see if Firebase loads eventually
+      setTimeout(function() {
+        console.log("[Firebase Debug] Status after 5 seconds:");
+        window.checkFirebaseStatus();
+      }, 5000);
+
+      // Version check - THIS IS THE LATEST VERSION!
+      console.log("[VERSION CHECK] Template version: 2025-09-23-FIREBASE-DYNAMIC - DYNAMIC FIREBASE LOADING");
+
+      // UUID generation function for Firebase WebGL integration
+      function generateUUID() {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+          var r = Math.random() * 16 | 0,
+              v = c == 'x' ? r : (r & 0x3 | 0x8);
+          return v.toString(16);
+        });
+      }
+
+      // Make generateUUID globally available for Unity WebGL
+      window.generateUUID = generateUUID;
+
+      // Immediate check to see if Firebase scripts are in DOM
+      setTimeout(function() {
+        var scripts = document.getElementsByTagName('script');
+        var firebaseScripts = [];
+        for (var i = 0; i < scripts.length; i++) {
+          if (scripts[i].src && scripts[i].src.includes('firebase')) {
+            firebaseScripts.push(scripts[i].src);
+          }
+        }
+        console.log("[Firebase Debug] Immediate script check found:", firebaseScripts.length, "Firebase scripts");
+        console.log("[Firebase Debug] Firebase script URLs:", firebaseScripts);
+      }, 1000);
+    </script>
+
+    <script>
+      var container = document.querySelector("#unity-container");
+      var canvas = document.querySelector("#unity-canvas");
+      var loadingBar = document.querySelector("#unity-loading-bar");
+      var progressBarFull = document.querySelector("#unity-progress-bar-full");
+      var warningBanner = document.querySelector("#unity-warning");
+      // Note: Unity fullscreen button removed - using React's standardized fullscreen
+
+      // Shows a temporary message banner/ribbon for a few seconds, or
+      // a permanent error message on top of the canvas if type=="error".
+      // If type=="warning", a yellow highlight color is used.
+      // Modify or remove this function to customize the visually presented
+      // way that non-critical warnings and error messages are presented to the
+      // user.
+      function unityShowBanner(msg, type) {
+        function updateBannerVisibility() {
+          warningBanner.style.display = warningBanner.children.length ? 'block' : 'none';
+        }
+        var div = document.createElement('div');
+        div.innerHTML = msg;
+        warningBanner.appendChild(div);
+        if (type == 'error') div.style = 'background: red; padding: 10px;';
+        else {
+          if (type == 'warning') div.style = 'background: yellow; padding: 10px;';
+          setTimeout(function() {
+            warningBanner.removeChild(div);
+            updateBannerVisibility();
+          }, 5000);
+        }
+        updateBannerVisibility();
+      }
+
+      var buildUrl = "Build";
+      var loaderUrl = buildUrl + "/{{{ LOADER_FILENAME }}}";
+      var config = {
+        dataUrl: buildUrl + "/{{{ DATA_FILENAME }}}",
+        frameworkUrl: buildUrl + "/{{{ FRAMEWORK_FILENAME }}}",
+        codeUrl: buildUrl + "/{{{ CODE_FILENAME }}}",
+#if MEMORY_FILENAME
+        memoryUrl: buildUrl + "/{{{ MEMORY_FILENAME }}}",
+#endif
+#if SYMBOLS_FILENAME
+        symbolsUrl: buildUrl + "/{{{ SYMBOLS_FILENAME }}}",
+#endif
+        streamingAssetsUrl: "StreamingAssets",
+        companyName: "{{{ COMPANY_NAME }}}",
+        productName: "{{{ PRODUCT_NAME }}}",
+        productVersion: "{{{ PRODUCT_VERSION }}}",
+        showBanner: unityShowBanner,
+      };
+
+      // Disable Unity's automatic canvas size management for iframe compatibility
+      // This prevents Unity from overriding our CSS-based responsive sizing
+      config.matchWebGLToCanvasSize = false;
+
+      // Detect if running in iframe and adjust accordingly
+      const isInIframe = window.self !== window.top;
+      console.log('[WebGL] Running in iframe:', isInIframe);
+
+      if (isInIframe) {
+        // When in iframe, make sure we fill the iframe's space
+        document.body.style.margin = '0';
+        document.body.style.padding = '0';
+        document.body.style.width = '100%';
+        document.body.style.height = '100%';
+        container.style.width = '100%';
+        container.style.height = '100%';
+        container.style.minHeight = 'unset';
+      }
+
+      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+        // Mobile device style: fill the whole browser client area with the game canvas:
+
+        var meta = document.createElement('meta');
+        meta.name = 'viewport';
+        meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
+        document.getElementsByTagName('head')[0].appendChild(meta);
+        container.className = "unity-mobile";
+
+        // To lower canvas resolution on mobile devices to gain performance,
+        // uncomment the following line:
+        // config.devicePixelRatio = 1;
+
+        canvas.style.width = "100%";
+        canvas.style.height = "100%";
+
+        unityShowBanner('WebGL builds are not supported on mobile devices.');
+      } else {
+        // Desktop style: Fill container (works with both iframe and direct access)
+        container.className = "unity-desktop";
+        canvas.style.width = "100%";
+        canvas.style.height = "100%";
+
+        console.log('[WebGL] Set responsive canvas size: 100%');
+
+        // Handle fullscreen changes to refresh Unity rendering
+        function handleFullscreenChange() {
+          setTimeout(() => {
+            console.log('[WebGL] Fullscreen change detected');
+
+            if (window.unityInstance && canvas) {
+              console.log('[WebGL] Refreshing Unity render context after fullscreen change');
+
+              // Focus canvas to activate Unity's rendering context
+              canvas.focus();
+
+              // Trigger resize to notify Unity of container size change
+              window.dispatchEvent(new Event('resize'));
+
+              // Force a click to fully activate Unity's WebGL context
+              const clickEvent = new MouseEvent('click', {
+                view: window,
+                bubbles: true,
+                cancelable: true
+              });
+              canvas.dispatchEvent(clickEvent);
+
+              console.log('[WebGL] Unity render context refreshed');
+            }
+          }, 150);
+        }
+
+        // Listen for fullscreen changes
+        document.addEventListener('fullscreenchange', handleFullscreenChange);
+        document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+        document.addEventListener('mozfullscreenchange', handleFullscreenChange);
+      }
+
+      loadingBar.style.display = "block";
+
+      var script = document.createElement("script");
+      script.src = loaderUrl;
+      script.onload = () => {
+        createUnityInstance(canvas, config, (progress) => {
+          progressBarFull.style.width = 100 * progress + "%";
+              }).then((unityInstance) => {
+          // Store the Unity instance globally for Firebase callbacks
+          window.unityInstance = unityInstance;
+          loadingBar.style.display = "none";
+
+          // Ensure Unity rendering is active after loading
+          setTimeout(() => {
+            console.log('[WebGL] Activating Unity rendering after load');
+            console.log('[WebGL] matchWebGLToCanvasSize disabled - Unity will not control canvas size');
+
+            canvas.focus();
+            window.dispatchEvent(new Event('resize'));
+          }, 500);
+
+          // Unity's internal fullscreen button removed - React handles fullscreen
+        }).catch((message) => {
+          alert(message);
+        });
+      };
+
+      document.body.appendChild(script);
+    </script>
+  </body>
+</html>

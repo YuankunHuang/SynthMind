@@ -31,7 +31,6 @@ namespace YuankunHuang.Unity.GameDataConfig
         {
             string binaryPath = System.IO.Path.Combine(UnityEngine.Application.streamingAssetsPath, "ConfigData", "Sample.data");
             Initialize(binaryPath);
-            PostInitialize();
         }
 
         /// <summary>

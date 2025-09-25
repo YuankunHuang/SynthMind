@@ -55,9 +55,17 @@ namespace YuankunHuang.Unity.UICore
 
         private WindowControllerBase CreateController(string windowName)
         {
+            LogHelper.Log($"[WindowLoader] Creating controller for {windowName}");
+
+#if UNITY_WEBGL && !UNITY_EDITOR
+            // Use factory for WebGL to avoid reflection issues
+            return WindowControllerFactory.CreateController(windowName);
+#else
+            // Use reflection for other platforms (Windows, etc.)
             var type = TypeUtil.GetType($"{Namespaces.HotUpdate}.{windowName}Controller");
-            return (WindowControllerBase)Activator.CreateInstance(type 
+            return (WindowControllerBase)Activator.CreateInstance(type
                 ?? throw new Exception($"Controller not found: {windowName}Controller"));
+#endif
         }
     }
 }
