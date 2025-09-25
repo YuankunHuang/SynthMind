@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using UnityEditor;
@@ -321,6 +322,15 @@ namespace YuankunHuang.Unity.Editor.BuildPipeline
             if (settings == null)
             {
                 LogHelper.LogWarning("Addressables not configured, but continuing build...");
+            }
+
+            // Check WebGL template resources if building for WebGL
+            if (_selectedTarget == BuildTarget.WebGL)
+            {
+                if (!ValidateWebGLTemplateResources())
+                {
+                    return false;
+                }
             }
 
             return true;
@@ -746,6 +756,154 @@ namespace YuankunHuang.Unity.Editor.BuildPipeline
             }
             
             return version + ".1";
+        }
+
+        private bool ValidateWebGLTemplateResources()
+        {
+            // Get the currently selected WebGL template
+            var currentTemplate = PlayerSettings.WebGL.template;
+            if (string.IsNullOrEmpty(currentTemplate) || currentTemplate == "PROJECT:Default")
+            {
+                LogHelper.Log("Using Unity's default WebGL template, no validation needed.");
+                return true;
+            }
+
+            // Extract template name from "PROJECT:TemplateName" format
+            var templateName = currentTemplate.Replace("PROJECT:", "");
+            var customTemplatePath = Path.Combine(Application.dataPath, "WebGLTemplates", templateName);
+
+            if (!Directory.Exists(customTemplatePath))
+            {
+                LogHelper.LogWarning($"Custom WebGL template '{templateName}' not found at: {customTemplatePath}");
+                return true; // Let Unity handle the error
+            }
+
+            var templateDataPath = Path.Combine(customTemplatePath, "TemplateData");
+            if (!Directory.Exists(templateDataPath))
+            {
+                LogHelper.LogError($"TemplateData directory not found in custom WebGL template: {templateDataPath}");
+                return false;
+            }
+
+            // Define required template resources (excluding style.css as it should be custom)
+            var requiredImageResources = new string[]
+            {
+                "unity-logo-dark.png",
+                "progress-bar-empty-dark.png",
+                "progress-bar-full-dark.png",
+                "webgl-logo.png",
+                "fullscreen-button.png"
+            };
+
+            var missingResources = new List<string>();
+
+            // Check for missing resources
+            foreach (var resource in requiredImageResources)
+            {
+                var resourcePath = Path.Combine(templateDataPath, resource);
+                if (!File.Exists(resourcePath))
+                {
+                    missingResources.Add(resource);
+                }
+            }
+
+            // Auto-prepare missing resources without asking
+            if (missingResources.Count > 0)
+            {
+                LogHelper.Log($"Preparing missing WebGL template resources: {string.Join(", ", missingResources)}");
+
+                if (AutoFixWebGLTemplateResources(templateDataPath, missingResources))
+                {
+                    LogHelper.Log("✓ WebGL template resources prepared successfully");
+                }
+                else
+                {
+                    LogHelper.LogWarning("⚠ Some WebGL template resources could not be prepared, but continuing build...");
+                }
+            }
+            else
+            {
+                LogHelper.Log("✓ WebGL template resources validation passed");
+            }
+
+            return true; // Always continue with build
+        }
+
+        private bool AutoFixWebGLTemplateResources(string templateDataPath, List<string> missingResources)
+        {
+            try
+            {
+                // Try multiple possible Unity installation paths
+                string defaultTemplatePath = null;
+                var possiblePaths = new string[]
+                {
+                    // Unity Hub installation path
+                    Path.Combine(Path.GetDirectoryName(EditorApplication.applicationPath),
+                        "Data", "PlaybackEngines", "WebGLSupport", "BuildTools", "WebGLTemplates", "Default", "TemplateData"),
+
+                    // Alternative Unity installation structure
+                    Path.Combine(Directory.GetParent(Directory.GetParent(EditorApplication.applicationPath).FullName).FullName,
+                        "Data", "PlaybackEngines", "WebGLSupport", "BuildTools", "WebGLTemplates", "Default", "TemplateData"),
+                };
+
+                foreach (var path in possiblePaths)
+                {
+                    if (Directory.Exists(path))
+                    {
+                        defaultTemplatePath = path;
+                        LogHelper.Log($"Found Unity default template at: {defaultTemplatePath}");
+                        break;
+                    }
+                }
+
+                if (string.IsNullOrEmpty(defaultTemplatePath))
+                {
+                    LogHelper.LogWarning("Unity default WebGL template not found. Tried paths:");
+                    foreach (var path in possiblePaths)
+                    {
+                        LogHelper.LogWarning($"  - {path}");
+                    }
+                    return false;
+                }
+
+                int copiedResources = 0;
+
+                foreach (var resource in missingResources)
+                {
+                    var sourcePath = Path.Combine(defaultTemplatePath, resource);
+                    var destPath = Path.Combine(templateDataPath, resource);
+
+                    if (File.Exists(sourcePath))
+                    {
+                        File.Copy(sourcePath, destPath, true);
+                        LogHelper.Log($"Prepared {resource}");
+                        copiedResources++;
+                    }
+                    else
+                    {
+                        LogHelper.LogWarning($"Could not find {resource} in Unity's default template");
+                    }
+                }
+
+                if (copiedResources > 0)
+                {
+                    LogHelper.Log($"Successfully prepared {copiedResources}/{missingResources.Count} WebGL template resources");
+
+                    // Refresh AssetDatabase to show new files in Unity
+                    AssetDatabase.Refresh();
+                    return true;
+                }
+                else
+                {
+                    LogHelper.LogWarning("Could not prepare any missing resources from Unity's default template");
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogHelper.LogWarning($"Failed to prepare WebGL template resources: {ex.Message}");
+                return false;
+            }
         }
     }
 }

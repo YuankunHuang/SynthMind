@@ -7,7 +7,6 @@ using YuankunHuang.Unity.AccountCore;
 using YuankunHuang.Unity.LocalizationCore;
 using YuankunHuang.Unity.AudioCore;
 
-
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -325,8 +324,8 @@ namespace YuankunHuang.Unity.HotUpdate
 
         private void OnLoginSuccess()
         {
-            ModuleRegistry.Get<ILocalizationManager>().GetLocalizedText("login_success", (text) => {
-                _noticeTxt.text = text ?? "Login successful!";
+            ModuleRegistry.Get<ILocalizationManager>().GetLocalizedText(LocalizationKeys.MainMenuNoticeSuccess, (text) => {
+                _noticeTxt.text = text;
             });
 
             // Delay navigation to show success message
@@ -335,8 +334,8 @@ namespace YuankunHuang.Unity.HotUpdate
 
         private void OnLoginError(string errorMessage)
         {
-            ModuleRegistry.Get<ILocalizationManager>().GetLocalizedText("login_failed", (text) => {
-                _noticeTxt.text = $"{text ?? "Login failed"}: {errorMessage}";
+            ModuleRegistry.Get<ILocalizationManager>().GetLocalizedText(LocalizationKeys.MainMenuNoticeFailed, (text) => {
+                _noticeTxt.text = text;
             });
         }
 
