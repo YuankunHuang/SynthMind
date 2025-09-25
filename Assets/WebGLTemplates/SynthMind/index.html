@@ -60,11 +60,7 @@
         </div>
       </div>
       <div id="unity-warning"> </div>
-      <div id="unity-footer">
-        <div id="unity-webgl-logo"></div>
-        <div id="unity-fullscreen-button"></div>
-        <div id="unity-build-title">SynthMind</div>
-      </div>
+      <!-- Unity footer removed for standardized UI experience -->
     </div>
 
     <!-- Firebase Configuration -->
@@ -154,8 +150,8 @@
       var canvas = document.querySelector("#unity-canvas");
       var loadingBar = document.querySelector("#unity-loading-bar");
       var progressBarFull = document.querySelector("#unity-progress-bar-full");
-      var fullscreenButton = document.querySelector("#unity-fullscreen-button");
       var warningBanner = document.querySelector("#unity-warning");
+      // Note: Unity fullscreen button removed - using React's standardized fullscreen
 
       // Shows a temporary message banner/ribbon for a few seconds, or
       // a permanent error message on top of the canvas if type=="error".
@@ -200,12 +196,24 @@
         showBanner: unityShowBanner,
       };
 
-      // By default Unity keeps WebGL canvas render target size matched with
-      // the DOM size of the canvas element (scaled by window.devicePixelRatio)
-      // Set this to false if you want to decouple this synchronization from
-      // happening inside the engine, and you would instead like to size up
-      // the canvas DOM size and WebGL render target sizes yourself.
-      // config.matchWebGLToCanvasSize = false;
+      // Disable Unity's automatic canvas size management for iframe compatibility
+      // This prevents Unity from overriding our CSS-based responsive sizing
+      config.matchWebGLToCanvasSize = false;
+
+      // Detect if running in iframe and adjust accordingly
+      const isInIframe = window.self !== window.top;
+      console.log('[WebGL] Running in iframe:', isInIframe);
+
+      if (isInIframe) {
+        // When in iframe, make sure we fill the iframe's space
+        document.body.style.margin = '0';
+        document.body.style.padding = '0';
+        document.body.style.width = '100%';
+        document.body.style.height = '100%';
+        container.style.width = '100%';
+        container.style.height = '100%';
+        container.style.minHeight = 'unset';
+      }
 
       if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
         // Mobile device style: fill the whole browser client area with the game canvas:
@@ -220,15 +228,49 @@
         // uncomment the following line:
         // config.devicePixelRatio = 1;
 
-        canvas.style.width = window.innerWidth + 'px';
-        canvas.style.height = window.innerHeight + 'px';
+        canvas.style.width = "100%";
+        canvas.style.height = "100%";
 
         unityShowBanner('WebGL builds are not supported on mobile devices.');
       } else {
-        // Desktop style: Render the game canvas in a window that can be maximized to fullscreen:
+        // Desktop style: Fill container (works with both iframe and direct access)
+        container.className = "unity-desktop";
+        canvas.style.width = "100%";
+        canvas.style.height = "100%";
 
-        canvas.style.width = "960px";
-        canvas.style.height = "600px";
+        console.log('[WebGL] Set responsive canvas size: 100%');
+
+        // Handle fullscreen changes to refresh Unity rendering
+        function handleFullscreenChange() {
+          setTimeout(() => {
+            console.log('[WebGL] Fullscreen change detected');
+
+            if (window.unityInstance && canvas) {
+              console.log('[WebGL] Refreshing Unity render context after fullscreen change');
+
+              // Focus canvas to activate Unity's rendering context
+              canvas.focus();
+
+              // Trigger resize to notify Unity of container size change
+              window.dispatchEvent(new Event('resize'));
+
+              // Force a click to fully activate Unity's WebGL context
+              const clickEvent = new MouseEvent('click', {
+                view: window,
+                bubbles: true,
+                cancelable: true
+              });
+              canvas.dispatchEvent(clickEvent);
+
+              console.log('[WebGL] Unity render context refreshed');
+            }
+          }, 150);
+        }
+
+        // Listen for fullscreen changes
+        document.addEventListener('fullscreenchange', handleFullscreenChange);
+        document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+        document.addEventListener('mozfullscreenchange', handleFullscreenChange);
       }
 
       loadingBar.style.display = "block";
@@ -242,9 +284,17 @@
           // Store the Unity instance globally for Firebase callbacks
           window.unityInstance = unityInstance;
           loadingBar.style.display = "none";
-          fullscreenButton.onclick = () => {
-            unityInstance.SetFullscreen(1);
-          };
+
+          // Ensure Unity rendering is active after loading
+          setTimeout(() => {
+            console.log('[WebGL] Activating Unity rendering after load');
+            console.log('[WebGL] matchWebGLToCanvasSize disabled - Unity will not control canvas size');
+
+            canvas.focus();
+            window.dispatchEvent(new Event('resize'));
+          }, 500);
+
+          // Unity's internal fullscreen button removed - React handles fullscreen
         }).catch((message) => {
           alert(message);
         });

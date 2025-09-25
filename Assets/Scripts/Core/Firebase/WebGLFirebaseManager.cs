@@ -340,13 +340,8 @@ namespace YuankunHuang.Unity.FirebaseCore
             _callbacks.Remove(callbackId);
         }
 
-        // JavaScript callback handling
-        public static void WebGLFirebaseManager_OnJSCallback(string callbackId, string result)
-        {
-            OnJSCallback(callbackId, result);
-        }
 
-        // This method will be called from JavaScript
+        // This method will be called from JavaScript via MonoManager.OnFirebaseCallback
         public static void OnJSCallback(string callbackId, string result)
         {
             if (_callbacks.TryGetValue(callbackId, out var callback))
