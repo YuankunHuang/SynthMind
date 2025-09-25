@@ -99,7 +99,7 @@ namespace YuankunHuang.Unity.HotUpdate
             }
 
             var self = ModuleRegistry.Get<IAccountManager>().Self;
-            CommPlayerAvatarController.Show(_avatarConfig, new CommPlayerAvatarData(self.Avatar, self.Nickname, () =>
+            CommPlayerAvatarController.Show(_avatarConfig, new CommPlayerAvatarData(self.Avatar, self.DisplayName, () =>
             {
                 ModuleRegistry.Get<IUIManager>().Show(WindowNames.ProfileWindow);
             }));

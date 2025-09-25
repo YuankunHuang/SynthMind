@@ -46,6 +46,17 @@ namespace YuankunHuang.Unity.FirebaseCore
             }
         }
 
+        #region Authentication
+        public void RegisterWithEmail(string email, string password, string displayName, Action<IFirebaseUser> onSuccess, Action<string> onError) { }
+        public void SignInWithEmail(string email, string password, Action<IFirebaseUser> onSuccess, Action<string> onError) { }
+        public void SignOut(Action onComplete) { }
+        public void GetCurrentUser(Action<IFirebaseUser> onComplete) { }
+        public void UpdateUserProfile(string displayName, string photoUrl, Action<bool> onComplete) { }
+        public void SendEmailVerification(Action<bool> onComplete) { }
+        public void SendPasswordResetEmail(string email, Action<bool> onComplete) { }
+        #endregion
+
+        #region Conversation Management
         public void CleanUpEmptyConversations(string conversationGroup, string uuid, Action<int> onComplete)
         {
             if (!IsInitialized)
@@ -132,6 +143,13 @@ namespace YuankunHuang.Unity.FirebaseCore
 
             FirebaseManager.LoadConversationMessages(conversationGroup, conversationId, onComplete);
         }
+        #endregion
+
+        #region User Data Management
+        public void SaveUserData(string userId, Dictionary<string, object> userData, Action<bool> onComplete) { }
+        public void LoadUserData(string userId, Action<Dictionary<string, object>> onComplete) { }
+        public void UpdateUserData(string userId, Dictionary<string, object> updates, Action<bool> onComplete) { }
+        #endregion
 
         public void Dispose()
         {
